@@ -71,7 +71,7 @@ export default {
     enroll() {
       this.$http
         .post(
-          "http://www.yunyingxiaowu.com:8088/foodie-api/gamepassport/login",
+          "gamepassport/login",
           this.formlogin
         ).then((res) => {
           if (res.data.msg != "OK") {
@@ -96,7 +96,7 @@ export default {
 
       this.$http
         .post(
-          "http://www.yunyingxiaowu.com:8088/foodie-api/gamepassport/regist",
+          "gamepassport/regist",
           this.formRegister
         ).then((res) => {
           if (res.data.msg != "ok") {

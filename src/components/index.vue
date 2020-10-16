@@ -196,7 +196,7 @@
               </p>
               <p>
                 暴击率:
-                <span>{{ user.criticalHitValue*100 || 0 }}%</span>
+                <span>{{ user.criticalHitValue * 100 || 0 }}%</span>
               </p>
               <p>
                 暴击伤害:
@@ -259,10 +259,10 @@
                   <p v-if="item.life">生命值 {{ item.life }}</p>
                   <p v-if="item.attack">攻击力 {{ item.attack }}</p>
                   <p v-if="item.defence">防御力 {{ item.defence }}</p>
-                  <p v-if="item.critical">暴击率 {{ item.critical }}%</p>
+                  <p v-if="item.critical">暴击率 {{ item.critical * 100 }}%</p>
                   <p v-if="item.speed">行动速度 {{ item.speed }}</p>
                   <p v-if="item.physique">体格 {{ item.physique }}</p>
-                  <p v-if="item.dropProb">灵巧 {{ item.dropProb }}</p>
+                  <p v-if="item.dexterous">灵巧 {{ item.dexterous }}</p>
                   <p v-if="item.spirit">精神 {{ item.spirit }}</p>
                 </div>
               </Poptip>
@@ -279,7 +279,7 @@
           <div>
             <div v-for="(item, key, index) in equipmentList" :key="index">
               <span>{{ key }}:</span>
-              <Poptip trigger="hover" :title="item.equitName" v-if="item">
+              <Poptip trigger="hover" :title="item.equitName" :style="{ color: item.color }" v-if="item">
                 <p
                   style="white-space: nowrap; height: 24px"
                   :style="{ color: item.color }"
@@ -292,10 +292,10 @@
                   <p v-if="item.life">生命值 {{ item.life }}</p>
                   <p v-if="item.attack">攻击力 {{ item.attack }}</p>
                   <p v-if="item.defence">防御力 {{ item.defence }}</p>
-                  <p v-if="item.critical">暴击率 {{ item.critical }}%</p>
+                  <p v-if="item.critical">暴击率 {{ item.critical * 100 }}%</p>
                   <p v-if="item.speed">行动速度 {{ item.speed }}</p>
                   <p v-if="item.physique">体格 {{ item.physique }}</p>
-                  <p v-if="item.dropProb">灵巧 {{ item.dropProb }}</p>
+                  <p v-if="item.dexterous">灵巧 {{ item.dexterous }}</p>
                   <p v-if="item.spirit">精神 {{ item.spirit }}</p>
                 </div>
               </Poptip>
@@ -324,6 +324,7 @@
                     </p>
                     <div slot="content">
                       <p>技能效果: {{ item.skillDesc }}</p>
+                      <p>技能耗蓝: {{ item.conMana }}</p>
                       <p>升级所需金币 {{ item.consumeCoin }}</p>
                     </div>
                   </Poptip>
@@ -343,6 +344,7 @@
                     </p>
                     <div slot="content">
                       <p>技能效果: {{ item.skillDesc }}</p>
+                      <p>技能耗蓝: {{ item.conMana }}</p>
                       <p>升级所需金币 {{ item.consumeCoin }}</p>
                     </div>
                   </Poptip>
@@ -374,6 +376,7 @@
                 <div slot="content">
                   <!-- <p>{{ item.skillName }}</p> -->
                   <p>技能效果: {{ item.skillDesc }}</p>
+                  <p>技能耗蓝: {{ item.conMana }}</p>
                   <p>升级所需金币 {{ item.consumeCoin }}</p>
                 </div>
               </Poptip>
@@ -440,7 +443,7 @@ export default {
     // 获取地图列表
     this.$http
       .get(
-        "http://www.yunyingxiaowu.com:8088/foodie-api/gameChara/queryMapList"
+        "gameChara/queryMapList"
       )
       .then(res => {
         this.mapList = res.data.data;
@@ -468,7 +471,7 @@ export default {
     getAliiEquip() {
       this.$http
         .post(
-          "http://www.yunyingxiaowu.com:8088/foodie-api/gameCharaEquip/getCharaEquip?charaId=" +
+          "gameCharaEquip/getCharaEquip?charaId=" +
             this.getCookie("charaId")
         )
         .then(res => {
@@ -483,7 +486,7 @@ export default {
     getAllUser() {
       this.$http
         .get(
-          "http://www.yunyingxiaowu.com:8088/foodie-api/gamepassport/getGameCharacter?charaId=" +
+          "gamepassport/getGameCharacter?charaId=" +
             this.getCookie("charaId")
         )
         .then(res => {
@@ -499,7 +502,7 @@ export default {
     getAllSkill() {
       this.$http
         .post(
-          "http://www.yunyingxiaowu.com:8088/foodie-api/gameCharaSkill/getCharaSkill/?charaId=" +
+          "gameCharaSkill/getCharaSkill/?charaId=" +
             this.getCookie("charaId")
         )
         .then(res => {
@@ -514,7 +517,7 @@ export default {
     getEquipmentSkill() {
       this.$http
         .post(
-          "http://www.yunyingxiaowu.com:8088/foodie-api/gameCharaSkill/getCharaUseSkill/?charaId=" +
+          "gameCharaSkill/getCharaUseSkill/?charaId=" +
             this.getCookie("charaId") +
             "&skillType=" +
             1
@@ -529,7 +532,7 @@ export default {
 
       this.$http
         .post(
-          "http://www.yunyingxiaowu.com:8088/foodie-api/gameCharaSkill/getCharaUseSkill/?charaId=" +
+          "gameCharaSkill/getCharaUseSkill/?charaId=" +
             this.getCookie("charaId") +
             "&skillType=" +
             2
@@ -547,7 +550,7 @@ export default {
     skillEquip (item) {
       this.$http
         .post(
-          "http://www.yunyingxiaowu.com:8088/foodie-api/gameCharaSkill/makeSkill/?charaId=" +
+          "gameCharaSkill/makeSkill/?charaId=" +
             this.getCookie("charaId") +
             "&skillId=" +
             item.skillId+
@@ -569,7 +572,7 @@ export default {
     TakeSkill(item) {
       this.$http
         .post(
-          "http://www.yunyingxiaowu.com:8088/foodie-api/gameCharaSkill/makeDownSkill/?charaId=" +
+          "gameCharaSkill/makeDownSkill/?charaId=" +
             this.getCookie("charaId") +
             "&skillId=" +
             item.skillId+
@@ -591,7 +594,7 @@ export default {
     getAllPackage() {
       this.$http
         .post(
-          "http://www.yunyingxiaowu.com:8088/foodie-api/gameChara/getCharaPackage?charaId=" +
+          "gameChara/getCharaPackage?charaId=" +
             this.getCookie("charaId")
         )
         .then(res => {
@@ -612,7 +615,7 @@ export default {
     deteSetName() {
       this.$http
         .post(
-          "http://www.yunyingxiaowu.com:8088/foodie-api/gamepassport/updataGameName?charaId=" +
+          "gamepassport/updataGameName?charaId=" +
             this.getCookie("charaId") +
             "&name=" +
             this.userName
@@ -654,7 +657,7 @@ export default {
 
       this.$http
         .post(
-          "http://www.yunyingxiaowu.com:8088/foodie-api/gameChara/checkMapGenMon?charaId=" +
+          "gameChara/checkMapGenMon?charaId=" +
             this.getCookie("charaId") +
             "&mapId=" +
             this.mapid
@@ -724,6 +727,7 @@ export default {
         })
         .catch(err => {
           this.$Message.warning("战斗开始失败,请联系管理员");
+          this.deteSetMap(mapid);
         });
     },
 
@@ -732,7 +736,7 @@ export default {
       this.user.charaId = this.getCookie("charaId");
       this.$http
         .post(
-          "http://www.yunyingxiaowu.com:8088/foodie-api/gameChara/updateAttrPoint",
+          "gameChara/updateAttrPoint",
           this.user
         )
         .then(res => {
@@ -774,7 +778,7 @@ export default {
       });
       this.$http
         .post(
-          "http://www.yunyingxiaowu.com:8088/foodie-api/gameCharaEquip/oneClickSale?charaId=" +
+          "gameCharaEquip/oneClickSale?charaId=" +
             this.getCookie("charaId") +
             "&packItemIds=" +
             arrKnapsac
@@ -784,7 +788,7 @@ export default {
           this.getAllPackage();
         })
         .catch(err => {
-          this.$Message.warning("出售物品失败,请联系管理员");
+          this.$Message.warning("出售全部物品失败,请联系管理员");
         });
     },
 
@@ -792,7 +796,7 @@ export default {
     sellSingle(item) {
       this.$http
         .post(
-          "http://www.yunyingxiaowu.com:8088/foodie-api/gameCharaEquip/oneClickSale?charaId=" +
+          "gameCharaEquip/oneClickSale?charaId=" +
             this.getCookie("charaId") +
             "&packItemIds=" +
             item.packItemId
@@ -802,7 +806,7 @@ export default {
           this.getAllPackage();
         })
         .catch(err => {
-          this.$Message.warning("出售物品失败,请联系管理员");
+          this.$Message.warning("出售单件物品失败,请联系管理员");
         });
     },
 
@@ -810,7 +814,7 @@ export default {
     equipment(item) {
       this.$http
         .post(
-          "http://www.yunyingxiaowu.com:8088/foodie-api/gameCharaEquip/useEquitBypackage?charaId=" +
+          "gameCharaEquip/useEquitBypackage?charaId=" +
             this.getCookie("charaId") +
             "&packItemId=" +
             item.packItemId

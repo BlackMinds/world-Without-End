@@ -35,10 +35,11 @@ Vue.prototype.getCookie = function(c_name) {
     return ""
 };
 
+
 Vue.prototype.$http = axios
 Vue.config.productionTip = false
 
-// axios.defaults.baseURL = "/api"
+axios.defaults.baseURL = "http://www.yunyingxiaowu.com:8088/foodie-api/"
 /* eslint-disable no-new */
 new Vue({
     el: '#app',
