@@ -1,6 +1,7 @@
 <template>
-  <div id="app2">
+  <div id="app2" :style="{background:(this.electronicEquipment == false ? '#666' : '')}">
     <vue-canvas-nest
+      v-if="this.electronicEquipment == true"
       :config="{ color: '255,255,255', count: 100 }"
     ></vue-canvas-nest>
     <headers></headers>
@@ -87,7 +88,7 @@
               <h6 v-if="monsterList.length <= 0">暂无记录</h6>
               <p v-for="(item, index) in recording" :key="index">
                 <span v-if="item.type == 'combat'">
-                  <span style="color: #5b00ff">{{ item.attacker }}</span>
+                  <span :style="{color: (item.identity == 0 ? 'orange' : '#5b00ff')}">{{ item.attacker }}</span>
                   攻击了<span style="color: red">{{ item.hinjured }}</span>
                   <span v-if="item.isSkill != 1">造成了<span :style="{color: '#5b00ff',fontSize:(item.isCritical == 0 ? '14px' : '20px')}">{{ item.hurt }}</span></span>
                   <span v-else>用{{ item.skillName }}造成了<span :style="{color: 'rgb(110 0 255)'}">{{ item.hurt }}</span></span>
@@ -258,7 +259,7 @@
                   <p>装备等级 {{ item.level }}</p>
                   <p v-if="item.life">生命值 {{ item.life }}</p>
                   <p v-if="item.attack">攻击力 {{ item.attack }}</p>
-                  <p v-if="item.defence">防御力 {{ item.defence }}</p>
+                  <p v-if="item.defense">防御力 {{ item.defense }}</p>
                   <p v-if="item.critical">暴击率 {{ item.critical * 100 }}%</p>
                   <p v-if="item.speed">行动速度 {{ item.speed }}</p>
                   <p v-if="item.physique">体格 {{ item.physique }}</p>
@@ -291,7 +292,7 @@
                   <p v-if="item.level">装备等级 {{ item.level }}</p>
                   <p v-if="item.life">生命值 {{ item.life }}</p>
                   <p v-if="item.attack">攻击力 {{ item.attack }}</p>
-                  <p v-if="item.defence">防御力 {{ item.defence }}</p>
+                  <p v-if="item.defense">防御力 {{ item.defense }}</p>
                   <p v-if="item.critical">暴击率 {{ item.critical * 100 }}%</p>
                   <p v-if="item.speed">行动速度 {{ item.speed }}</p>
                   <p v-if="item.physique">体格 {{ item.physique }}</p>
@@ -326,6 +327,7 @@
                       <p>技能效果: {{ item.skillDesc }}</p>
                       <p>技能耗蓝: {{ item.conMana }}</p>
                       <p>升级所需金币 {{ item.consumeCoin }}</p>
+                      <p>下一等级技能效果: {{ item.skillNextDesc }}</p>
                     </div>
                   </Poptip>
                 </div>
@@ -346,6 +348,7 @@
                       <p>技能效果: {{ item.skillDesc }}</p>
                       <p>技能耗蓝: {{ item.conMana }}</p>
                       <p>升级所需金币 {{ item.consumeCoin }}</p>
+                      <p>下一等级技能效果: {{ item.skillNextDesc }}</p>
                     </div>
                   </Poptip>
                 </div>
@@ -369,7 +372,7 @@
                     type="info"
                     >装备</Button
                   >
-                  <Button @click.prevent="strengthen" size="small" type="info"
+                  <Button @click.prevent="upgrade(item)" size="small" type="info"
                     >升级</Button
                   >
                 </p>
@@ -378,6 +381,7 @@
                   <p>技能效果: {{ item.skillDesc }}</p>
                   <p>技能耗蓝: {{ item.conMana }}</p>
                   <p>升级所需金币 {{ item.consumeCoin }}</p>
+                  <p>下一等级技能效果: {{ item.skillNextDesc }}</p>
                 </div>
               </Poptip>
             </div>
@@ -416,7 +420,8 @@ export default {
       activeList: [], // 穿戴的主动技能列表
       passiveList: [], // 穿戴的被动技能列表
       skillList: [], // 全部技能
-      equipmentList: {} //装备列表
+      equipmentList: {}, //装备列表
+      electronicEquipment: false, // 电子设备
     };
   },
   components: { vueCanvasNest,headers },
@@ -431,6 +436,13 @@ export default {
       this.$Message.warning("请重新登录");
       this.$router.push({ name: "Login" });
       return;
+    }
+
+    // 判断是手机端还是pc端
+    if (this._isMobile()) {
+      this.electronicEquipment = false
+    } else {
+      this.electronicEquipment = true
     }
 
     // 如果没有角色id就退出登录
@@ -456,6 +468,12 @@ export default {
     this.getEquipmentSkill() // 获取已装备的技能列表
   },
   methods: {
+    // 判断是手机端还是pc端
+    _isMobile() {
+      let flag = navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i)
+      return flag;
+    },
+
     // 返回数据处理的装备列表
     getEquipMap(player) {
       const equips = {};
@@ -568,6 +586,26 @@ export default {
         });
     },
 
+    // 技能升级
+    upgrade (item) {
+      this.$http
+        .post(
+          "/gameCharaSkill/upgradeSkill?charaId=" +
+            this.getCookie("charaId") +
+            "&skillId=" +
+            item.skillId
+        )
+        .then(res => {
+          this.$Message.warning(res.data.data);
+          this.getAllUser();
+          this.getAllSkill();
+          this.getEquipmentSkill()
+        })
+        .catch(err => {
+          this.$Message.warning("技能升级失败,请联系管理员");
+        });
+    },
+
     // 脱下技能
     TakeSkill(item) {
       this.$http
@@ -580,13 +618,13 @@ export default {
             item.skillType
         )
         .then(res => {
-          this.$Message.warning("装备脱下成功");
+          this.$Message.warning("技能脱下成功");
           this.getAllUser();
           this.getAllSkill();
           this.getEquipmentSkill()
         })
         .catch(err => {
-          this.$Message.warning("装备脱下失败,请联系管理员");
+          this.$Message.warning("技能脱下失败,请联系管理员");
         });
     },
 
@@ -720,7 +758,7 @@ export default {
                 this.battleTimer = setTimeout(() => {
                   this.battleState = false;
                   this.deteSetMap(mapid);
-                }, 3000);
+                }, 5000);
               }
             }, idx * 1000);
           });
@@ -829,10 +867,25 @@ export default {
           this.$Message.warning("装备失败,请联系管理员");
         });
     }
-  }
+  },
+
+  
 };
 </script>
 <style>
+html {
+  height: 100%;
+}
+body {
+  height: 100%;
+}
+#app {
+  height: 100%;
+}
+#app2 {
+  height: 100%;
+  overflow: auto;
+}
 .vue-canvas-nest-element {
   opacity: 0.9 !important;
 }
