@@ -1,5 +1,8 @@
 <template>
-  <div id="app2" :style="{background:(this.electronicEquipment == false ? '#666' : '')}">
+  <div
+    id="app2"
+    :style="{ background: this.electronicEquipment == false ? '#666' : '' }"
+  >
     <vue-canvas-nest
       v-if="this.electronicEquipment == true"
       :config="{ color: '255,255,255', count: 100 }"
@@ -30,10 +33,21 @@
             </div>
             <div class="goldCoin">
               <p>当前经验: {{ user.exp }} / {{ user.upgradeExp }}</p>
-              <p>当前铜钱: {{ user.money }}</p>
               <!-- 铜钱买普通物品 -->
-              <p>当前金币: {{ user.coin }}</p>
+              <p>
+                当前铜钱: {{ user.money }}
+                <!-- 一键兑换金币 -->
+                <Button
+                  slot="extra"
+                  changeMap
+                  @click.prevent="exchangeCoin"
+                  size="small"
+                  type="info"
+                  >兑换金币</Button
+                >
+              </p>
               <!-- 金币升技能和买高级物品 -->
+              <p>当前金币: {{ user.coin }}</p>
             </div>
           </div>
         </Card>
@@ -53,13 +67,26 @@
           <p slot="title">
             {{ mapNameF }}
           </p>
+
+          <!-- changeMap -->
           <Button
             slot="extra"
-            @click.prevent="changeMap"
+            changeMap
+            @click.prevent="deteSetMap"
             size="small"
             type="info"
-            >切换地图</Button
+            >确定</Button
           >
+          <Select v-model="mapName" filterable>
+            <!-- ({{ item.minLv }}) -->
+            <Option
+              v-for="item in mapList"
+              :value="item.mapName"
+              :name="item.mapId"
+              :key="item.mapId"
+              >{{ item.mapName }}{{ item.minLv }}-{{ item.maxLv }}</Option
+            >
+          </Select>
           <div>
             <div
               class="monster"
@@ -88,10 +115,28 @@
               <h6 v-if="monsterList.length <= 0">暂无记录</h6>
               <p v-for="(item, index) in recording" :key="index">
                 <span v-if="item.type == 'combat'">
-                  <span :style="{color: (item.identity == 0 ? 'orange' : '#5b00ff')}">{{ item.attacker }}</span>
+                  <span
+                    :style="{
+                      color: item.identity == 0 ? 'orange' : '#5b00ff',
+                    }"
+                    >{{ item.attacker }}</span
+                  >
                   攻击了<span style="color: red">{{ item.hinjured }}</span>
-                  <span v-if="item.isSkill != 1">造成了<span :style="{color: '#5b00ff',fontSize:(item.isCritical == 0 ? '14px' : '20px')}">{{ item.hurt }}</span></span>
-                  <span v-else>用{{ item.skillName }}造成了<span :style="{color: 'rgb(110 0 255)'}">{{ item.hurt }}</span></span>
+                  <span v-if="item.isSkill != 1"
+                    >造成了<span
+                      :style="{
+                        color: '#5b00ff',
+                        fontSize: item.isCritical == 0 ? '14px' : '20px',
+                      }"
+                      >{{ item.hurt }}</span
+                    ></span
+                  >
+                  <span v-else
+                    >用{{ item.skillName }}造成了<span
+                      :style="{ color: 'rgb(110 0 255)' }"
+                      >{{ item.hurt }}</span
+                    ></span
+                  >
                   剩余<span style="color: red">{{ item.surplusHealth }}</span
                   >血量
                 </span>
@@ -219,9 +264,11 @@
         <Card>
           <p slot="title">背包</p>
           <div slot="extra">
-            <span>背包容量{{ knapsackList.length }} / 50</span>
+            <span
+              >背包容量{{ knapsackList.length }} / {{ user.packageNum }}</span
+            >
             <Button @click.prevent="sellAll" size="small" type="info"
-              >出售全部</Button
+              >出售全部装备</Button
             >
           </div>
           <div>
@@ -237,18 +284,34 @@
                   :style="{ color: item.color }"
                 >
                   {{ item.itemName }}
+                  <span class="jjt_smail" v-if="item.itemType == 3">{{
+                    item.itemNum
+                  }}</span>
+                  <Button
+                    @click.prevent="useItems(item)"
+                    size="small"
+                    v-if="item.itemType == 3"
+                    type="info"
+                    >使用</Button
+                  >
                   <Button
                     @click.prevent="equipment(item)"
                     size="small"
+                    v-if="item.itemType != 3"
                     type="info"
                     >装备</Button
                   >
-                  <Button @click.prevent="strengthen" size="small" type="info"
+                  <Button
+                    @click.prevent="strengthen"
+                    size="small"
+                    type="info"
+                    v-if="item.itemType != 3"
                     >强化</Button
                   >
                   <Button
                     @click.prevent="sellSingle(item)"
                     size="small"
+                    v-if="item.itemType != 3"
                     type="info"
                     >出售</Button
                   >
@@ -257,7 +320,10 @@
                   <p>{{ item.itemName }}</p>
                   <p>装备类型 {{ item.typeDec }}</p>
                   <p>装备等级 {{ item.level }}</p>
+                  <p v-if="item.itemNum">物品数量： {{ item.itemNum }}</p>
+                  <p v-if="item.decs">描述： {{ item.decs }}</p>
                   <p v-if="item.life">生命值 {{ item.life }}</p>
+                  <p v-if="item.mana">法力值 {{ item.mana }}</p>
                   <p v-if="item.attack">攻击力 {{ item.attack }}</p>
                   <p v-if="item.defense">防御力 {{ item.defense }}</p>
                   <p v-if="item.critical">暴击率 {{ item.critical * 100 }}%</p>
@@ -280,7 +346,12 @@
           <div>
             <div v-for="(item, key, index) in equipmentList" :key="index">
               <span>{{ key }}:</span>
-              <Poptip trigger="hover" :title="item.equitName" :style="{ color: item.color }" v-if="item">
+              <Poptip
+                trigger="hover"
+                :title="item.equitName"
+                :style="{ color: item.color }"
+                v-if="item"
+              >
                 <p
                   style="white-space: nowrap; height: 24px"
                   :style="{ color: item.color }"
@@ -291,6 +362,7 @@
                   <p v-if="item.typeDec">装备类型 {{ item.typeDec }}</p>
                   <p v-if="item.level">装备等级 {{ item.level }}</p>
                   <p v-if="item.life">生命值 {{ item.life }}</p>
+                  <p v-if="item.mana">法力值 {{ item.mana }}</p>
                   <p v-if="item.attack">攻击力 {{ item.attack }}</p>
                   <p v-if="item.defense">防御力 {{ item.defense }}</p>
                   <p v-if="item.critical">暴击率 {{ item.critical * 100 }}%</p>
@@ -309,17 +381,22 @@
           <p slot="title">技能</p>
           <div slot="extra"></div>
           <div>
-            <div style="overflow: hidden;margin-bottom: 15px">
+            <div style="overflow: hidden; margin-bottom: 15px">
               <div class="activeSkill">
                 <h4>主动技能</h4>
-                <div v-for="(item, index) in activeList" :key="index" style="margin-bottom: 4px;">
+                <div
+                  v-for="(item, index) in activeList"
+                  :key="index"
+                  style="margin-bottom: 4px"
+                >
                   <!-- <span>{{ item.skillName }}:</span> -->
                   <Poptip trigger="hover" :title="item.skillName">
-                    <p
-                      style="white-space: nowrap; height: 24px"
-                    > 
+                    <p style="white-space: nowrap; height: 24px">
                       <span>{{ item.skillName }}:</span>
-                      <Button @click.prevent="TakeSkill(item,1)" size="small" type="info"
+                      <Button
+                        @click.prevent="TakeSkill(item, 1)"
+                        size="small"
+                        type="info"
                         >脱下</Button
                       >
                     </p>
@@ -334,13 +411,18 @@
               </div>
               <div class="passiveSkill">
                 <h4>被动技能</h4>
-                <div v-for="(item, index) in passiveList" :key="index" style="margin-bottom: 4px;">
+                <div
+                  v-for="(item, index) in passiveList"
+                  :key="index"
+                  style="margin-bottom: 4px"
+                >
                   <Poptip trigger="hover" :title="item.skillName">
-                    <p
-                      style="white-space: nowrap; height: 24px"
-                    > 
+                    <p style="white-space: nowrap; height: 24px">
                       <span>{{ item.skillName }}:</span>
-                      <Button @click.prevent="TakeSkill(item,2)" size="small" type="info"
+                      <Button
+                        @click.prevent="TakeSkill(item, 2)"
+                        size="small"
+                        type="info"
                         >脱下</Button
                       >
                     </p>
@@ -372,7 +454,10 @@
                     type="info"
                     >装备</Button
                   >
-                  <Button @click.prevent="upgrade(item)" size="small" type="info"
+                  <Button
+                    @click.prevent="upgrade(item)"
+                    size="small"
+                    type="info"
                     >升级</Button
                   >
                 </p>
@@ -424,7 +509,7 @@ export default {
       electronicEquipment: false, // 电子设备
     };
   },
-  components: { vueCanvasNest,headers },
+  components: { vueCanvasNest, headers },
   updated() {
     // 战斗记录定位到底部
     let ele = document.getElementById("recording");
@@ -440,9 +525,9 @@ export default {
 
     // 判断是手机端还是pc端
     if (this._isMobile()) {
-      this.electronicEquipment = false
+      this.electronicEquipment = false;
     } else {
-      this.electronicEquipment = true
+      this.electronicEquipment = true;
     }
 
     // 如果没有角色id就退出登录
@@ -453,33 +538,31 @@ export default {
     }
 
     // 获取地图列表
-    this.$http
-      .get(
-        "gameChara/queryMapList"
-      )
-      .then(res => {
-        this.mapList = res.data.data;
-      });
+    this.$http.get("gameChara/queryMapList").then((res) => {
+      this.mapList = res.data.data;
+    });
 
     this.getAllUser(); // 获取用户
     this.getAllPackage(); // 获取全部包裹
     this.getAliiEquip(); // 获取穿戴的装备列表
-    this.getAllSkill() // 获取技能列表
-    this.getEquipmentSkill() // 获取已装备的技能列表
+    this.getAllSkill(); // 获取技能列表
+    this.getEquipmentSkill(); // 获取已装备的技能列表
   },
   methods: {
     // 判断是手机端还是pc端
     _isMobile() {
-      let flag = navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i)
+      let flag = navigator.userAgent.match(
+        /(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i
+      );
       return flag;
     },
 
     // 返回数据处理的装备列表
     getEquipMap(player) {
       const equips = {};
-      Object.values(this.EquipSlot).map(slotId => {
+      Object.values(this.EquipSlot).map((slotId) => {
         equips[this.SlotName[slotId]] = player.find(
-          item => item.geKind === slotId
+          (item) => item.geKind === slotId
         );
       });
       return equips;
@@ -489,13 +572,12 @@ export default {
     getAliiEquip() {
       this.$http
         .post(
-          "gameCharaEquip/getCharaEquip?charaId=" +
-            this.getCookie("charaId")
+          "gameCharaEquip/getCharaEquip?charaId=" + this.getCookie("charaId")
         )
-        .then(res => {
+        .then((res) => {
           this.equipmentList = this.getEquipMap(res.data.data);
         })
-        .catch(err => {
+        .catch((err) => {
           this.$Message.warning("获取装备列表失败,请联系管理员");
         });
     },
@@ -504,14 +586,13 @@ export default {
     getAllUser() {
       this.$http
         .get(
-          "gamepassport/getGameCharacter?charaId=" +
-            this.getCookie("charaId")
+          "gamepassport/getGameCharacter?charaId=" + this.getCookie("charaId")
         )
-        .then(res => {
+        .then((res) => {
           this.user = res.data.data;
           this.user.charaId = this.getCookie("charaId");
         })
-        .catch(err => {
+        .catch((err) => {
           this.$Message.warning("获取角色失败,请联系管理员");
         });
     },
@@ -520,13 +601,12 @@ export default {
     getAllSkill() {
       this.$http
         .post(
-          "gameCharaSkill/getCharaSkill/?charaId=" +
-            this.getCookie("charaId")
+          "gameCharaSkill/getCharaSkill/?charaId=" + this.getCookie("charaId")
         )
-        .then(res => {
-          this.skillList = res.data.data
+        .then((res) => {
+          this.skillList = res.data.data;
         })
-        .catch(err => {
+        .catch((err) => {
           this.$Message.warning("获取技能列表失败,请联系管理员");
         });
     },
@@ -540,11 +620,10 @@ export default {
             "&skillType=" +
             1
         )
-        .then(res => {
-          console.log(res.data.data,"主动")
-          this.activeList = res.data.data
+        .then((res) => {
+          this.activeList = res.data.data;
         })
-        .catch(err => {
+        .catch((err) => {
           this.$Message.warning("获取已装备的主动技能列表失败,请联系管理员");
         });
 
@@ -555,39 +634,38 @@ export default {
             "&skillType=" +
             2
         )
-        .then(res => {
-          console.log(res.data.data,"被动")
-          this.passiveList = res.data.data
+        .then((res) => {
+          this.passiveList = res.data.data;
         })
-        .catch(err => {
+        .catch((err) => {
           this.$Message.warning("获取已装备的被动技能列表失败,请联系管理员");
         });
     },
 
     // 装备技能
-    skillEquip (item) {
+    skillEquip(item) {
       this.$http
         .post(
           "gameCharaSkill/makeSkill/?charaId=" +
             this.getCookie("charaId") +
             "&skillId=" +
-            item.skillId+
+            item.skillId +
             "&skillType=" +
             item.skillType
         )
-        .then(res => {
+        .then((res) => {
           this.$Message.warning("装备技能成功");
           this.getAllUser();
           this.getAllSkill();
-          this.getEquipmentSkill()
+          this.getEquipmentSkill();
         })
-        .catch(err => {
+        .catch((err) => {
           this.$Message.warning("装备技能失败,请联系管理员");
         });
     },
 
     // 技能升级
-    upgrade (item) {
+    upgrade(item) {
       this.$http
         .post(
           "/gameCharaSkill/upgradeSkill?charaId=" +
@@ -595,13 +673,13 @@ export default {
             "&skillId=" +
             item.skillId
         )
-        .then(res => {
+        .then((res) => {
           this.$Message.warning(res.data.data);
           this.getAllUser();
           this.getAllSkill();
-          this.getEquipmentSkill()
+          this.getEquipmentSkill();
         })
-        .catch(err => {
+        .catch((err) => {
           this.$Message.warning("技能升级失败,请联系管理员");
         });
     },
@@ -613,17 +691,17 @@ export default {
           "gameCharaSkill/makeDownSkill/?charaId=" +
             this.getCookie("charaId") +
             "&skillId=" +
-            item.skillId+
+            item.skillId +
             "&skillType=" +
             item.skillType
         )
-        .then(res => {
+        .then((res) => {
           this.$Message.warning("技能脱下成功");
           this.getAllUser();
           this.getAllSkill();
-          this.getEquipmentSkill()
+          this.getEquipmentSkill();
         })
-        .catch(err => {
+        .catch((err) => {
           this.$Message.warning("技能脱下失败,请联系管理员");
         });
     },
@@ -631,14 +709,12 @@ export default {
     // 获取用户全部包裹
     getAllPackage() {
       this.$http
-        .post(
-          "gameChara/getCharaPackage?charaId=" +
-            this.getCookie("charaId")
-        )
-        .then(res => {
+        .post("gameChara/getCharaPackage?charaId=" + this.getCookie("charaId"))
+        .then((res) => {
           this.knapsackList = res.data.data;
+          console.log(res.data.data);
         })
-        .catch(err => {
+        .catch((err) => {
           this.$Message.warning("获取包裹失败,请联系管理员");
         });
     },
@@ -658,10 +734,10 @@ export default {
             "&name=" +
             this.userName
         )
-        .then(res => {
+        .then((res) => {
           this.$Message.success("修改成功,请不要联系管理员");
         })
-        .catch(err => {
+        .catch((err) => {
           this.$Message.warning("修改名字失败,请联系管理员");
         });
 
@@ -700,7 +776,11 @@ export default {
             "&mapId=" +
             this.mapid
         )
-        .then(res => {
+        .then((res) => {
+          if (res.data.status == 205) {
+            this.$Message.warning(res.data.msg);
+            return;
+          }
           // console.log(res.data.data.dropExp) //本次战斗总掉落经验
           this.monsterList = res.data.data.gameMonList; // 怪物信息
           // console.log(res.data.data.combatInfo) // 战斗信息
@@ -718,12 +798,12 @@ export default {
                 if (res.data.data.reHealth <= 0) {
                   this.recording.push({
                     type: "result",
-                    result: "战斗失败"
+                    result: "战斗失败",
                   });
 
                   this.battleState = false;
                 } else {
-                  let goods = res.data.data.gameItemsList.map(val => {
+                  let goods = res.data.data.gameItemsList.map((val) => {
                     return val.itemName;
                   });
                   goods = goods.join();
@@ -732,7 +812,7 @@ export default {
                     type: "result",
                     result: "战斗成功",
                     exp: "获得" + res.data.data.dropExp + "经验;",
-                    goods: "物品:" + (goods || "无")
+                    goods: "物品:" + (goods || "无"),
                   });
 
                   let exp = (this.user.exp += res.data.data.dropExp);
@@ -740,12 +820,14 @@ export default {
                     this.getAllUser();
                   }
 
-                  // 背包超过50个以上 不更新背包接口
-                  if (this.knapsackList.length >= 50) {
-                    this.$Message.warning("背包已满");
-                  } else {
-                    this.getAllPackage();
-                  }
+                  // // 背包超过50个以上 不更新背包接口
+                  // if (this.knapsackList.length >= 50) {
+                  //   this.$Message.warning("背包已满");
+                  // } else {
+                  //   this.getAllPackage();
+                  // }
+                  this.getAllPackage(); // 获取全部物品
+                  this.getAllSkill(); // 获取技能
 
                   this.battleState = false;
                 }
@@ -758,12 +840,12 @@ export default {
                 this.battleTimer = setTimeout(() => {
                   this.battleState = false;
                   this.deteSetMap(mapid);
-                }, 5000);
+                }, 6000);
               }
             }, idx * 1000);
           });
         })
-        .catch(err => {
+        .catch((err) => {
           this.$Message.warning("战斗开始失败,请联系管理员");
           this.deteSetMap(mapid);
         });
@@ -773,15 +855,12 @@ export default {
     setAttribute() {
       this.user.charaId = this.getCookie("charaId");
       this.$http
-        .post(
-          "gameChara/updateAttrPoint",
-          this.user
-        )
-        .then(res => {
+        .post("gameChara/updateAttrPoint", this.user)
+        .then((res) => {
           this.$Message.warning("修改成功");
           this.getAllUser();
         })
-        .catch(err => {
+        .catch((err) => {
           this.$Message.warning("修改失败,请联系管理员");
         });
     },
@@ -811,7 +890,7 @@ export default {
     // 出售全部装备
     sellAll() {
       let arrKnapsac = [];
-      this.knapsackList.forEach(val => {
+      this.knapsackList.forEach((val) => {
         arrKnapsac.push(val.packItemId);
       });
       this.$http
@@ -821,11 +900,11 @@ export default {
             "&packItemIds=" +
             arrKnapsac
         )
-        .then(res => {
+        .then((res) => {
           this.getAllUser();
           this.getAllPackage();
         })
-        .catch(err => {
+        .catch((err) => {
           this.$Message.warning("出售全部物品失败,请联系管理员");
         });
     },
@@ -839,12 +918,32 @@ export default {
             "&packItemIds=" +
             item.packItemId
         )
-        .then(res => {
+        .then((res) => {
           this.getAllUser();
           this.getAllPackage();
         })
-        .catch(err => {
+        .catch((err) => {
           this.$Message.warning("出售单件物品失败,请联系管理员");
+        });
+    },
+
+    // 物品使用按钮
+    useItems(item) {
+      this.$http
+        .post(
+          "/gameCharaEquip/usePropypackage?charaId=" +
+            this.getCookie("charaId") +
+            "&packItemId=" +
+            item.packItemId
+        )
+        .then((res) => {
+          this.$Message.warning(res.data.msg);
+          // this.getAliiEquip();
+          this.getAllPackage();
+          this.getAllUser();
+        })
+        .catch((err) => {
+          this.$Message.warning("使用失败,请联系管理员");
         });
     },
 
@@ -857,19 +956,31 @@ export default {
             "&packItemId=" +
             item.packItemId
         )
-        .then(res => {
+        .then((res) => {
           this.$Message.warning(res.data.data);
           this.getAliiEquip();
           this.getAllPackage();
           this.getAllUser();
         })
-        .catch(err => {
+        .catch((err) => {
           this.$Message.warning("装备失败,请联系管理员");
         });
-    }
-  },
+    },
 
-  
+    // 兑换金币
+    exchangeCoin() {
+      this.$http
+        .post("	/gamepassport/exchange?charaId=" + this.getCookie("charaId"))
+        .then((res) => {
+          this.$Message.warning(res.data.msg);
+          this.getAllUser();
+        })
+        .catch((err) => {
+          this.$Message.warning("兑换失败.请联系管理员");
+          this.getAllUser();
+        });
+    },
+  },
 };
 </script>
 <style>
@@ -973,7 +1084,9 @@ body {
 .monster {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 40px;
+  /* margin-bottom: 40px; */
+  margin-bottom: 18px;
+  margin-top: 8px;
 }
 .monstercenter {
   justify-content: center;
@@ -995,9 +1108,9 @@ body {
 }
 
 .recording {
-  max-height: 300px;
+  max-height: 320px;
   overflow: auto;
-  transition: all .4s;
+  transition: all 0.4s;
 }
 
 /* 第二块位置 基础属性 和 加点的位置*/
@@ -1046,6 +1159,10 @@ body {
 }
 .knapsack /deep/ .ivu-poptip p:hover button {
   display: inline-block;
+}
+.jjt_smail {
+  color: #b50111;
+  font-size: 12px;
 }
 
 /* 技能列表 */

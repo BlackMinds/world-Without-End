@@ -4,10 +4,16 @@
       <p slot="title">登陆</p>
       <Form :model="formlogin" :label-width="68">
         <FormItem label="账号">
-          <Input placeholder="请输入 6~20 位的帐号" v-model="formlogin.username" />
+          <Input
+            placeholder="请输入 6~20 位的帐号"
+            v-model="formlogin.username"
+          />
         </FormItem>
         <FormItem label="密码">
-          <Input placeholder="请输入 6~20 位的密码" v-model="formlogin.password" />
+          <Input
+            placeholder="请输入 6~20 位的密码"
+            v-model="formlogin.password"
+          />
         </FormItem>
       </Form>
       <Button type="primary" long @click="enroll">登陆</Button>
@@ -20,13 +26,22 @@
       <p slot="title">注册</p>
       <Form :model="formRegister" :label-width="68">
         <FormItem label="账号">
-          <Input placeholder="请输入 6~20 位的帐号" v-model="formRegister.username" />
+          <Input
+            placeholder="请输入 6~20 位的帐号"
+            v-model="formRegister.username"
+          />
         </FormItem>
         <FormItem label="密码">
-          <Input  placeholder="请输入 6~20 位的密码" v-model="formRegister.password" />
+          <Input
+            placeholder="请输入 6~20 位的密码"
+            v-model="formRegister.password"
+          />
         </FormItem>
         <FormItem label="确认密码">
-          <Input  placeholder="请再输入一次密码" v-model="formRegister.confirmPassword" />
+          <Input
+            placeholder="请再输入一次密码"
+            v-model="formRegister.confirmPassword"
+          />
         </FormItem>
       </Form>
       <Button type="primary" long @click="register">注册</Button>
@@ -37,7 +52,7 @@
     </Card>
   </div>
 </template>
-
+       
 <script>
 export default {
   name: "Login",
@@ -45,7 +60,9 @@ export default {
     return {
       cut: true,
       ruleValidate: {
-        username: [{ required: true, message: "请输入用户名", trigger: "blur" }],
+        username: [
+          { required: true, message: "请输入用户名", trigger: "blur" },
+        ],
         password: [
           { required: true, message: "请输入密码", trigger: "blur" },
           {
@@ -69,41 +86,33 @@ export default {
   },
   methods: {
     enroll() {
-      this.$http
-        .post(
-          "gamepassport/login",
-          this.formlogin
-        ).then((res) => {
-          if (res.data.msg != "OK") {
-            console.log("看起来是账号密码错误了")
-            this.$Message.warning(res.data.msg);
-            return
-          }
+      this.$http.post("gamepassport/login", this.formlogin).then((res) => {
+        if (res.data.msg != "OK") {
+          console.log("看起来是账号密码错误了");
+          this.$Message.warning(res.data.msg);
+          return;
+        }
 
-          if (res.data.data.userId) {
-            this.$Message.warning("登录成功");
-            this.setCookie('userId',res.data.data.userId,3);
-            this.setCookie('charaId',res.data.data.charaId,3);
-            this.$router.push({ name: 'index'})
-          }
-        });
+        if (res.data.data.userId) {
+          this.$Message.warning("登录成功");
+          this.setCookie("userId", res.data.data.userId, 3);
+          this.setCookie("charaId", res.data.data.charaId, 3);
+          this.$router.push({ name: "index" });
+        }
+      });
     },
     register() {
       if (this.formRegister.confirmPassword != this.formRegister.password) {
         this.$Message.warning("2次输入密码不同");
-        return
+        return;
       }
 
-      this.$http
-        .post(
-          "gamepassport/regist",
-          this.formRegister
-        ).then((res) => {
-          if (res.data.msg != "ok") {
-            this.$Message.warning(res.data.msg);
-            return
-          }
-        });
+      this.$http.post("gamepassport/regist", this.formRegister).then((res) => {
+        if (res.data.msg != "ok") {
+          this.$Message.warning(res.data.msg);
+          return;
+        }
+      });
     },
   },
 };
