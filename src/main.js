@@ -13,6 +13,7 @@ import 'view-design/dist/styles/iview.css';
 Vue.use(ViewUI);
 
 // Vue.use(ElementUI);
+Vue.prototype.$bus= new Vue()
 
 
 Vue.prototype.setCookie = function(c_name, value, expiredays) {

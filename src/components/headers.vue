@@ -8,6 +8,7 @@
           <li @click="changePas">修改密码</li>
           <li @click="openStrategy">攻略(新手请点击这个)</li>
           <li @click="games">小游戏</li>
+          <li @click="openExchange">兑换码</li>
         </ul>
       </div>
       <div class="heade-right">
@@ -84,8 +85,10 @@
         <p>测试版: v0.4(2020-10-22)</p>
         <p>1: 修复了经验值问题</p>
         <p>2: 新加一个小游戏,别踩白块儿</p>
+
         <p>测试版: v0.5(2020-10-23)</p>
         <p>1: 增加了道具使用(洗点，背包扩充)</p>
+        <p>2: 增加了兑换码</p>
       </Modal>
 
       <!-- 修改密码弹出框 -->
@@ -120,6 +123,17 @@
           <div id="count"></div>
         </div>
       </Modal>
+
+      <!-- 兑换码 -->
+      <Modal
+        width="620"
+        title="兑换码"
+        v-model="exchangeEject"
+        @on-ok="changeExchange()"
+        :styles="{ top: '100px' }"
+      >
+        <Input v-model="exchange" placeholder="请输入兑换码" />
+      </Modal>
     </div>
   </div>
 </template>
@@ -132,10 +146,12 @@ export default {
       strategy: false, // 攻略弹出框
       pasEject: false, // 修改密码弹出框
       gamesEject: false, // 小游戏弹出框
+      exchangeEject: false, // 兑换码弹出框
       originalPas: "", // 原密码
       newPas: "", // 新密码
       confirmPas: "", // 确认密码
       mapLootsList: undefined, // 地图掉落
+      exchange: "", // 兑换码
     };
   },
   methods: {
@@ -194,6 +210,30 @@ export default {
     // 小游戏
     games() {
       this.gamesEject = true;
+    },
+
+    // 打开兑换码
+    openExchange() {
+      this.exchangeEject = true;
+      this.exchange = "";
+    },
+
+    // 兑换码确定
+    changeExchange() {
+      this.$http
+        .post(
+          "/gamepassport/exchangeCode?charaId=" +
+            this.getCookie("charaId") +
+            "&exchangeCode=" +
+            this.exchange
+        )
+        .then((res) => {
+          this.$Message.warning(res.data.msg);
+        })
+        .catch((err) => {
+          this.$Message.warning("兑换失败,请联系管理员");
+        });
+      this.$bus.$emit("aMsg", "兑换码那里发送过来的");
     },
   },
   mounted() {

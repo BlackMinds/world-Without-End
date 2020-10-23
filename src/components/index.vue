@@ -8,6 +8,7 @@
       :config="{ color: '255,255,255', count: 100 }"
     ></vue-canvas-nest>
     <headers></headers>
+
     <div id="box">
       <div id="left">
         <Card>
@@ -77,7 +78,7 @@
             type="info"
             >确定</Button
           >
-          <Select v-model="mapName" filterable>
+          <Select v-model="mapName">
             <!-- ({{ item.minLv }}) -->
             <Option
               v-for="item in mapList"
@@ -156,7 +157,7 @@
           @on-ok="deteSetMap"
           :styles="{ top: '100px' }"
         >
-          <Select v-model="mapName" filterable>
+          <Select v-model="mapName">
             <!-- ({{ item.minLv }}) -->
             <Option
               v-for="item in mapList"
@@ -547,6 +548,13 @@ export default {
     this.getAliiEquip(); // 获取穿戴的装备列表
     this.getAllSkill(); // 获取技能列表
     this.getEquipmentSkill(); // 获取已装备的技能列表
+
+    this.$bus.$on("aMsg", (msg) => {
+      console.log(msg);
+      this.getAllPackage();
+      this.getAllSkill();
+      this.getAllUser();
+    });
   },
   methods: {
     // 判断是手机端还是pc端
@@ -712,7 +720,6 @@ export default {
         .post("gameChara/getCharaPackage?charaId=" + this.getCookie("charaId"))
         .then((res) => {
           this.knapsackList = res.data.data;
-          console.log(res.data.data);
         })
         .catch((err) => {
           this.$Message.warning("获取包裹失败,请联系管理员");
@@ -842,12 +849,16 @@ export default {
                   this.deteSetMap(mapid);
                 }, 6000);
               }
-            }, idx * 1000);
+            }, idx * 1500);
           });
         })
         .catch((err) => {
           this.$Message.warning("战斗开始失败,请联系管理员");
-          this.deteSetMap(mapid);
+          // this.deteSetMap(mapid);
+          setTimeout(() => {
+            this.battleState = false;
+            this.deteSetMap(mapid);
+          }, 4000);
         });
     },
 
