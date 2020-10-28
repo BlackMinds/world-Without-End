@@ -41,10 +41,11 @@ Vue.prototype.$http = axios
 Vue.config.productionTip = false
 
 axios.defaults.baseURL = "http://www.yunyingxiaowu.com:8088/foodie-api/"
+axios.defaults.timeout = 15000
 /* eslint-disable no-new */
 new Vue({
     el: '#app',
     router,
     components: { App },
     template: '<App/>'
-})
+})  

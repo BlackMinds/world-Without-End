@@ -29,7 +29,19 @@
               <div class="rank">
                 <span>LV{{ user.level }}</span>
                 <div class="bloodVolume">生命: {{ user.health }}</div>
-                <div class="blueAmount">法力值: {{ user.mana }}</div>
+                <!-- <Progress
+                  :percent="65"
+                  status="wrong"
+                  text-inside
+                  :stroke-width="20"
+                /> -->
+                <div class="blueAmount">真气值: {{ user.mana }}</div>
+                <!-- <Progress
+                  :percent="65"
+                  status="active"
+                  text-inside
+                  :stroke-width="20"
+                /> -->
               </div>
             </div>
             <div class="goldCoin">
@@ -63,114 +75,6 @@
           <Input v-model="userName" placeholder="请输入名字" />
         </Modal>
 
-        <!-- 地图和战斗场景 -->
-        <Card>
-          <p slot="title">
-            {{ mapNameF }}
-          </p>
-
-          <!-- changeMap -->
-          <Button
-            slot="extra"
-            changeMap
-            @click.prevent="deteSetMap"
-            size="small"
-            type="info"
-            >确定</Button
-          >
-          <Select v-model="mapName">
-            <!-- ({{ item.minLv }}) -->
-            <Option
-              v-for="item in mapList"
-              :value="item.mapName"
-              :name="item.mapId"
-              :key="item.mapId"
-              >{{ item.mapName }}{{ item.minLv }}-{{ item.maxLv }}</Option
-            >
-          </Select>
-          <div>
-            <div
-              class="monster"
-              :class="[monsterList.length == 1 ? 'monstercenter' : '']"
-            >
-              <Poptip
-                trigger="hover"
-                v-for="item in monsterList"
-                :key="item.id"
-                :title="item.name"
-              >
-                ({{ item.prefix || "无" }}){{ item.name }}
-                <div slot="content">
-                  <p>生命值 {{ item.life }}</p>
-                  <p>最小攻击力 {{ item.attackMin }}</p>
-                  <p>最大攻击力 {{ item.attackMax }}</p>
-                  <p>防御力 {{ item.defence }}</p>
-                  <p>暴击率 {{ item.explode * 100 }}%</p>
-                  <p>暴击伤害 150%</p>
-                  <p>行动速度 {{ item.speed }}</p>
-                  <!-- <p>掉落物品 {{ item.wp ||  '无'}}</p> -->
-                </div>
-              </Poptip>
-            </div>
-            <div class="recording" id="recording">
-              <h6 v-if="monsterList.length <= 0">暂无记录</h6>
-              <p v-for="(item, index) in recording" :key="index">
-                <span v-if="item.type == 'combat'">
-                  <span
-                    :style="{
-                      color: item.identity == 0 ? 'orange' : '#5b00ff',
-                    }"
-                    >{{ item.attacker }}</span
-                  >
-                  攻击了<span style="color: red">{{ item.hinjured }}</span>
-                  <span v-if="item.isSkill != 1"
-                    >造成了<span
-                      :style="{
-                        color: '#5b00ff',
-                        fontSize: item.isCritical == 0 ? '14px' : '20px',
-                      }"
-                      >{{ item.hurt }}</span
-                    ></span
-                  >
-                  <span v-else
-                    >用{{ item.skillName }}造成了<span
-                      :style="{ color: 'rgb(110 0 255)' }"
-                      >{{ item.hurt }}</span
-                    ></span
-                  >
-                  剩余<span style="color: red">{{ item.surplusHealth }}</span
-                  >血量
-                </span>
-                <span v-if="item.type == 'result'"
-                  >{{ item.result }} {{ item.exp }} {{ item.goods }}</span
-                >
-              </p>
-              <!-- //     newChild.innerHTML = `${combatInfo[i].attacker}攻击了${combatInfo[i].hinjured} 造成了${combatInfo[i].hurt}剩余${combatInfo[i].surplusHealth}` -->
-            </div>
-          </div>
-        </Card>
-
-        <!-- 切换地图弹出框 -->
-        <Modal
-          title="选择地图"
-          v-model="mapEject"
-          @on-ok="deteSetMap"
-          :styles="{ top: '100px' }"
-        >
-          <Select v-model="mapName">
-            <!-- ({{ item.minLv }}) -->
-            <Option
-              v-for="item in mapList"
-              :value="item.mapName"
-              :name="item.mapId"
-              :key="item.mapId"
-              >{{ item.mapName }}</Option
-            >
-          </Select>
-        </Modal>
-      </div>
-
-      <div id="center">
         <!-- 属性 和 属性加点位置 -->
         <Card>
           <p slot="title">
@@ -217,10 +121,10 @@
               </p>
               <p>
                 <Tooltip placement="top">
-                  精神:
+                  灵力:
                   <span>{{ user.spirit }}</span>
                   <div slot="content">
-                    <p>精神影响法力值和法术攻击</p>
+                    <p>灵影响真气值和法术攻击</p>
                   </div>
                 </Tooltip>
                 <button @click="addAttributes(2, 1)">+1</button>
@@ -261,6 +165,165 @@
           </div>
         </Card>
 
+        <!-- 装备 -->
+        <Card>
+          <p slot="title">装备</p>
+          <div slot="extra">
+            <Button
+              slot="extra"
+              @click.prevent="allTake"
+              size="small"
+              type="info"
+              >一键脱下</Button
+            >
+          </div>
+          <div>
+            <div v-for="(item, key, index) in equipmentList" :key="index">
+              <span>{{ key }}:</span>
+              <Poptip
+                trigger="hover"
+                :title="item.equitName"
+                :style="{ color: item.color }"
+                v-if="item"
+              >
+                <p
+                  style="white-space: nowrap; height: 24px"
+                  :style="{ color: item.color }"
+                >
+                  {{ item.equitName }}
+                </p>
+                <div slot="content">
+                  <p v-if="item.typeDec">装备类型 {{ item.typeDec }}</p>
+                  <p v-if="item.level">装备等级 {{ item.level }}</p>
+                  <p v-if="item.life">生命值 {{ item.life }}</p>
+                  <p v-if="item.mana">真气值 {{ item.mana }}</p>
+                  <p v-if="item.attack">攻击力 {{ item.attack }}</p>
+                  <p v-if="item.magAttack">法术攻击力 {{ item.magAttack }}</p>
+                  <p v-if="item.defense">防御力 {{ item.defense }}</p>
+                  <p v-if="item.critical">暴击率 {{ item.critical * 100 }}%</p>
+                  <p v-if="item.speed">行动速度 {{ item.speed }}</p>
+                  <p v-if="item.physique">体格 {{ item.physique }}</p>
+                  <p v-if="item.dexterous">灵巧 {{ item.dexterous }}</p>
+                  <p v-if="item.spirit">灵力 {{ item.spirit }}</p>
+                  <p v-if="item.decs">描述： {{ item.decs }}</p>
+                </div>
+              </Poptip>
+            </div>
+          </div>
+        </Card>
+
+        <!-- 切换地图弹出框 -->
+        <Modal
+          title="选择地图"
+          v-model="mapEject"
+          @on-ok="deteSetMap"
+          :styles="{ top: '100px' }"
+        >
+          <Select v-model="mapName">
+            <!-- ({{ item.minLv }}) -->
+            <Option
+              v-for="item in mapList"
+              :value="item.mapName"
+              :name="item.mapId"
+              :key="item.mapId"
+              >{{ item.mapName }}</Option
+            >
+          </Select>
+        </Modal>
+      </div>
+
+      <div id="center">
+        <!-- 地图和战斗场景 -->
+        <Card class="two">
+          <p slot="title">
+            {{ mapNameF }}
+          </p>
+
+          <!-- changeMap -->
+          <Button
+            slot="extra"
+            changeMap
+            @click.prevent="deteSetMap"
+            size="small"
+            type="info"
+            >确定</Button
+          >
+          <Select v-model="mapName">
+            <!-- ({{ item.minLv }}) -->
+            <Option
+              v-for="item in mapList"
+              :value="item.mapName"
+              :name="item.mapId"
+              :key="item.mapId"
+              >{{ item.mapName }}{{ item.minLv }}-{{ item.maxLv }}</Option
+            >
+          </Select>
+          <div>
+            <div
+              class="monster"
+              :class="[monsterList.length == 1 ? 'monstercenter' : '']"
+            >
+              <Poptip
+                trigger="hover"
+                v-for="item in monsterList"
+                :key="item.id"
+                :title="item.name"
+              >
+                ({{ item.prefix == 0 ? "无" : item.prefix }}){{ item.name }}
+                <div slot="content">
+                  <p>生命值 {{ item.life }}</p>
+                  <p>最小攻击力 {{ item.attackMin }}</p>
+                  <p>最大攻击力 {{ item.attackMax }}</p>
+                  <p>防御力 {{ item.defence }}</p>
+                  <p>暴击率 {{ item.explode * 100 }}%</p>
+                  <p>暴击伤害 150%</p>
+                  <p>行动速度 {{ item.speed }}</p>
+                  <!-- <p>掉落物品 {{ item.wp ||  '无'}}</p> -->
+                </div>
+              </Poptip>
+            </div>
+            <div class="recording" id="recording">
+              <h6 v-if="monsterList.length <= 0">暂无记录</h6>
+              <p v-for="(item, index) in recording" :key="index">
+                <span v-if="item.type == 'combat'">
+                  <span
+                    :style="{
+                      color: item.identity == 0 ? 'orange' : '#5b00ff',
+                    }"
+                    >{{ item.attacker }}</span
+                  >
+                  攻击了<span style="color: red">{{ item.hinjured }}</span>
+                  <span v-if="item.isSkill != 1"
+                    >造成了<span
+                      :style="{
+                        color: '#5b00ff',
+                        fontSize: item.isCritical == 0 ? '14px' : '20px',
+                      }"
+                      >{{ item.hurt }}</span
+                    ></span
+                  >
+                  <span v-else
+                    >用{{ item.skillName }}造成了<span
+                      :style="{ color: 'rgb(110 0 255)' }"
+                      >{{ item.hurt }}</span
+                    ></span
+                  >
+                  剩余<span style="color: red">{{ item.surplusHealth }}</span
+                  >血量
+                </span>
+                <span
+                  style="color: rgb(255, 0, 224)"
+                  v-if="item.type == 'result'"
+                  >{{ item.result }}: 剩余血量:{{ item.reHealth }} 剩余蓝量:
+                  {{ item.reMana }} {{ item.exp }} {{ item.goods }}
+                </span>
+              </p>
+              <!-- //     newChild.innerHTML = `${combatInfo[i].attacker}攻击了${combatInfo[i].hinjured} 造成了${combatInfo[i].hurt}剩余${combatInfo[i].surplusHealth}` -->
+            </div>
+          </div>
+        </Card>
+
+        <div class="line"></div>
         <!-- 背包 -->
         <Card>
           <p slot="title">背包</p>
@@ -322,60 +385,50 @@
                   <p>装备类型 {{ item.typeDec }}</p>
                   <p>装备等级 {{ item.level }}</p>
                   <p v-if="item.itemNum">物品数量： {{ item.itemNum }}</p>
-                  <p v-if="item.decs">描述： {{ item.decs }}</p>
                   <p v-if="item.life">生命值 {{ item.life }}</p>
-                  <p v-if="item.mana">法力值 {{ item.mana }}</p>
+                  <p v-if="item.mana">真气值 {{ item.mana }}</p>
                   <p v-if="item.attack">攻击力 {{ item.attack }}</p>
+                  <p v-if="item.magAttack">法术攻击力 {{ item.magAttack }}</p>
                   <p v-if="item.defense">防御力 {{ item.defense }}</p>
                   <p v-if="item.critical">暴击率 {{ item.critical * 100 }}%</p>
                   <p v-if="item.speed">行动速度 {{ item.speed }}</p>
                   <p v-if="item.physique">体格 {{ item.physique }}</p>
                   <p v-if="item.dexterous">灵巧 {{ item.dexterous }}</p>
-                  <p v-if="item.spirit">精神 {{ item.spirit }}</p>
+                  <p v-if="item.spirit">灵力 {{ item.spirit }}</p>
+                  <p v-if="item.decs">描述： {{ item.decs }}</p>
                 </div>
               </Poptip>
             </div>
+          </div>
+        </Card>
+
+        <Card>
+          <p slot="title">排行榜</p>
+          <div slot="extra"></div>
+          <div>
+            <Tabs value="name1">
+              <TabPane label="金币" name="name1">
+                <p v-for="(item, idx) in leaderboardLst1" :key="idx">
+                  {{ ++idx }}: {{ item.name }}: {{ item.coin }}
+                </p>
+              </TabPane>
+              <TabPane label="等级" name="name2">
+                <p v-for="(item, idx) in leaderboardLst2" :key="idx">
+                  {{ ++idx }}: {{ item.name }}: {{ item.level }}
+                </p>
+              </TabPane>
+              <TabPane label="铜币" name="name3">
+                <p v-for="(item, idx) in leaderboardLst3" :key="idx">
+                  {{ ++idx }}: {{ item.name }}: {{ item.money }}
+                </p>
+              </TabPane>
+            </Tabs>
           </div>
         </Card>
       </div>
 
       <div id="right">
-        <!-- 装备 -->
-        <Card>
-          <p slot="title">装备</p>
-          <div slot="extra"></div>
-          <div>
-            <div v-for="(item, key, index) in equipmentList" :key="index">
-              <span>{{ key }}:</span>
-              <Poptip
-                trigger="hover"
-                :title="item.equitName"
-                :style="{ color: item.color }"
-                v-if="item"
-              >
-                <p
-                  style="white-space: nowrap; height: 24px"
-                  :style="{ color: item.color }"
-                >
-                  {{ item.equitName }}
-                </p>
-                <div slot="content">
-                  <p v-if="item.typeDec">装备类型 {{ item.typeDec }}</p>
-                  <p v-if="item.level">装备等级 {{ item.level }}</p>
-                  <p v-if="item.life">生命值 {{ item.life }}</p>
-                  <p v-if="item.mana">法力值 {{ item.mana }}</p>
-                  <p v-if="item.attack">攻击力 {{ item.attack }}</p>
-                  <p v-if="item.defense">防御力 {{ item.defense }}</p>
-                  <p v-if="item.critical">暴击率 {{ item.critical * 100 }}%</p>
-                  <p v-if="item.speed">行动速度 {{ item.speed }}</p>
-                  <p v-if="item.physique">体格 {{ item.physique }}</p>
-                  <p v-if="item.dexterous">灵巧 {{ item.dexterous }}</p>
-                  <p v-if="item.spirit">精神 {{ item.spirit }}</p>
-                </div>
-              </Poptip>
-            </div>
-          </div>
-        </Card>
+        <div class="line"></div>
 
         <!-- 技能 -->
         <Card>
@@ -473,6 +526,33 @@
             </div>
           </div>
         </Card>
+
+        <Card>
+          <p slot="title">在线玩家列表</p>
+          <div slot="extra"></div>
+          <div>
+            <div class="playersList">
+              <Poptip
+                trigger="hover"
+                v-for="(item, idx) in playersList"
+                :key="idx"
+                :title="item.name"
+              >
+                <p style="white-space: nowrap; height: 24px">
+                  <span>{{ ++idx }}:{{ item.name }}:</span>
+                </p>
+                <div slot="content">
+                  <p>等级: {{ item.level }}</p>
+                  <p>攻击力: {{ item.attack }}</p>
+                  <p>防御力: {{ item.defense }}</p>
+                  <p>生命值 {{ item.health }}</p>
+                  <p>真气值: {{ item.mana }}</p>
+                  <p>当前经验值: {{ item.exp }}</p>
+                </div>
+              </Poptip>
+            </div>
+          </div>
+        </Card>
       </div>
     </div>
   </div>
@@ -508,6 +588,10 @@ export default {
       skillList: [], // 全部技能
       equipmentList: {}, //装备列表
       electronicEquipment: false, // 电子设备
+      leaderboardLst1: [], // 金币排行榜列表
+      leaderboardLst2: [], // 等级排行榜列表
+      leaderboardLst3: [], // 铜币排行榜列表
+      playersList: [], // 在线玩家列表
     };
   },
   components: { vueCanvasNest, headers },
@@ -549,14 +633,57 @@ export default {
     this.getAllSkill(); // 获取技能列表
     this.getEquipmentSkill(); // 获取已装备的技能列表
 
+    this.leader();
+    setInterval(() => {
+      this.leader();
+    }, 1800000);
+
     this.$bus.$on("aMsg", (msg) => {
-      console.log(msg);
-      this.getAllPackage();
-      this.getAllSkill();
-      this.getAllUser();
+      setTimeout(() => {
+        this.getAllPackage();
+        this.getAllSkill();
+        this.getAllUser();
+      });
     });
   },
   methods: {
+    // 一键脱下
+    allTake() {
+      this.$http
+        .post(
+          "/gameCharaEquip/oneDownEquitBypackage?charaId=" +
+            this.getCookie("charaId")
+        )
+        .then((res) => {
+          this.$Message.warning(res.data.data);
+          this.getAllUser(); // 获取用户
+          this.getAliiEquip(); // 获取穿戴的装备列表
+          this.getAllPackage(); // 获取全部包裹
+        })
+        .catch((err) => {
+          this.$Message.warning("装备一键脱下失败,请联系管理员");
+        });
+    },
+    // 列表
+    leader() {
+      // 金币排行榜
+      this.$http.post("/gamepassport/coinRanking").then((res) => {
+        this.leaderboardLst1 = res.data.data;
+      });
+
+      // 等级排行榜
+      this.$http.post("/gamepassport/levelRanking").then((res) => {
+        this.leaderboardLst2 = res.data.data;
+      });
+      // 铜币排行榜
+      this.$http.post("/gamepassport/moneyRanking").then((res) => {
+        this.leaderboardLst3 = res.data.data;
+      });
+      // 在线玩家列表
+      this.$http.post("/gamepassport/playerOnline").then((res) => {
+        this.playersList = res.data.data;
+      });
+    },
     // 判断是手机端还是pc端
     _isMobile() {
       let flag = navigator.userAgent.match(
@@ -786,6 +913,10 @@ export default {
         .then((res) => {
           if (res.data.status == 205) {
             this.$Message.warning(res.data.msg);
+            setTimeout(() => {
+              this.battleState = false;
+              this.deteSetMap(mapid);
+            }, 5000);
             return;
           }
           // console.log(res.data.data.dropExp) //本次战斗总掉落经验
@@ -820,6 +951,8 @@ export default {
                     result: "战斗成功",
                     exp: "获得" + res.data.data.dropExp + "经验;",
                     goods: "物品:" + (goods || "无"),
+                    reHealth: res.data.data.reHealth,
+                    reMana: res.data.data.reMana,
                   });
 
                   let exp = (this.user.exp += res.data.data.dropExp);
@@ -858,7 +991,7 @@ export default {
           setTimeout(() => {
             this.battleState = false;
             this.deteSetMap(mapid);
-          }, 4000);
+          }, 3000);
         });
     },
 
@@ -1034,6 +1167,14 @@ body {
 </style>
 <style scoped>
 /* 全局样式 */
+.two {
+  position: absolute;
+  width: 760px;
+  height: 340px;
+}
+.line {
+  height: 354px;
+}
 #app2 {
   min-width: 1140px;
 }
@@ -1042,6 +1183,7 @@ body {
   margin: 0 auto;
   display: flex;
   justify-content: space-between;
+  position: relative;
 }
 #left,
 #center,
@@ -1119,12 +1261,12 @@ body {
 }
 
 .recording {
-  max-height: 320px;
+  max-height: 168px;
   overflow: auto;
   transition: all 0.4s;
 }
 
-/* 第二块位置 基础属性 和 加点的位置*/
+/* 头像下面 基础属性 和 加点的位置*/
 .basics {
   width: 50%;
   float: left;
@@ -1201,5 +1343,13 @@ body {
   float: right;
   width: 50%;
   text-align: center;
+}
+/* 在线玩家列表 */
+.playersList {
+  max-height: 306px;
+  overflow: auto;
+}
+.playersList /deep/ .ivu-poptip {
+  display: block;
 }
 </style>
