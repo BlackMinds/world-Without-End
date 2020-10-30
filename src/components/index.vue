@@ -183,18 +183,19 @@
               <Poptip
                 trigger="hover"
                 :title="item.equitName"
-                :style="{ color: item.color }"
+                :style="{ color: distinguishColor(item.color) }"
                 v-if="item"
               >
                 <p
                   style="white-space: nowrap; height: 24px"
-                  :style="{ color: item.color }"
+                  :style="{ color: distinguishColor(item.color) }"
                 >
                   {{ item.equitName }}
                 </p>
                 <div slot="content">
                   <p v-if="item.typeDec">装备类型 {{ item.typeDec }}</p>
                   <p v-if="item.level">装备等级 {{ item.level }}</p>
+                  <p>物品状态 {{ item.bind == 0 ? "解绑" : "绑定" }}</p>
                   <p v-if="item.life">生命值 {{ item.life }}</p>
                   <p v-if="item.mana">真气值 {{ item.mana }}</p>
                   <p v-if="item.attack">攻击力 {{ item.attack }}</p>
@@ -336,46 +337,75 @@
             >
           </div>
           <div>
+            <div>
+              <p>物品分类</p>
+              <RadioGroup v-model="classification">
+                <Radio label="0">全部</Radio>
+                <Radio label="1">装备</Radio>
+                <Radio label="2">灵力武器</Radio>
+                <Radio label="3">道具</Radio>
+                <Radio label="4">材料</Radio>
+              </RadioGroup>
+              <p>装备品质</p>
+              <RadioGroup v-model="quality">
+                <Radio label="0">全部</Radio>
+                <Radio label="1">黑</Radio>
+                <Radio label="2">黄</Radio>
+                <Radio label="3">绿</Radio>
+                <Radio label="4">蓝</Radio>
+                <Radio label="5">紫</Radio>
+                <Radio label="6">红</Radio>
+              </RadioGroup>
+            </div>
+            <br />
             <div class="knapsack">
               <Poptip
                 trigger="hover"
-                v-for="item in knapsackList"
+                v-for="item in filteredItems"
                 :key="item.name"
                 :title="item.name"
               >
                 <p
                   style="white-space: nowrap; height: 24px"
-                  :style="{ color: item.color }"
+                  :style="{ color: distinguishColor(item.color) }"
                 >
                   {{ item.itemName }}
-                  <span class="jjt_smail" v-if="item.itemType == 3">{{
-                    item.itemNum
-                  }}</span>
+                  <span
+                    class="jjt_smail"
+                    v-if="item.itemType == 3 || item.itemType == 4"
+                    >{{ item.itemNum }}</span
+                  >
                   <Button
                     @click.prevent="useItems(item)"
                     size="small"
-                    v-if="item.itemType == 3"
+                    v-if="item.itemType == 3 && item.itemType != 4"
                     type="info"
                     >使用</Button
                   >
                   <Button
                     @click.prevent="equipment(item)"
                     size="small"
-                    v-if="item.itemType != 3"
+                    v-if="item.itemType != 3 && item.itemType != 4"
                     type="info"
                     >装备</Button
                   >
                   <Button
-                    @click.prevent="strengthen"
+                    @click.prevent="strengthen(item)"
                     size="small"
                     type="info"
-                    v-if="item.itemType != 3"
+                    v-if="item.itemType != 3 && item.itemType != 4"
                     >强化</Button
+                  >
+                  <Button
+                    @click.prevent="locking(item)"
+                    size="small"
+                    type="info"
+                    >{{ item.bind == 0 ? "绑定" : "解绑" }}</Button
                   >
                   <Button
                     @click.prevent="sellSingle(item)"
                     size="small"
-                    v-if="item.itemType != 3"
+                    v-if="item.itemType != 3 && item.itemType != 4"
                     type="info"
                     >出售</Button
                   >
@@ -384,6 +414,7 @@
                   <p>{{ item.itemName }}</p>
                   <p>装备类型 {{ item.typeDec }}</p>
                   <p>装备等级 {{ item.level }}</p>
+                  <p>物品状态 {{ item.bind == 0 ? "解绑" : "绑定" }}</p>
                   <p v-if="item.itemNum">物品数量： {{ item.itemNum }}</p>
                   <p v-if="item.life">生命值 {{ item.life }}</p>
                   <p v-if="item.mana">真气值 {{ item.mana }}</p>
@@ -402,29 +433,61 @@
           </div>
         </Card>
 
+        <!-- 商店 -->
         <Card>
-          <p slot="title">排行榜</p>
+          <p slot="title">商店</p>
           <div slot="extra"></div>
           <div>
-            <Tabs value="name1">
-              <TabPane label="金币" name="name1">
-                <p v-for="(item, idx) in leaderboardLst1" :key="idx">
-                  {{ ++idx }}: {{ item.name }}: {{ item.coin }}
+            <div class="knapsack">
+              <Poptip
+                trigger="hover"
+                v-for="item in shopList"
+                :key="item.marketName"
+                :title="item.marketName"
+              >
+                <p
+                  style="white-space: nowrap; height: 24px"
+                  :style="{ color: distinguishColor(item.color) }"
+                >
+                  {{ item.marketName }}
+                  <span class="jjt_smail">{{ item.marketNum }}</span>
+                  <Button
+                    @click.prevent="purchaseItem(item)"
+                    size="small"
+                    type="info"
+                    >购买</Button
+                  >
                 </p>
-              </TabPane>
-              <TabPane label="等级" name="name2">
-                <p v-for="(item, idx) in leaderboardLst2" :key="idx">
-                  {{ ++idx }}: {{ item.name }}: {{ item.level }}
-                </p>
-              </TabPane>
-              <TabPane label="铜币" name="name3">
-                <p v-for="(item, idx) in leaderboardLst3" :key="idx">
-                  {{ ++idx }}: {{ item.name }}: {{ item.money }}
-                </p>
-              </TabPane>
-            </Tabs>
+                <div slot="content">
+                  <p v-if="item.marketPrice">
+                    商品价格 {{ item.marketPrice }}
+                    {{ item.priceType == 0 ? "铜钱" : "金币" }}
+                  </p>
+                  <p v-if="item.marketNum">购买次数 {{ item.marketNum }}</p>
+                  <p v-if="item.marketLevel">
+                    商品最低购买等级 {{ item.marketLevel }}
+                  </p>
+                  <p v-if="item.typeDec">装备类型 {{ item.typeDec }}</p>
+                  <p v-if="item.level">装备等级 {{ item.level }}</p>
+                  <p v-if="item.itemNum">物品数量： {{ item.itemNum }}</p>
+                  <p v-if="item.life">生命值 {{ item.life }}</p>
+                  <p v-if="item.mana">真气值 {{ item.mana }}</p>
+                  <p v-if="item.attack">攻击力 {{ item.attack }}</p>
+                  <p v-if="item.magAttack">法术攻击力 {{ item.magAttack }}</p>
+                  <p v-if="item.defense">防御力 {{ item.defense }}</p>
+                  <p v-if="item.critical">暴击率 {{ item.critical * 100 }}%</p>
+                  <p v-if="item.speed">行动速度 {{ item.speed }}</p>
+                  <p v-if="item.physique">体格 {{ item.physique }}</p>
+                  <p v-if="item.dexterous">灵巧 {{ item.dexterous }}</p>
+                  <p v-if="item.spirit">灵力 {{ item.spirit }}</p>
+                  <p v-if="item.marketDec">物品描述： {{ item.marketDec }}</p>
+                </div>
+              </Poptip>
+            </div>
           </div>
         </Card>
+
+        <rankingList></rankingList>
       </div>
 
       <div id="right">
@@ -527,32 +590,7 @@
           </div>
         </Card>
 
-        <Card>
-          <p slot="title">在线玩家列表</p>
-          <div slot="extra"></div>
-          <div>
-            <div class="playersList">
-              <Poptip
-                trigger="hover"
-                v-for="(item, idx) in playersList"
-                :key="idx"
-                :title="item.name"
-              >
-                <p style="white-space: nowrap; height: 24px">
-                  <span>{{ ++idx }}:{{ item.name }}:</span>
-                </p>
-                <div slot="content">
-                  <p>等级: {{ item.level }}</p>
-                  <p>攻击力: {{ item.attack }}</p>
-                  <p>防御力: {{ item.defense }}</p>
-                  <p>生命值 {{ item.health }}</p>
-                  <p>真气值: {{ item.mana }}</p>
-                  <p>当前经验值: {{ item.exp }}</p>
-                </div>
-              </Poptip>
-            </div>
-          </div>
-        </Card>
+        <playersList></playersList>
       </div>
     </div>
   </div>
@@ -561,6 +599,8 @@
 <script>
 import vueCanvasNest from "vue-canvas-nest";
 import headers from "./headers.vue";
+import playersList from "./playersList.vue";
+import rankingList from "./rankingList.vue";
 import { EquipSlot, SlotName } from "../const";
 
 export default {
@@ -588,13 +628,32 @@ export default {
       skillList: [], // 全部技能
       equipmentList: {}, //装备列表
       electronicEquipment: false, // 电子设备
-      leaderboardLst1: [], // 金币排行榜列表
-      leaderboardLst2: [], // 等级排行榜列表
-      leaderboardLst3: [], // 铜币排行榜列表
-      playersList: [], // 在线玩家列表
+      shopList: [], // 商店列表
+      classification: "0", // 装备分类
+      quality: "0", // 装备品质
     };
   },
-  components: { vueCanvasNest, headers },
+  computed: {
+    filteredItems: function () {
+      let knapsackList = this.knapsackList.slice(0);
+
+      if (this.classification != 0) {
+        knapsackList = knapsackList.filter(
+          (item) => item.itemType == this.classification
+        );
+      }
+
+      if (this.quality != 0) {
+        knapsackList = knapsackList.filter(
+          (item) => item.color == this.quality
+        );
+      }
+
+      return knapsackList;
+    },
+  },
+
+  components: { vueCanvasNest, headers, playersList, rankingList },
   updated() {
     // 战斗记录定位到底部
     let ele = document.getElementById("recording");
@@ -626,14 +685,13 @@ export default {
     this.$http.get("gameChara/queryMapList").then((res) => {
       this.mapList = res.data.data;
     });
-
     this.getAllUser(); // 获取用户
     this.getAllPackage(); // 获取全部包裹
     this.getAliiEquip(); // 获取穿戴的装备列表
     this.getAllSkill(); // 获取技能列表
     this.getEquipmentSkill(); // 获取已装备的技能列表
+    this.waresList(); // 获取商店列表
 
-    this.leader();
     setInterval(() => {
       this.leader();
     }, 1800000);
@@ -647,6 +705,34 @@ export default {
     });
   },
   methods: {
+    // 返回品质颜色
+    distinguishColor(color) {
+      if (color == 1) {
+        return "#000";
+      } else if (color == 2) {
+        return "#c5c52f";
+      } else if (color == 3) {
+        return "#049c04";
+      } else if (color == 4) {
+        return "#005aff";
+      } else if (color == 5) {
+        return "#ff00e0";
+      } else if (color == 6) {
+        return "#ff0000";
+      } else {
+        return "#ff00c3e0";
+      }
+    },
+
+    // 获取商店列表
+    waresList() {
+      this.$http
+        .post("/gameMarket/waresList?charaId=" + this.getCookie("charaId"))
+        .then((res) => {
+          this.shopList = res.data.data;
+        });
+    },
+
     // 一键脱下
     allTake() {
       this.$http
@@ -664,26 +750,7 @@ export default {
           this.$Message.warning("装备一键脱下失败,请联系管理员");
         });
     },
-    // 列表
-    leader() {
-      // 金币排行榜
-      this.$http.post("/gamepassport/coinRanking").then((res) => {
-        this.leaderboardLst1 = res.data.data;
-      });
 
-      // 等级排行榜
-      this.$http.post("/gamepassport/levelRanking").then((res) => {
-        this.leaderboardLst2 = res.data.data;
-      });
-      // 铜币排行榜
-      this.$http.post("/gamepassport/moneyRanking").then((res) => {
-        this.leaderboardLst3 = res.data.data;
-      });
-      // 在线玩家列表
-      this.$http.post("/gamepassport/playerOnline").then((res) => {
-        this.playersList = res.data.data;
-      });
-    },
     // 判断是手机端还是pc端
     _isMobile() {
       let flag = navigator.userAgent.match(
@@ -955,11 +1022,6 @@ export default {
                     reMana: res.data.data.reMana,
                   });
 
-                  let exp = (this.user.exp += res.data.data.dropExp);
-                  if (exp >= this.user.upgradeExp) {
-                    this.getAllUser();
-                  }
-
                   // // 背包超过50个以上 不更新背包接口
                   // if (this.knapsackList.length >= 50) {
                   //   this.$Message.warning("背包已满");
@@ -968,6 +1030,7 @@ export default {
                   // }
                   this.getAllPackage(); // 获取全部物品
                   this.getAllSkill(); // 获取技能
+                  this.getAllUser();
 
                   this.battleState = false;
                 }
@@ -987,7 +1050,6 @@ export default {
         })
         .catch((err) => {
           this.$Message.warning("战斗开始失败,请联系管理员");
-          // this.deteSetMap(mapid);
           setTimeout(() => {
             this.battleState = false;
             this.deteSetMap(mapid);
@@ -1034,7 +1096,7 @@ export default {
     // 出售全部装备
     sellAll() {
       let arrKnapsac = [];
-      this.knapsackList.forEach((val) => {
+      this.filteredItems.forEach((val) => {
         arrKnapsac.push(val.packItemId);
       });
       this.$http
@@ -1047,6 +1109,9 @@ export default {
         .then((res) => {
           this.getAllUser();
           this.getAllPackage();
+          // 每次出售完 就退到2个全部
+          this.classification = "0";
+          this.quality = "0";
         })
         .catch((err) => {
           this.$Message.warning("出售全部物品失败,请联系管理员");
@@ -1068,6 +1133,27 @@ export default {
         })
         .catch((err) => {
           this.$Message.warning("出售单件物品失败,请联系管理员");
+        });
+    },
+
+    // 商店购买
+    purchaseItem(item) {
+      this.$http
+        .post(
+          "/gameMarket/buyWares?charaId=" +
+            this.getCookie("charaId") +
+            "&waresId=" +
+            item.marketId
+        )
+        .then((res) => {
+          this.$Message.warning(res.data.msg);
+          this.getAllPackage();
+          this.getAllUser();
+          this.getAllSkill();
+          this.waresList();
+        })
+        .catch((err) => {
+          this.$Message.warning("购买失败,请联系管理员");
         });
     },
 
@@ -1108,6 +1194,26 @@ export default {
         })
         .catch((err) => {
           this.$Message.warning("装备失败,请联系管理员");
+        });
+    },
+
+    // 装备界面上的锁定按钮
+    locking(item) {
+      this.$http
+        .post(
+          "/gameMarket/itemBind?charaId=" +
+            this.getCookie("charaId") +
+            "&packItemId=" +
+            item.packItemId +
+            "&bind=" +
+            (item.bind == 0 ? 1 : 0)
+        )
+        .then((res) => {
+          this.$Message.warning(res.data.data);
+          this.getAllPackage();
+        })
+        .catch((err) => {
+          this.$Message.warning("绑定失败,请联系管理员");
         });
     },
 
@@ -1343,13 +1449,5 @@ body {
   float: right;
   width: 50%;
   text-align: center;
-}
-/* 在线玩家列表 */
-.playersList {
-  max-height: 306px;
-  overflow: auto;
-}
-.playersList /deep/ .ivu-poptip {
-  display: block;
 }
 </style>

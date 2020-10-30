@@ -4,7 +4,7 @@
       <div class="heade-left">
         <ul>
           <li>角色选择(暂时不可用)</li>
-          <li>设置(暂时不可用)</li>
+          <li @click="setEject = true">设置(暂时不可用)</li>
           <li @click="changePas">修改密码</li>
           <li @click="openStrategy">攻略(新手请点击这个)</li>
           <li @click="games">小游戏</li>
@@ -16,6 +16,41 @@
           <li @click="out">退出登录</li>
         </ul>
       </div>
+
+      <!-- 设置 -->
+      <Modal
+        width="750"
+        title="设置"
+        v-model="setEject"
+        @on-ok="changeSet()"
+        :styles="{ top: '100px' }"
+      >
+        <Form ref="formInline" :model="gamePackageBo" :label-width="80" inline>
+          <FormItem label="自动出售">
+            <i-switch
+              v-model="gamePackageBo.isOpen"
+              :true-value="1"
+              :false-value="0"
+            />
+          </FormItem>
+          <FormItem label="最低等级">
+            <Input type="text" v-model="gamePackageBo.minLevel"> </Input>
+          </FormItem>
+          <FormItem label="最高等级">
+            <Input type="text" v-model="gamePackageBo.maxLevel"> </Input>
+          </FormItem>
+          <FormItem label="品质列表">
+            <CheckboxGroup v-model="gamePackageBo.quality">
+              <Checkbox label="1">黑色</Checkbox>
+              <Checkbox label="2">黄色</Checkbox>
+              <Checkbox label="3">绿色</Checkbox>
+              <Checkbox label="4">蓝色</Checkbox>
+              <Checkbox label="5">紫色</Checkbox>
+              <Checkbox label="6">红色</Checkbox>
+            </CheckboxGroup>
+          </FormItem>
+        </Form>
+      </Modal>
 
       <!-- 攻略弹出框 -->
       <Modal
@@ -43,7 +78,7 @@
             <template v-if="mapLoots.itemsVoList">
               <span v-for="(loot, idx) in mapLoots.itemsVoList" :key="idx">
                 <template v-if="loot">
-                  <span :style="{ color: loot.color }"
+                  <span :style="{ color: distinguishColor(loot.color) }"
                     >{{ loot.itemName }}
                   </span>
                 </template>
@@ -112,6 +147,10 @@
           ：煌龙炎月斩，九转凤鸣杀技能爆出低地点由20级地图灵霄山脉变更至50级新地图“云
           梦泽”。
         </p>
+        <br />
+        <p>测试版: v0.8(2020-10-30)</p>
+        <p>1: 自动出售</p>
+        <p>2: 锁定</p>
       </Modal>
 
       <!-- 修改密码弹出框 -->
@@ -170,14 +209,73 @@ export default {
       pasEject: false, // 修改密码弹出框
       gamesEject: false, // 小游戏弹出框
       exchangeEject: false, // 兑换码弹出框
+      setEject: false, // 设置自动出售
       originalPas: "", // 原密码
       newPas: "", // 新密码
       confirmPas: "", // 确认密码
       mapLootsList: undefined, // 地图掉落
       exchange: "", // 兑换码
+      gamePackageBo: {
+        charaId: "",
+        isOpen: 1,
+        maxLevel: 100,
+        minLevel: 0,
+        quality: ["1", "2", "3", "4", "5"],
+      }, // 出售设置
     };
   },
+  created() {
+    this.getPackageBo();
+  },
   methods: {
+    // 返回品质颜色
+    distinguishColor(color) {
+      if (color == 1) {
+        return "#000";
+      } else if (color == 2) {
+        return "#c5c52f";
+      } else if (color == 3) {
+        return "#049c04";
+      } else if (color == 4) {
+        return "#005aff";
+      } else if (color == 5) {
+        return "#ff00e0";
+      } else if (color == 6) {
+        return "#ff0000";
+      } else {
+        return "#ff00c3e0";
+      }
+    },
+
+    // 自动出售设置的获取
+    getPackageBo() {
+      this.$http
+        .post(
+          "/gameMarket/getScreenPackage?charaId=" + this.getCookie("charaId")
+        )
+        .then((res) => {
+          this.gamePackageBo = res.data.data;
+          this.gamePackageBo.quality = this.gamePackageBo.quality.split("");
+        })
+        .catch((err) => {
+          this.$Message.warning("自动出售设置获取列表失败,请联系管理员");
+        });
+    },
+
+    // 设置的确定
+    changeSet() {
+      this.gamePackageBo.charaId = this.getCookie("charaId");
+      this.gamePackageBo.quality = this.gamePackageBo.quality.toString();
+      this.$http
+        .post("/gameMarket/setScreenPackage", this.gamePackageBo)
+        .then((res) => {
+          this.$Message.success(res.data.data);
+        })
+        .catch((err) => {
+          this.$Message.warning("设置失败");
+        });
+    },
+
     // 退出登录
     out() {
       this.$router.push({ name: "Login" });
