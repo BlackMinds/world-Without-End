@@ -4,7 +4,7 @@
       <div class="heade-left">
         <ul>
           <li>角色选择(暂时不可用)</li>
-          <li @click="setEject = true">设置(暂时不可用)</li>
+          <li @click="openSetEject">设置</li>
           <li @click="changePas">修改密码</li>
           <li @click="openStrategy">攻略(新手请点击这个)</li>
           <li @click="games">小游戏</li>
@@ -39,6 +39,7 @@
           <FormItem label="最高等级">
             <Input type="text" v-model="gamePackageBo.maxLevel"> </Input>
           </FormItem>
+          {{ gamePackageBo.quality }}
           <FormItem label="品质列表">
             <CheckboxGroup v-model="gamePackageBo.quality">
               <Checkbox label="1">黑色</Checkbox>
@@ -151,6 +152,15 @@
         <p>测试版: v0.8(2020-10-30)</p>
         <p>1: 自动出售</p>
         <p>2: 锁定</p>
+        <br />
+        <p>测试版: v0.8(2020-11-01)</p>
+        <p>1: 开放了强化</p>
+        <br />
+        <p>测试版: v0.8(2020-11-04)</p>
+        <p>1: 新增4个技能</p>
+        <p>测试版: v0.8(2020-11-05)</p>
+        <p>1: 金币兑换关闭 通过商店去兑换</p>
+        <p>2: 装备等级限制，功能道具等级使用限制，商店新增好运袋</p>
       </Modal>
 
       <!-- 修改密码弹出框 -->
@@ -217,10 +227,10 @@ export default {
       exchange: "", // 兑换码
       gamePackageBo: {
         charaId: "",
-        isOpen: 1,
-        maxLevel: 100,
-        minLevel: 0,
-        quality: ["1", "2", "3", "4", "5"],
+        isOpen: 0,
+        maxLevel: "",
+        minLevel: "",
+        quality: [],
       }, // 出售设置
     };
   },
@@ -247,6 +257,12 @@ export default {
       }
     },
 
+    // 打开设置
+    openSetEject() {
+      this.setEject = true;
+      this.gamePackageBo.quality = this.gamePackageBo.quality.split(",");
+    },
+
     // 自动出售设置的获取
     getPackageBo() {
       this.$http
@@ -255,7 +271,10 @@ export default {
         )
         .then((res) => {
           this.gamePackageBo = res.data.data;
-          this.gamePackageBo.quality = this.gamePackageBo.quality.split("");
+          if (this.gamePackageBo.quality) {
+            this.gamePackageBo.quality = this.gamePackageBo.quality.split(",");
+          }
+          // console.log(this.gamePackageBo.quality,"获取")
         })
         .catch((err) => {
           this.$Message.warning("自动出售设置获取列表失败,请联系管理员");
@@ -264,8 +283,27 @@ export default {
 
     // 设置的确定
     changeSet() {
+      // this.getPackageBo()
+      if (!(this.gamePackageBo.minLevel >= 0)) {
+        this.$Message.warning("最低等级不能为空");
+        return;
+      }
+      if (!(this.gamePackageBo.maxLevel >= 0)) {
+        this.$Message.warning("最高等级不能为空");
+        return;
+      }
+      if (this.gamePackageBo.minLevel >= this.gamePackageBo.maxLevel) {
+        this.$Message.warning("最小等级不能超过最大等级");
+        return;
+      }
+      if (this.gamePackageBo.quality.length <= 0) {
+        this.$Message.warning("品质列表必须选择一个");
+        return;
+      }
+      // console.log(this.gamePackageBo.quality,"设置确定q")
       this.gamePackageBo.charaId = this.getCookie("charaId");
-      this.gamePackageBo.quality = this.gamePackageBo.quality.toString();
+      this.gamePackageBo.quality = this.gamePackageBo.quality.join(",");
+      // console.log(this.gamePackageBo.quality,"设置确定h")
       this.$http
         .post("/gameMarket/setScreenPackage", this.gamePackageBo)
         .then((res) => {

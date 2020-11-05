@@ -7,6 +7,7 @@
       v-if="this.electronicEquipment == true"
       :config="{ color: '255,255,255', count: 100 }"
     ></vue-canvas-nest>
+
     <headers></headers>
 
     <div id="box">
@@ -29,19 +30,7 @@
               <div class="rank">
                 <span>LV{{ user.level }}</span>
                 <div class="bloodVolume">生命: {{ user.health }}</div>
-                <!-- <Progress
-                  :percent="65"
-                  status="wrong"
-                  text-inside
-                  :stroke-width="20"
-                /> -->
                 <div class="blueAmount">真气值: {{ user.mana }}</div>
-                <!-- <Progress
-                  :percent="65"
-                  status="active"
-                  text-inside
-                  :stroke-width="20"
-                /> -->
               </div>
             </div>
             <div class="goldCoin">
@@ -50,14 +39,15 @@
               <p>
                 当前铜钱: {{ user.money }}
                 <!-- 一键兑换金币 -->
-                <Button
+                <!-- 暂时关闭 -->
+                <!-- <Button
                   slot="extra"
                   changeMap
                   @click.prevent="exchangeCoin"
                   size="small"
                   type="info"
                   >兑换金币</Button
-                >
+                > -->
               </p>
               <!-- 金币升技能和买高级物品 -->
               <p>当前金币: {{ user.coin }}</p>
@@ -147,7 +137,9 @@
               </p>
               <p>
                 暴击率:
-                <span>{{ user.criticalHitValue * 100 || 0 }}%</span>
+                <span
+                  >{{ (user.criticalHitValue * 100).toFixed(2) || 0 }}%</span
+                >
               </p>
               <p>
                 暴击伤害:
@@ -182,7 +174,6 @@
               <span>{{ key }}:</span>
               <Poptip
                 trigger="hover"
-                :title="item.equitName"
                 :style="{ color: distinguishColor(item.color) }"
                 v-if="item"
               >
@@ -191,21 +182,79 @@
                   :style="{ color: distinguishColor(item.color) }"
                 >
                   {{ item.equitName }}
+                  <span
+                    v-if="
+                      item.itemType != 3 &&
+                      item.itemType != 4 &&
+                      item.enhanLevel != 0
+                    "
+                    >+{{ item.enhanLevel }}</span
+                  >
+                  <Button
+                    @click.prevent="TakeOffsingleton(item)"
+                    size="small"
+                    type="info"
+                    >脱下</Button
+                  >
                 </p>
                 <div slot="content">
+                  <p>
+                    {{ item.equitName }}
+                    <span v-if="item.itemType != 3 && item.itemType != 4"
+                      >+{{ item.enhanLevel }}</span
+                    >
+                  </p>
                   <p v-if="item.typeDec">装备类型 {{ item.typeDec }}</p>
                   <p v-if="item.level">装备等级 {{ item.level }}</p>
                   <p>物品状态 {{ item.bind == 0 ? "解绑" : "绑定" }}</p>
-                  <p v-if="item.life">生命值 {{ item.life }}</p>
-                  <p v-if="item.mana">真气值 {{ item.mana }}</p>
-                  <p v-if="item.attack">攻击力 {{ item.attack }}</p>
-                  <p v-if="item.magAttack">法术攻击力 {{ item.magAttack }}</p>
-                  <p v-if="item.defense">防御力 {{ item.defense }}</p>
-                  <p v-if="item.critical">暴击率 {{ item.critical * 100 }}%</p>
+                  <p v-if="item.life">
+                    生命值 {{ item.life }}
+                    <span v-if="item.strengLife">({{ item.strengLife }})</span>
+                  </p>
+                  <p v-if="item.mana">
+                    真气值 {{ item.mana }}
+                    <span v-if="item.strengMana">({{ item.strengMana }})</span>
+                  </p>
+                  <p v-if="item.attack">
+                    攻击力 {{ item.attack }}
+                    <span v-if="item.strengAttack"
+                      >({{ item.strengAttack }})</span
+                    >
+                  </p>
+                  <p v-if="item.magAttack">
+                    法术攻击力 {{ item.magAttack }}
+                    <span v-if="item.strengMagAttack"
+                      >({{ item.strengMagAttack }})</span
+                    >
+                  </p>
+                  <p v-if="item.defense">
+                    防御力 {{ item.defense }}
+                    <span v-if="item.strengDefense"
+                      >({{ item.strengDefense }})</span
+                    >
+                  </p>
+                  <p v-if="item.critical">
+                    暴击率 {{ (item.critical * 100).toFixed(2) }}%
+                  </p>
                   <p v-if="item.speed">行动速度 {{ item.speed }}</p>
-                  <p v-if="item.physique">体格 {{ item.physique }}</p>
-                  <p v-if="item.dexterous">灵巧 {{ item.dexterous }}</p>
-                  <p v-if="item.spirit">灵力 {{ item.spirit }}</p>
+                  <p v-if="item.physique">
+                    体格 {{ item.physique }}
+                    <span v-if="item.strengPhysique"
+                      >({{ item.strengPhysique }})</span
+                    >
+                  </p>
+                  <p v-if="item.dexterous">
+                    灵巧 {{ item.dexterous }}
+                    <span v-if="item.strengDexterous"
+                      >({{ item.strengDexterous }})</span
+                    >
+                  </p>
+                  <p v-if="item.spirit">
+                    灵力 {{ item.spirit }}
+                    <span v-if="item.strengSpirit"
+                      >({{ item.strengSpirit }})</span
+                    >
+                  </p>
                   <p v-if="item.decs">描述： {{ item.decs }}</p>
                 </div>
               </Poptip>
@@ -325,6 +374,28 @@
         </Card>
 
         <div class="line"></div>
+
+        <!-- 强化提示框 -->
+        <Modal
+          v-model="strengthenEject"
+          title="强化提示"
+          @on-ok="changeStrengthen"
+          :styles="{ top: '240px' }"
+        >
+          <p v-if="materialsRequired.materOneName">
+            {{ materialsRequired.materOneName }}: 需要
+            {{ materialsRequired.materOneNum }}
+          </p>
+          <p v-if="materialsRequired.materTwoName">
+            {{ materialsRequired.materTwoName }}: 需要
+            {{ materialsRequired.materTwoNum }}
+          </p>
+          <p v-if="materialsRequired.coin">
+            需要 {{ materialsRequired.coninType == 0 ? "铜币" : "金币" }}
+            {{ materialsRequired.coin }}
+          </p>
+        </Modal>
+
         <!-- 背包 -->
         <Card>
           <p slot="title">背包</p>
@@ -369,7 +440,18 @@
                   style="white-space: nowrap; height: 24px"
                   :style="{ color: distinguishColor(item.color) }"
                 >
+                  <span v-if="item.itemType != 3 && item.itemType != 4"
+                    >[LV:{{ item.level }}]</span
+                  >
                   {{ item.itemName }}
+                  <span
+                    v-if="
+                      item.itemType != 3 &&
+                      item.itemType != 4 &&
+                      item.enhanLevel != 0
+                    "
+                    >+{{ item.enhanLevel }}</span
+                  >
                   <span
                     class="jjt_smail"
                     v-if="item.itemType == 3 || item.itemType == 4"
@@ -411,21 +493,64 @@
                   >
                 </p>
                 <div slot="content">
-                  <p>{{ item.itemName }}</p>
+                  <p>
+                    {{ item.itemName
+                    }}<span v-if="item.itemType != 3 && item.itemType != 4"
+                      >+{{ item.enhanLevel }}</span
+                    >
+                  </p>
                   <p>装备类型 {{ item.typeDec }}</p>
                   <p>装备等级 {{ item.level }}</p>
                   <p>物品状态 {{ item.bind == 0 ? "解绑" : "绑定" }}</p>
                   <p v-if="item.itemNum">物品数量： {{ item.itemNum }}</p>
-                  <p v-if="item.life">生命值 {{ item.life }}</p>
-                  <p v-if="item.mana">真气值 {{ item.mana }}</p>
-                  <p v-if="item.attack">攻击力 {{ item.attack }}</p>
-                  <p v-if="item.magAttack">法术攻击力 {{ item.magAttack }}</p>
-                  <p v-if="item.defense">防御力 {{ item.defense }}</p>
-                  <p v-if="item.critical">暴击率 {{ item.critical * 100 }}%</p>
+                  <p v-if="item.life">
+                    生命值 {{ item.life }}
+                    <span v-if="item.strengLife">({{ item.strengLife }})</span>
+                  </p>
+                  <p v-if="item.mana">
+                    真气值 {{ item.mana }}
+                    <span v-if="item.strengMana">({{ item.strengMana }})</span>
+                  </p>
+                  <p v-if="item.attack">
+                    攻击力 {{ item.attack }}
+                    <span v-if="item.strengAttack"
+                      >({{ item.strengAttack }})</span
+                    >
+                  </p>
+                  <p v-if="item.magAttack">
+                    法术攻击力 {{ item.magAttack }}
+                    <span v-if="item.strengMagAttack"
+                      >({{ item.strengMagAttack }})</span
+                    >
+                  </p>
+                  <p v-if="item.defense">
+                    防御力 {{ item.defense }}
+                    <span v-if="item.strengDefense"
+                      >({{ item.strengDefense }})</span
+                    >
+                  </p>
+                  <p v-if="item.critical">
+                    暴击率 {{ (item.critical * 100).toFixed(2) }}%
+                  </p>
                   <p v-if="item.speed">行动速度 {{ item.speed }}</p>
-                  <p v-if="item.physique">体格 {{ item.physique }}</p>
-                  <p v-if="item.dexterous">灵巧 {{ item.dexterous }}</p>
-                  <p v-if="item.spirit">灵力 {{ item.spirit }}</p>
+                  <p v-if="item.physique">
+                    体格 {{ item.physique }}
+                    <span v-if="item.strengPhysique"
+                      >({{ item.strengPhysique }})</span
+                    >
+                  </p>
+                  <p v-if="item.dexterous">
+                    灵巧 {{ item.dexterous }}
+                    <span v-if="item.strengDexterous"
+                      >({{ item.strengDexterous }})</span
+                    >
+                  </p>
+                  <p v-if="item.spirit">
+                    灵力 {{ item.spirit }}
+                    <span v-if="item.strengSpirit"
+                      >({{ item.strengSpirit }})</span
+                    >
+                  </p>
                   <p v-if="item.decs">描述： {{ item.decs }}</p>
                 </div>
               </Poptip>
@@ -433,59 +558,7 @@
           </div>
         </Card>
 
-        <!-- 商店 -->
-        <Card>
-          <p slot="title">商店</p>
-          <div slot="extra"></div>
-          <div>
-            <div class="knapsack">
-              <Poptip
-                trigger="hover"
-                v-for="item in shopList"
-                :key="item.marketName"
-                :title="item.marketName"
-              >
-                <p
-                  style="white-space: nowrap; height: 24px"
-                  :style="{ color: distinguishColor(item.color) }"
-                >
-                  {{ item.marketName }}
-                  <span class="jjt_smail">{{ item.marketNum }}</span>
-                  <Button
-                    @click.prevent="purchaseItem(item)"
-                    size="small"
-                    type="info"
-                    >购买</Button
-                  >
-                </p>
-                <div slot="content">
-                  <p v-if="item.marketPrice">
-                    商品价格 {{ item.marketPrice }}
-                    {{ item.priceType == 0 ? "铜钱" : "金币" }}
-                  </p>
-                  <p v-if="item.marketNum">购买次数 {{ item.marketNum }}</p>
-                  <p v-if="item.marketLevel">
-                    商品最低购买等级 {{ item.marketLevel }}
-                  </p>
-                  <p v-if="item.typeDec">装备类型 {{ item.typeDec }}</p>
-                  <p v-if="item.level">装备等级 {{ item.level }}</p>
-                  <p v-if="item.itemNum">物品数量： {{ item.itemNum }}</p>
-                  <p v-if="item.life">生命值 {{ item.life }}</p>
-                  <p v-if="item.mana">真气值 {{ item.mana }}</p>
-                  <p v-if="item.attack">攻击力 {{ item.attack }}</p>
-                  <p v-if="item.magAttack">法术攻击力 {{ item.magAttack }}</p>
-                  <p v-if="item.defense">防御力 {{ item.defense }}</p>
-                  <p v-if="item.critical">暴击率 {{ item.critical * 100 }}%</p>
-                  <p v-if="item.speed">行动速度 {{ item.speed }}</p>
-                  <p v-if="item.physique">体格 {{ item.physique }}</p>
-                  <p v-if="item.dexterous">灵巧 {{ item.dexterous }}</p>
-                  <p v-if="item.spirit">灵力 {{ item.spirit }}</p>
-                  <p v-if="item.marketDec">物品描述： {{ item.marketDec }}</p>
-                </div>
-              </Poptip>
-            </div>
-          </div>
-        </Card>
+        <shop></shop>
 
         <rankingList></rankingList>
       </div>
@@ -601,6 +674,7 @@ import vueCanvasNest from "vue-canvas-nest";
 import headers from "./headers.vue";
 import playersList from "./playersList.vue";
 import rankingList from "./rankingList.vue";
+import shop from "./shop.vue";
 import { EquipSlot, SlotName } from "../const";
 
 export default {
@@ -631,6 +705,16 @@ export default {
       shopList: [], // 商店列表
       classification: "0", // 装备分类
       quality: "0", // 装备品质
+      strengthenEject: false, // 强化提示框
+      materialsRequired: {
+        coin: "",
+        coninType: "",
+        materOneName: "",
+        materOneNum: "",
+        materTwoName: "",
+        materTwoNum: "",
+      }, // 所需材料
+      packItemId: "", // 强化需要用到的
     };
   },
   computed: {
@@ -653,7 +737,7 @@ export default {
     },
   },
 
-  components: { vueCanvasNest, headers, playersList, rankingList },
+  components: { vueCanvasNest, headers, playersList, rankingList, shop },
   updated() {
     // 战斗记录定位到底部
     let ele = document.getElementById("recording");
@@ -690,7 +774,7 @@ export default {
     this.getAliiEquip(); // 获取穿戴的装备列表
     this.getAllSkill(); // 获取技能列表
     this.getEquipmentSkill(); // 获取已装备的技能列表
-    this.waresList(); // 获取商店列表
+    // this.waresList(); // 获取商店列表
 
     setInterval(() => {
       this.leader();
@@ -702,6 +786,12 @@ export default {
         this.getAllSkill();
         this.getAllUser();
       });
+    });
+
+    this.$bus.$on("shopMsg", (msg) => {
+      this.getAllPackage();
+      this.getAllUser();
+      this.getAllSkill();
     });
   },
   methods: {
@@ -722,15 +812,6 @@ export default {
       } else {
         return "#ff00c3e0";
       }
-    },
-
-    // 获取商店列表
-    waresList() {
-      this.$http
-        .post("/gameMarket/waresList?charaId=" + this.getCookie("charaId"))
-        .then((res) => {
-          this.shopList = res.data.data;
-        });
     },
 
     // 一键脱下
@@ -1118,6 +1199,25 @@ export default {
         });
     },
 
+    // 脱下单件装备
+    TakeOffsingleton(item) {
+      this.$http
+        .post(
+          "/gameCharaEquip/downEquitBypackage?charaId=" +
+            this.getCookie("charaId") +
+            "&equitId=" +
+            item.equitId
+        )
+        .then((res) => {
+          this.getAliiEquip();
+          this.getAllUser();
+          this.getAllPackage();
+        })
+        .catch((err) => {
+          this.$Message.warning("脱下单件装备失败,请联系管理员");
+        });
+    },
+
     // 出售单件装备
     sellSingle(item) {
       this.$http
@@ -1133,27 +1233,6 @@ export default {
         })
         .catch((err) => {
           this.$Message.warning("出售单件物品失败,请联系管理员");
-        });
-    },
-
-    // 商店购买
-    purchaseItem(item) {
-      this.$http
-        .post(
-          "/gameMarket/buyWares?charaId=" +
-            this.getCookie("charaId") +
-            "&waresId=" +
-            item.marketId
-        )
-        .then((res) => {
-          this.$Message.warning(res.data.msg);
-          this.getAllPackage();
-          this.getAllUser();
-          this.getAllSkill();
-          this.waresList();
-        })
-        .catch((err) => {
-          this.$Message.warning("购买失败,请联系管理员");
         });
     },
 
@@ -1197,6 +1276,44 @@ export default {
         });
     },
 
+    // 装备界面上的强化按钮
+    strengthen(item) {
+      this.strengthenEject = true;
+      this.packItemId = item.packItemId;
+      this.$http
+        .post(
+          "/gameCharaEquip/getCaiEquitStrengThen?charaId=" +
+            this.getCookie("charaId") +
+            "&packItemId=" +
+            item.packItemId
+        )
+        .then((res) => {
+          this.materialsRequired = res.data.data;
+        })
+        .catch((err) => {
+          this.$Message.warning("强化材料失败,请联系管理员");
+        });
+    },
+
+    // 强化提示的确定
+    changeStrengthen() {
+      this.$http
+        .post(
+          "/gameCharaEquip/equitStrengThen?charaId=" +
+            this.getCookie("charaId") +
+            "&packItemId=" +
+            this.packItemId
+        )
+        .then((res) => {
+          this.$Message.warning(res.data.msg);
+          this.getAllPackage();
+          this.getAllUser();
+        })
+        .catch((err) => {
+          this.$Message.warning("强化失败,请联系管理员");
+        });
+    },
+
     // 装备界面上的锁定按钮
     locking(item) {
       this.$http
@@ -1217,7 +1334,7 @@ export default {
         });
     },
 
-    // 兑换金币
+    // 兑换金币  暂时关闭
     exchangeCoin() {
       this.$http
         .post("	/gamepassport/exchange?charaId=" + this.getCookie("charaId"))

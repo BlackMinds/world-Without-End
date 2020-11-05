@@ -16,6 +16,7 @@
           <div slot="content">
             <p>等级: {{ item.level }}</p>
             <p>攻击力: {{ item.attack }}</p>
+            <p>法术攻击力: {{ item.magic }}</p>
             <p>防御力: {{ item.defense }}</p>
             <p>生命值 {{ item.health }}</p>
             <p>真气值: {{ item.mana }}</p>
