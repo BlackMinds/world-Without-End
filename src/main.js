@@ -7,15 +7,12 @@ import axios from 'axios'
 import ViewUI from 'view-design';
 import 'view-design/dist/styles/iview.css';
 
-// import ElementUI from 'element-ui';
-// import 'element-ui/lib/theme-chalk/index.css';
 
 Vue.use(ViewUI);
 
-// Vue.use(ElementUI);
 Vue.prototype.$bus= new Vue()
 
-
+// 
 Vue.prototype.setCookie = function(c_name, value, expiredays) {
     var exdate = new Date()
     exdate.setDate(exdate.getDate() + expiredays)

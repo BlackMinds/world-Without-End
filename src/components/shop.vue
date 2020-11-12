@@ -111,11 +111,13 @@ export default {
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 /* knapsack 背包 和商店共用的 */
 .knapsack {
   /* max-height: 516px; */
+}
+.knapsack /deep/ .ivu-poptip-popper {
+  pointer-events: none;
 }
 .knapsack /deep/ .ivu-poptip {
   width: 50%;

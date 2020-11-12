@@ -93,7 +93,7 @@
        
 <script>
 export default {
-  name: "playersList",
+  name: "skill",
   data() {
     return {
       activeList: [], // 穿戴的主动技能列表
@@ -102,7 +102,13 @@ export default {
     };
   },
   created() {
-    this.waresList();
+    this.getAllSkill();
+    this.getEquipmentSkill();
+  },
+  mounted() {
+    this.$bus.$on("getSkillMsg", (msg) => {
+      this.getAllSkill();
+    });
   },
   methods: {
     // 脱下技能
@@ -118,7 +124,8 @@ export default {
         )
         .then((res) => {
           this.$Message.warning("技能脱下成功");
-          this.getAllUser();
+
+          this.$bus.$emit("skillMsg", "脱下技能发送过来的");
           this.getAllSkill();
           this.getEquipmentSkill();
         })
@@ -184,7 +191,7 @@ export default {
         )
         .then((res) => {
           this.$Message.warning("装备技能成功");
-          this.getAllUser();
+          this.$bus.$emit("skillMsg1", "装备技能发送过来的");
           this.getAllSkill();
           this.getEquipmentSkill();
         })
@@ -204,30 +211,10 @@ export default {
         )
         .then((res) => {
           this.$Message.warning(res.data.data);
-          this.getAllUser();
           this.getAllSkill();
-          this.getEquipmentSkill();
         })
         .catch((err) => {
           this.$Message.warning("技能升级失败,请联系管理员");
-        });
-    },
-    // 商店购买
-    purchaseItem(item) {
-      this.$http
-        .post(
-          "/gameMarket/buyWares?charaId=" +
-            this.getCookie("charaId") +
-            "&waresId=" +
-            item.marketId
-        )
-        .then((res) => {
-          this.$Message.warning(res.data.data);
-          this.waresList();
-          this.$bus.$emit("shopMsg", "商店购买发送过来的");
-        })
-        .catch((err) => {
-          this.$Message.warning("购买失败,请联系管理员");
         });
     },
   },

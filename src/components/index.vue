@@ -26,30 +26,33 @@
           >
           <div>
             <div class="character">
-              <Avatar src="https://i.loli.net/2017/08/21/599a521472424.jpg" />
+              <Upload
+                type="drag"
+                :before-upload="handleUpload"
+                action="http://www.yunyingxiaowu.com:8088/foodie-api/gamepassport/uploadFace"
+              >
+                <div style="width: 100px; height: 100px; overflow: hidden">
+                  <p
+                    class="touxiang"
+                    :style="{ backgroundImage: 'url(' + user.face + ')' }"
+                  ></p>
+                </div>
+              </Upload>
+              <!-- <Avatar src="https://i.loli.net/2017/08/21/599a521472424.jpg" /> -->
               <div class="rank">
-                <span>LV{{ user.level }}</span>
+                <div>
+                  <span style="float: left">LV{{ user.level }}</span>
+                  <span style="float: right">编号{{ user.accountId }}</span>
+                </div>
                 <div class="bloodVolume">生命: {{ user.health }}</div>
                 <div class="blueAmount">真气值: {{ user.mana }}</div>
               </div>
             </div>
             <div class="goldCoin">
-              <p>当前经验: {{ user.exp }} / {{ user.upgradeExp }}</p>
+              <p>当前等级经验: {{ user.exp }} / {{ user.upgradeExp }}</p>
+              <p>境界: 炼气期 &nbsp; 修真经验 0 / 100</p>
               <!-- 铜钱买普通物品 -->
-              <p>
-                当前铜钱: {{ user.money }}
-                <!-- 一键兑换金币 -->
-                <!-- 暂时关闭 -->
-                <!-- <Button
-                  slot="extra"
-                  changeMap
-                  @click.prevent="exchangeCoin"
-                  size="small"
-                  type="info"
-                  >兑换金币</Button
-                > -->
-              </p>
-              <!-- 金币升技能和买高级物品 -->
+              <p>当前铜钱: {{ user.money }}</p>
               <p>当前金币: {{ user.coin }}</p>
             </div>
           </div>
@@ -136,6 +139,14 @@
                 <span>{{ user.defense }}</span>
               </p>
               <p>
+                命中率:
+                <span>{{ (user.hitRate * 100).toFixed(2) || 0 }}%</span>
+              </p>
+              <p>
+                闪避率:
+                <span>{{ (user.evade * 100).toFixed(2) || 0 }}%</span>
+              </p>
+              <p>
                 暴击率:
                 <span
                   >{{ (user.criticalHitValue * 100).toFixed(2) || 0 }}%</span
@@ -143,7 +154,7 @@
               </p>
               <p>
                 暴击伤害:
-                <span>150%</span>
+                <span>{{ (user.critDamage * 100).toFixed(2) || 0 }}%</span>
               </p>
               <p>
                 行动速度:
@@ -169,7 +180,7 @@
               >一键脱下</Button
             >
           </div>
-          <div>
+          <div class="equipmentBar">
             <div v-for="(item, key, index) in equipmentList" :key="index">
               <span>{{ key }}:</span>
               <Poptip
@@ -233,8 +244,17 @@
                       >({{ item.strengDefense }})</span
                     >
                   </p>
+                  <p v-if="item.hitRate">
+                    命中率 {{ (item.hitRate * 100).toFixed(2) }}%
+                  </p>
+                  <p v-if="item.evade">
+                    闪避率 {{ (item.evade * 100).toFixed(2) }}%
+                  </p>
                   <p v-if="item.critical">
                     暴击率 {{ (item.critical * 100).toFixed(2) }}%
+                  </p>
+                  <p v-if="item.criDamage">
+                    暴击伤害 {{ (item.criDamage * 100).toFixed(2) }}%
                   </p>
                   <p v-if="item.speed">行动速度 {{ item.speed }}</p>
                   <p v-if="item.physique">
@@ -325,8 +345,10 @@
                   <p>最小攻击力 {{ item.attackMin }}</p>
                   <p>最大攻击力 {{ item.attackMax }}</p>
                   <p>防御力 {{ item.defence }}</p>
+                  <p>命中率 {{ item.hitRate * 100 }}%</p>
+                  <p>闪避率 {{ item.evade * 100 }}%</p>
                   <p>暴击率 {{ item.explode * 100 }}%</p>
-                  <p>暴击伤害 150%</p>
+                  <p>暴击伤害 {{ item.criDamage * 100 }}%</p>
                   <p>行动速度 {{ item.speed }}</p>
                   <!-- <p>掉落物品 {{ item.wp ||  '无'}}</p> -->
                 </div>
@@ -360,6 +382,14 @@
                   >
                   剩余<span style="color: red">{{ item.surplusHealth }}</span
                   >血量
+                  <span
+                    v-if="item.isCritical == 2"
+                    :style="{
+                      color: '#5b00ff',
+                      fontSize: '20px',
+                    }"
+                    >被闪避了</span
+                  >
                 </span>
                 <span
                   style="color: rgb(255, 0, 224)"
@@ -435,6 +465,8 @@
                 v-for="item in filteredItems"
                 :key="item.name"
                 :title="item.name"
+                @on-popper-show="openEquipment(item)"
+                @on-popper-hide="Equipment = null"
               >
                 <p
                   style="white-space: nowrap; height: 24px"
@@ -492,66 +524,173 @@
                     >出售</Button
                   >
                 </p>
-                <div slot="content">
-                  <p>
-                    {{ item.itemName
-                    }}<span v-if="item.itemType != 3 && item.itemType != 4"
-                      >+{{ item.enhanLevel }}</span
-                    >
-                  </p>
-                  <p>装备类型 {{ item.typeDec }}</p>
-                  <p>装备等级 {{ item.level }}</p>
-                  <p>物品状态 {{ item.bind == 0 ? "解绑" : "绑定" }}</p>
-                  <p v-if="item.itemNum">物品数量： {{ item.itemNum }}</p>
-                  <p v-if="item.life">
-                    生命值 {{ item.life }}
-                    <span v-if="item.strengLife">({{ item.strengLife }})</span>
-                  </p>
-                  <p v-if="item.mana">
-                    真气值 {{ item.mana }}
-                    <span v-if="item.strengMana">({{ item.strengMana }})</span>
-                  </p>
-                  <p v-if="item.attack">
-                    攻击力 {{ item.attack }}
-                    <span v-if="item.strengAttack"
-                      >({{ item.strengAttack }})</span
-                    >
-                  </p>
-                  <p v-if="item.magAttack">
-                    法术攻击力 {{ item.magAttack }}
-                    <span v-if="item.strengMagAttack"
-                      >({{ item.strengMagAttack }})</span
-                    >
-                  </p>
-                  <p v-if="item.defense">
-                    防御力 {{ item.defense }}
-                    <span v-if="item.strengDefense"
-                      >({{ item.strengDefense }})</span
-                    >
-                  </p>
-                  <p v-if="item.critical">
-                    暴击率 {{ (item.critical * 100).toFixed(2) }}%
-                  </p>
-                  <p v-if="item.speed">行动速度 {{ item.speed }}</p>
-                  <p v-if="item.physique">
-                    体格 {{ item.physique }}
-                    <span v-if="item.strengPhysique"
-                      >({{ item.strengPhysique }})</span
-                    >
-                  </p>
-                  <p v-if="item.dexterous">
-                    灵巧 {{ item.dexterous }}
-                    <span v-if="item.strengDexterous"
-                      >({{ item.strengDexterous }})</span
-                    >
-                  </p>
-                  <p v-if="item.spirit">
-                    灵力 {{ item.spirit }}
-                    <span v-if="item.strengSpirit"
-                      >({{ item.strengSpirit }})</span
-                    >
-                  </p>
-                  <p v-if="item.decs">描述： {{ item.decs }}</p>
+                <div slot="content" class="poptipExplain">
+                  <!-- 装备栏显示的数据 -->
+                  <div v-if="Equipment" class="Equipment">
+                    <div slot="content">
+                      <p>
+                        {{ Equipment.equitName
+                        }}<span
+                          v-if="
+                            Equipment.itemType != 3 && Equipment.itemType != 4
+                          "
+                          >+{{ Equipment.enhanLevel }}</span
+                        >
+                        &nbsp;&nbsp;(已装备)
+                      </p>
+                      <p>装备类型 {{ Equipment.typeDec }}</p>
+                      <p>装备等级 {{ Equipment.level }}</p>
+                      <p>
+                        物品状态 {{ Equipment.bind == 0 ? "解绑" : "绑定" }}
+                      </p>
+                      <p v-if="Equipment.itemNum">
+                        物品数量： {{ Equipment.itemNum }}
+                      </p>
+                      <p v-if="Equipment.life">
+                        生命值 {{ Equipment.life }}
+                        <span v-if="Equipment.strengLife"
+                          >({{ Equipment.strengLife }})</span
+                        >
+                      </p>
+                      <p v-if="Equipment.mana">
+                        真气值 {{ Equipment.mana }}
+                        <span v-if="Equipment.strengMana"
+                          >({{ Equipment.strengMana }})</span
+                        >
+                      </p>
+                      <p v-if="Equipment.attack">
+                        攻击力 {{ Equipment.attack }}
+                        <span v-if="Equipment.strengAttack"
+                          >({{ Equipment.strengAttack }})</span
+                        >
+                      </p>
+                      <p v-if="Equipment.magAttack">
+                        法术攻击力 {{ Equipment.magAttack }}
+                        <span v-if="Equipment.strengMagAttack"
+                          >({{ Equipment.strengMagAttack }})</span
+                        >
+                      </p>
+                      <p v-if="Equipment.defense">
+                        防御力 {{ Equipment.defense }}
+                        <span v-if="Equipment.strengDefense"
+                          >({{ Equipment.strengDefense }})</span
+                        >
+                      </p>
+                      <p v-if="Equipment.hitRate">
+                        命中率 {{ (Equipment.hitRate * 100).toFixed(2) }}%
+                      </p>
+                      <p v-if="Equipment.evade">
+                        闪避率 {{ (Equipment.evade * 100).toFixed(2) }}%
+                      </p>
+                      <p v-if="Equipment.critical">
+                        暴击率 {{ (Equipment.critical * 100).toFixed(2) }}%
+                      </p>
+                      <p v-if="Equipment.criDamage">
+                        暴击伤害 {{ (Equipment.criDamage * 100).toFixed(2) }}%
+                      </p>
+                      <p v-if="Equipment.speed">
+                        行动速度 {{ Equipment.speed }}
+                      </p>
+                      <p v-if="Equipment.physique">
+                        体格 {{ Equipment.physique }}
+                        <span v-if="Equipment.strengPhysique"
+                          >({{ Equipment.strengPhysique }})</span
+                        >
+                      </p>
+                      <p v-if="Equipment.dexterous">
+                        灵巧 {{ Equipment.dexterous }}
+                        <span v-if="Equipment.strengDexterous"
+                          >({{ Equipment.strengDexterous }})</span
+                        >
+                      </p>
+                      <p v-if="Equipment.spirit">
+                        灵力 {{ Equipment.spirit }}
+                        <span v-if="Equipment.strengSpirit"
+                          >({{ Equipment.strengSpirit }})</span
+                        >
+                      </p>
+                      <p v-if="Equipment.equitDec">
+                        描述： {{ Equipment.equitDec }}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div>
+                    <p>
+                      {{ item.itemName
+                      }}<span v-if="item.itemType != 3 && item.itemType != 4"
+                        >+{{ item.enhanLevel }}</span
+                      >
+                    </p>
+                    <p>装备类型 {{ item.typeDec }}</p>
+                    <p>装备等级 {{ item.level }}</p>
+                    <p>物品状态 {{ item.bind == 0 ? "解绑" : "绑定" }}</p>
+                    <p v-if="item.itemNum != 1">
+                      物品数量： {{ item.itemNum }}
+                    </p>
+                    <p v-if="item.life">
+                      生命值 {{ item.life }}
+                      <span v-if="item.strengLife"
+                        >({{ item.strengLife }})</span
+                      >
+                    </p>
+                    <p v-if="item.mana">
+                      真气值 {{ item.mana }}
+                      <span v-if="item.strengMana"
+                        >({{ item.strengMana }})</span
+                      >
+                    </p>
+                    <p v-if="item.attack">
+                      攻击力 {{ item.attack }}
+                      <span v-if="item.strengAttack"
+                        >({{ item.strengAttack }})</span
+                      >
+                    </p>
+                    <p v-if="item.magAttack">
+                      法术攻击力 {{ item.magAttack }}
+                      <span v-if="item.strengMagAttack"
+                        >({{ item.strengMagAttack }})</span
+                      >
+                    </p>
+                    <p v-if="item.defense">
+                      防御力 {{ item.defense }}
+                      <span v-if="item.strengDefense"
+                        >({{ item.strengDefense }})</span
+                      >
+                    </p>
+                    <p v-if="item.hitRate">
+                      命中率 {{ (item.hitRate * 100).toFixed(2) }}%
+                    </p>
+                    <p v-if="item.evade">
+                      闪避率 {{ (item.evade * 100).toFixed(2) }}%
+                    </p>
+                    <p v-if="item.critical">
+                      暴击率 {{ (item.critical * 100).toFixed(2) }}%
+                    </p>
+                    <p v-if="item.criDamage">
+                      暴击伤害 {{ (item.criDamage * 100).toFixed(2) }}%
+                    </p>
+                    <p v-if="item.speed">行动速度 {{ item.speed }}</p>
+                    <p v-if="item.physique">
+                      体格 {{ item.physique }}
+                      <span v-if="item.strengPhysique"
+                        >({{ item.strengPhysique }})</span
+                      >
+                    </p>
+                    <p v-if="item.dexterous">
+                      灵巧 {{ item.dexterous }}
+                      <span v-if="item.strengDexterous"
+                        >({{ item.strengDexterous }})</span
+                      >
+                    </p>
+                    <p v-if="item.spirit">
+                      灵力 {{ item.spirit }}
+                      <span v-if="item.strengSpirit"
+                        >({{ item.strengSpirit }})</span
+                      >
+                    </p>
+                    <p v-if="item.decs">描述： {{ item.decs }}</p>
+                  </div>
                 </div>
               </Poptip>
             </div>
@@ -559,111 +698,13 @@
         </Card>
 
         <shop></shop>
-
-        <rankingList></rankingList>
       </div>
 
       <div id="right">
         <div class="line"></div>
 
         <!-- 技能 -->
-        <Card>
-          <p slot="title">技能</p>
-          <div slot="extra"></div>
-          <div>
-            <div style="overflow: hidden; margin-bottom: 15px">
-              <div class="activeSkill">
-                <h4>主动技能</h4>
-                <div
-                  v-for="(item, index) in activeList"
-                  :key="index"
-                  style="margin-bottom: 4px"
-                >
-                  <!-- <span>{{ item.skillName }}:</span> -->
-                  <Poptip trigger="hover" :title="item.skillName">
-                    <p style="white-space: nowrap; height: 24px">
-                      <span>{{ item.skillName }}:</span>
-                      <Button
-                        @click.prevent="TakeSkill(item, 1)"
-                        size="small"
-                        type="info"
-                        >脱下</Button
-                      >
-                    </p>
-                    <div slot="content">
-                      <p>技能效果: {{ item.skillDesc }}</p>
-                      <p>技能耗蓝: {{ item.conMana }}</p>
-                      <p>升级所需金币 {{ item.consumeCoin }}</p>
-                      <p>下一等级技能效果: {{ item.skillNextDesc }}</p>
-                    </div>
-                  </Poptip>
-                </div>
-              </div>
-              <div class="passiveSkill">
-                <h4>被动技能</h4>
-                <div
-                  v-for="(item, index) in passiveList"
-                  :key="index"
-                  style="margin-bottom: 4px"
-                >
-                  <Poptip trigger="hover" :title="item.skillName">
-                    <p style="white-space: nowrap; height: 24px">
-                      <span>{{ item.skillName }}:</span>
-                      <Button
-                        @click.prevent="TakeSkill(item, 2)"
-                        size="small"
-                        type="info"
-                        >脱下</Button
-                      >
-                    </p>
-                    <div slot="content">
-                      <p>技能效果: {{ item.skillDesc }}</p>
-                      <p>技能耗蓝: {{ item.conMana }}</p>
-                      <p>升级所需金币 {{ item.consumeCoin }}</p>
-                      <p>下一等级技能效果: {{ item.skillNextDesc }}</p>
-                    </div>
-                  </Poptip>
-                </div>
-              </div>
-            </div>
-            <div class="skillList">
-              <Poptip
-                trigger="hover"
-                v-for="item in skillList"
-                :key="item.skillId"
-                :title="item.skillName"
-              >
-                <p
-                  style="white-space: nowrap; height: 24px"
-                  :style="{ color: item.color }"
-                >
-                  {{ item.skillName }}
-                  <Button
-                    @click.prevent="skillEquip(item)"
-                    size="small"
-                    type="info"
-                    >装备</Button
-                  >
-                  <Button
-                    @click.prevent="upgrade(item)"
-                    size="small"
-                    type="info"
-                    >升级</Button
-                  >
-                </p>
-                <div slot="content">
-                  <!-- <p>{{ item.skillName }}</p> -->
-                  <p>技能效果: {{ item.skillDesc }}</p>
-                  <p>技能耗蓝: {{ item.conMana }}</p>
-                  <p>升级所需金币 {{ item.consumeCoin }}</p>
-                  <p>下一等级技能效果: {{ item.skillNextDesc }}</p>
-                </div>
-              </Poptip>
-            </div>
-          </div>
-        </Card>
-
-        <playersList></playersList>
+        <skill></skill>
       </div>
     </div>
   </div>
@@ -672,9 +713,10 @@
 <script>
 import vueCanvasNest from "vue-canvas-nest";
 import headers from "./headers.vue";
-import playersList from "./playersList.vue";
-import rankingList from "./rankingList.vue";
+// import playersList from "./playersList.vue";
+// import rankingList from "./rankingList.vue";
 import shop from "./shop.vue";
+import skill from "./skill.vue";
 import { EquipSlot, SlotName } from "../const";
 
 export default {
@@ -694,9 +736,10 @@ export default {
       recording: [], // 战斗信息
       battleState: false, // 战斗状态
       time: null, // 暂时没用到
+      Equipment: undefined, // 装备栏显示
       battleTimer: null,
       knapsackList: [], // 包裹
-      mapid: "", // 地图id
+      mapid: null, // 地图id
       activeList: [], // 穿戴的主动技能列表
       passiveList: [], // 穿戴的被动技能列表
       skillList: [], // 全部技能
@@ -737,7 +780,7 @@ export default {
     },
   },
 
-  components: { vueCanvasNest, headers, playersList, rankingList, shop },
+  components: { vueCanvasNest, headers, shop, skill },
   updated() {
     // 战斗记录定位到底部
     let ele = document.getElementById("recording");
@@ -769,32 +812,60 @@ export default {
     this.$http.get("gameChara/queryMapList").then((res) => {
       this.mapList = res.data.data;
     });
+
     this.getAllUser(); // 获取用户
     this.getAllPackage(); // 获取全部包裹
     this.getAliiEquip(); // 获取穿戴的装备列表
-    this.getAllSkill(); // 获取技能列表
-    this.getEquipmentSkill(); // 获取已装备的技能列表
-    // this.waresList(); // 获取商店列表
+    setTimeout(() => {
+      this.automaticCombat(); // 自动战斗
+    }, 500);
 
-    setInterval(() => {
-      this.leader();
-    }, 1800000);
-
-    this.$bus.$on("aMsg", (msg) => {
+    // 兑换码发送过来的
+    this.$bus.$on("dhmMsg", (msg) => {
       setTimeout(() => {
         this.getAllPackage();
-        this.getAllSkill();
-        this.getAllUser();
-      });
+      }, 500);
     });
 
+    // 商店购买发送过来的
     this.$bus.$on("shopMsg", (msg) => {
-      this.getAllPackage();
       this.getAllUser();
-      this.getAllSkill();
+      this.getAllPackage();
+      // this.getAllSkill();
+    });
+
+    // 脱下技能发送过来的
+    this.$bus.$on("skillMsg", (msg) => {
+      this.getAllUser();
+    });
+
+    // 装备技能发送过来的
+    this.$bus.$on("skillMsg1", (msg) => {
+      this.getAllUser();
+    });
+
+    // 退出登录发送过来的
+    this.$bus.$on("tcdlMsg", (msg) => {
+      clearTimeout(this.battleTimer);
+      this.battleTimer = null;
     });
   },
+  created() {},
   methods: {
+    // 自动战斗
+    automaticCombat() {
+      // 如果地图id存在就自动战斗
+      var mapid = this.user.accountId + "mapid";
+      var mapName = this.user.accountId + "mapName";
+      if (window.localStorage[mapid]) {
+        clearTimeout(this.battleTimer);
+        this.battleTimer = null;
+        this.mapName = window.localStorage[mapName];
+        this.mapNameF = window.localStorage[mapName];
+        this.deteSetMap(window.localStorage[mapid]);
+      }
+    },
+
     // 返回品质颜色
     distinguishColor(color) {
       if (color == 1) {
@@ -851,6 +922,26 @@ export default {
       return equips;
     },
 
+    // 头像上传
+    handleUpload(file) {
+      var image = new FormData();
+      image.append("file", file);
+      this.$http
+        .post(
+          "/gamepassport/uploadFace/?charaId=" + this.getCookie("charaId"),
+          image,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        )
+        .then((res) => {
+          this.getAllUser();
+        });
+      return false;
+    },
+
     // 获取角色的装备列表
     getAliiEquip() {
       this.$http
@@ -877,115 +968,6 @@ export default {
         })
         .catch((err) => {
           this.$Message.warning("获取角色失败,请联系管理员");
-        });
-    },
-
-    // 获取角色的j技能列表
-    getAllSkill() {
-      this.$http
-        .post(
-          "gameCharaSkill/getCharaSkill/?charaId=" + this.getCookie("charaId")
-        )
-        .then((res) => {
-          this.skillList = res.data.data;
-        })
-        .catch((err) => {
-          this.$Message.warning("获取技能列表失败,请联系管理员");
-        });
-    },
-
-    // 获取角色已装备的技能列表
-    getEquipmentSkill() {
-      this.$http
-        .post(
-          "gameCharaSkill/getCharaUseSkill/?charaId=" +
-            this.getCookie("charaId") +
-            "&skillType=" +
-            1
-        )
-        .then((res) => {
-          this.activeList = res.data.data;
-        })
-        .catch((err) => {
-          this.$Message.warning("获取已装备的主动技能列表失败,请联系管理员");
-        });
-
-      this.$http
-        .post(
-          "gameCharaSkill/getCharaUseSkill/?charaId=" +
-            this.getCookie("charaId") +
-            "&skillType=" +
-            2
-        )
-        .then((res) => {
-          this.passiveList = res.data.data;
-        })
-        .catch((err) => {
-          this.$Message.warning("获取已装备的被动技能列表失败,请联系管理员");
-        });
-    },
-
-    // 装备技能
-    skillEquip(item) {
-      this.$http
-        .post(
-          "gameCharaSkill/makeSkill/?charaId=" +
-            this.getCookie("charaId") +
-            "&skillId=" +
-            item.skillId +
-            "&skillType=" +
-            item.skillType
-        )
-        .then((res) => {
-          this.$Message.warning("装备技能成功");
-          this.getAllUser();
-          this.getAllSkill();
-          this.getEquipmentSkill();
-        })
-        .catch((err) => {
-          this.$Message.warning("装备技能失败,请联系管理员");
-        });
-    },
-
-    // 技能升级
-    upgrade(item) {
-      this.$http
-        .post(
-          "/gameCharaSkill/upgradeSkill?charaId=" +
-            this.getCookie("charaId") +
-            "&skillId=" +
-            item.skillId
-        )
-        .then((res) => {
-          this.$Message.warning(res.data.data);
-          this.getAllUser();
-          this.getAllSkill();
-          this.getEquipmentSkill();
-        })
-        .catch((err) => {
-          this.$Message.warning("技能升级失败,请联系管理员");
-        });
-    },
-
-    // 脱下技能
-    TakeSkill(item) {
-      this.$http
-        .post(
-          "gameCharaSkill/makeDownSkill/?charaId=" +
-            this.getCookie("charaId") +
-            "&skillId=" +
-            item.skillId +
-            "&skillType=" +
-            item.skillType
-        )
-        .then((res) => {
-          this.$Message.warning("技能脱下成功");
-          this.getAllUser();
-          this.getAllSkill();
-          this.getEquipmentSkill();
-        })
-        .catch((err) => {
-          this.$Message.warning("技能脱下失败,请联系管理员");
         });
     },
 
@@ -1051,6 +1033,13 @@ export default {
         }
       }
 
+      // 存进locastorange做自动战斗
+      window.localStorage.setItem(this.user.accountId + "mapid", this.mapid);
+      window.localStorage.setItem(
+        this.user.accountId + "mapName",
+        this.mapName
+      );
+
       this.$http
         .post(
           "gameChara/checkMapGenMon?charaId=" +
@@ -1060,6 +1049,8 @@ export default {
         )
         .then((res) => {
           if (res.data.status == 205) {
+            clearTimeout(this.battleTimer);
+            this.battleTimer = null;
             this.$Message.warning(res.data.msg);
             setTimeout(() => {
               this.battleState = false;
@@ -1103,14 +1094,8 @@ export default {
                     reMana: res.data.data.reMana,
                   });
 
-                  // // 背包超过50个以上 不更新背包接口
-                  // if (this.knapsackList.length >= 50) {
-                  //   this.$Message.warning("背包已满");
-                  // } else {
-                  //   this.getAllPackage();
-                  // }
                   this.getAllPackage(); // 获取全部物品
-                  this.getAllSkill(); // 获取技能
+                  this.$bus.$emit("getSkillMsg", "战斗胜利发送过来的");
                   this.getAllUser();
 
                   this.battleState = false;
@@ -1130,11 +1115,11 @@ export default {
           });
         })
         .catch((err) => {
-          this.$Message.warning("战斗开始失败,请联系管理员");
+          this.$Message.warning("战斗开始失败5秒后自动请求战斗,请联系管理员");
           setTimeout(() => {
             this.battleState = false;
             this.deteSetMap(mapid);
-          }, 3000);
+          }, 5000);
         });
     },
 
@@ -1172,6 +1157,15 @@ export default {
         this.user.spirit += spot;
       }
       this.user.reAttrPoint -= spot;
+    },
+
+    // 显示装备对比属性
+    openEquipment(item) {
+      for (let key in this.equipmentList) {
+        if (item.kind == this.equipmentList[key].geKind) {
+          this.Equipment = this.equipmentList[key];
+        }
+      }
     },
 
     // 出售全部装备
@@ -1333,20 +1327,6 @@ export default {
           this.$Message.warning("绑定失败,请联系管理员");
         });
     },
-
-    // 兑换金币  暂时关闭
-    exchangeCoin() {
-      this.$http
-        .post("	/gamepassport/exchange?charaId=" + this.getCookie("charaId"))
-        .then((res) => {
-          this.$Message.warning(res.data.msg);
-          this.getAllUser();
-        })
-        .catch((err) => {
-          this.$Message.warning("兑换失败.请联系管理员");
-          this.getAllUser();
-        });
-    },
   },
 };
 </script>
@@ -1419,11 +1399,26 @@ body {
 .character {
   overflow: hidden;
 }
+.character /deep/ .ivu-upload-drag {
+  float: left;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+}
+.touxiang {
+  width: 100%;
+  height: 100%;
+  background-position: center center;
+  background-size: cover;
+}
 .rank {
   float: left;
   margin-left: 10px;
 }
-.rank > span {
+.rank div {
+  overflow: hidden;
+}
+.rank div > span {
   background-color: #a1afb4;
   color: #fff;
   padding: 1px 3px;
@@ -1483,6 +1478,7 @@ body {
   color: #fff;
 }
 
+/*  战斗场景  */
 .recording {
   max-height: 168px;
   overflow: auto;
@@ -1522,6 +1518,10 @@ body {
 .knapsack {
   /* max-height: 516px; */
 }
+.knapsack /deep/ .ivu-poptip-popper,
+.equipmentBar /deep/ .ivu-poptip-popper {
+  pointer-events: none;
+}
 .knapsack /deep/ .ivu-poptip {
   width: 50%;
 }
@@ -1541,30 +1541,22 @@ body {
   font-size: 12px;
 }
 
-/* 技能列表 */
-.skillList /deep/ .ivu-poptip {
-  width: 50%;
+/* 装备栏数据对比显示 */
+.Equipment {
+  width: 200px;
+  white-space: normal;
+  word-break: break-all;
+  margin-right: 15px;
 }
-.skillList /deep/ .ivu-poptip p button {
-  display: none;
-  height: 22px;
+
+.Equipment + div {
+  width: 200px;
+  white-space: normal;
+  word-break: break-all;
 }
-.skillList /deep/ .ivu-poptip p:hover {
-  z-index: 9;
-  position: relative;
-}
-.skillList /deep/ .ivu-poptip p:hover button {
-  display: inline-block;
-}
-/* 技能栏 */
-.activeSkill {
-  float: left;
-  width: 50%;
-  text-align: center;
-}
-.passiveSkill {
-  float: right;
-  width: 50%;
-  text-align: center;
+
+/* 装备栏数据对比显示左右对比数据显示 */
+.poptipExplain {
+  display: flex;
 }
 </style>

@@ -3,12 +3,13 @@
     <div class="head-cen">
       <div class="heade-left">
         <ul>
-          <li>角色选择(暂时不可用)</li>
+          <li @click="openOrganize">组队(不可用)</li>
           <li @click="openSetEject">设置</li>
           <li @click="changePas">修改密码</li>
-          <li @click="openStrategy">攻略(新手请点击这个)</li>
-          <li @click="games">小游戏</li>
+          <li @click="openStrategy">攻略(新手点这)</li>
           <li @click="openExchange">兑换码</li>
+          <li @click="PlanEject = true">排行榜</li>
+          <li @click="RackingEject = true">在线玩家</li>
         </ul>
       </div>
       <div class="heade-right">
@@ -16,6 +17,35 @@
           <li @click="out">退出登录</li>
         </ul>
       </div>
+
+      <!-- 组队 -->
+      <Modal
+        width="1020"
+        title="组队"
+        v-model="organizeEject"
+        :styles="{ top: '100px' }"
+        class="organizeEject"
+      >
+        <div
+          v-for="(item, idx) in organizeList"
+          :key="idx"
+          class="organizeList"
+        >
+          <img
+            v-if="item.face"
+            :src="item.face"
+            alt="老弟,没图片找群主要啊"
+            class="organizeList_face"
+          />
+          <div
+            v-else
+            style="text-align: center; font-size: 160px; cursor: pointer"
+          >
+            <Icon type="md-add" />
+          </div>
+          <p class="organizeList_name">{{ item.name }}</p>
+        </div>
+      </Modal>
 
       <!-- 设置 -->
       <Modal
@@ -39,7 +69,6 @@
           <FormItem label="最高等级">
             <Input type="text" v-model="gamePackageBo.maxLevel"> </Input>
           </FormItem>
-          {{ gamePackageBo.quality }}
           <FormItem label="品质列表">
             <CheckboxGroup v-model="gamePackageBo.quality">
               <Checkbox label="1">黑色</Checkbox>
@@ -61,21 +90,21 @@
         @on-ok="this.strategy = false"
         :styles="{ top: '40px' }"
       >
-        <p>
-          目前装备只开放了0-50级,地图也只开放了0-50级,技能目前只在秦郡城和灵霄山脉(强力单体和群攻)掉落
-        </p>
+        <p>进群可以免费领取兑换码</p>
         <p>每升一级加3个属性点,装备品质分为,黑色,黄色,绿色,蓝色,紫色,红色</p>
-        <p>如果有任何bug 或者有任何意见 可以加群反馈,qq群号: 808647555</p>
         <p>
-          铜钱作用买商店物品(目前商店未开放) 金币用来升级技能 和强化高星装备
+          如果有任何bug 或者有任何意见 反馈qq群:
+          <span class="importantFont">808647555</span>
         </p>
-        <p>装备强化目前是没有效果的</p>
+        <p class="importantFont">地图掉落说明</p>
+        <p class="importantFont">
+          普通图只掉落除红色以下与地图同等级的装备，挑战掉落紫色以上同等级装备。地狱掉落技能
+        </p>
         <br />
-        <p>地图掉落说明</p>
+        <!-- <p>地图掉落说明</p>
         <div class="mapLoots">
           <p v-for="(mapLoots, index) in mapLootsList" :key="index">
             {{ mapLoots.mapName }}:
-            <!-- {{item.itemsVoList[0] }} -->
             <template v-if="mapLoots.itemsVoList">
               <span v-for="(loot, idx) in mapLoots.itemsVoList" :key="idx">
                 <template v-if="loot">
@@ -87,8 +116,7 @@
             </template>
           </p>
         </div>
-
-        <br />
+        <br /> -->
         <p>测试版: v0.1(2020-10-19)</p>
         <p>1: 修复了主动技能不能脱下的问题</p>
         <p>2: 修复了背包超出,底部留白的问题</p>
@@ -150,17 +178,46 @@
         </p>
         <br />
         <p>测试版: v0.8(2020-10-30)</p>
-        <p>1: 自动出售</p>
+        <p class="importantFont">1: 自动出售</p>
         <p>2: 锁定</p>
         <br />
-        <p>测试版: v0.8(2020-11-01)</p>
-        <p>1: 开放了强化</p>
+        <p>测试版: v0.9(2020-11-01)</p>
+        <p class="importantFont">1: 开放了强化</p>
         <br />
-        <p>测试版: v0.8(2020-11-04)</p>
+        <p>测试版: v0.10.1(2020-11-04)</p>
         <p>1: 新增4个技能</p>
-        <p>测试版: v0.8(2020-11-05)</p>
-        <p>1: 金币兑换关闭 通过商店去兑换</p>
+        <br />
+        <p>测试版: v0.10.2(2020-11-05)</p>
+        <p class="importantFont">1: 金币兑换关闭 通过商店去兑换</p>
         <p>2: 装备等级限制，功能道具等级使用限制，商店新增好运袋</p>
+        <br />
+        <p>测试版: v0.10.3(2020-11-07)</p>
+        <p>1: 每一点灵力成的真气值削弱</p>
+        <p>2: 灵巧加的攻击力增强</p>
+        <p>3: 实装命中，闪避，暴击伤害</p>
+        <p class="importantFont">4: 装备随机属性浮动</p>
+        <p class="importantFont">5: 装备等级限制</p>
+        <br />
+        <p>测试版: v0.10.4(2020-11-09)</p>
+        <p class="importantFont">1: 用户体验优化</p>
+        <p>2: 排行榜和在线玩家移动到导航条</p>
+        <br />
+        <p>测试版: v0.10.5(2020-11-10)</p>
+        <p class="importantFont">1: 新增装备对比...</p>
+        <br />
+        <p>测试版: v0.10.5(2020-11-11)</p>
+        <p class="importantFont">
+          1: 新增编号(以后群里有问题就报编号,组队也需要编号)
+        </p>
+        <p class="importantFont">2: 更新上传头像(点击图片就可以)</p>
+        <p class="importantFont">
+          3: 新增自动战斗 (修改了 已角色id几率最近的地图
+          不会出现换小号就不行的情况)
+        </p>
+        <p class="importantFont">
+          4: 增强持续伤害buff 从每回合单次伤害 改为怪物攻击次数
+        </p>
+        <p class="importantFont">5: 反击增强，无视防御可暴击</p>
       </Modal>
 
       <!-- 修改密码弹出框 -->
@@ -178,24 +235,6 @@
         </div>
       </Modal>
 
-      <!-- 小游戏 -->
-      <Modal
-        width="620"
-        title="别踩白块儿"
-        v-model="gamesEject"
-        :styles="{ top: '40px' }"
-      >
-        <div class="box">
-          <div id="cont">
-            <div id="go">
-              <span>点击开始</span>
-            </div>
-            <div id="main"></div>
-          </div>
-          <div id="count"></div>
-        </div>
-      </Modal>
-
       <!-- 兑换码 -->
       <Modal
         width="620"
@@ -206,37 +245,154 @@
       >
         <Input v-model="exchange" placeholder="请输入兑换码" />
       </Modal>
+
+      <!-- 排行榜 -->
+      <Modal
+        width="620"
+        title="排行榜"
+        v-model="PlanEject"
+        :styles="{ top: '100px' }"
+      >
+        <rankingList></rankingList>
+      </Modal>
+
+      <!-- 在线玩家 -->
+      <Modal
+        width="620"
+        title="在线玩家"
+        v-model="RackingEject"
+        :styles="{ top: '100px' }"
+      >
+        <playersList></playersList>
+      </Modal>
     </div>
   </div>
 </template>
 
 <script>
+import playersList from "./playersList.vue";
+import rankingList from "./rankingList.vue";
+import banner1 from "../assets/back1.jpg";
 export default {
   name: "headers",
   data() {
     return {
       strategy: false, // 攻略弹出框
       pasEject: false, // 修改密码弹出框
-      gamesEject: false, // 小游戏弹出框
       exchangeEject: false, // 兑换码弹出框
+      PlanEject: false, // 排行榜弹出框
+      RackingEject: false, // 在线玩家弹出框
+      organizeEject: false, // 组队弹出框
       setEject: false, // 设置自动出售
       originalPas: "", // 原密码
       newPas: "", // 新密码
       confirmPas: "", // 确认密码
       mapLootsList: undefined, // 地图掉落
       exchange: "", // 兑换码
+      organizeList: [
+        // 组队列表
+        {
+          face: banner1,
+          id: "20110979D79ZW4X4",
+          accountId: 10005,
+          name: "螃蟹龙虾一起炒",
+          status: 0,
+          level: 18,
+          exp: 33086,
+          upgradeExp: 59090,
+          money: 1007,
+          coin: 235,
+          mapId: 0,
+          health: 1659,
+          mana: 571,
+          physicalAttack: 398,
+          magicAttack: 64,
+          defense: 14,
+          criticalHitValue: 0.3,
+          critDamage: 1.68,
+          hitRate: 1.0,
+          evade: 0.0,
+          movingSpeed: 1.21,
+          physique: 24,
+          spirit: 11,
+          dexterous: 59,
+          lucky: 0,
+          reAttrPoint: 0,
+          packageNum: 50,
+        },
+        {
+          // face: banner1,
+          id: "20110979D79ZW4X4",
+          accountId: 10005,
+          // name: "螃蟹龙虾一起炒1",
+          status: 0,
+          level: 18,
+          exp: 33086,
+          upgradeExp: 59090,
+          money: 1007,
+          coin: 235,
+          mapId: 0,
+          health: 1659,
+          mana: 571,
+          physicalAttack: 398,
+          magicAttack: 64,
+          defense: 14,
+          criticalHitValue: 0.3,
+          critDamage: 1.68,
+          hitRate: 1.0,
+          evade: 0.0,
+          movingSpeed: 1.21,
+          physique: 24,
+          spirit: 11,
+          dexterous: 59,
+          lucky: 0,
+          reAttrPoint: 0,
+          packageNum: 50,
+        },
+        {
+          // face: banner1,
+          id: "20110979D79ZW4X4",
+          accountId: 10005,
+          // name: "螃蟹龙虾一起炒2",
+          status: 0,
+          level: 18,
+          exp: 33086,
+          upgradeExp: 59090,
+          money: 1007,
+          coin: 235,
+          mapId: 0,
+          health: 1659,
+          mana: 571,
+          physicalAttack: 398,
+          magicAttack: 64,
+          defense: 14,
+          criticalHitValue: 0.3,
+          critDamage: 1.68,
+          hitRate: 1.0,
+          evade: 0.0,
+          movingSpeed: 1.21,
+          physique: 24,
+          spirit: 11,
+          dexterous: 59,
+          lucky: 0,
+          reAttrPoint: 0,
+          packageNum: 50,
+        },
+      ],
       gamePackageBo: {
+        // 出售设置
         charaId: "",
         isOpen: 0,
         maxLevel: "",
         minLevel: "",
         quality: [],
-      }, // 出售设置
+      },
     };
   },
   created() {
     this.getPackageBo();
   },
+  components: { playersList, rankingList },
   methods: {
     // 返回品质颜色
     distinguishColor(color) {
@@ -257,10 +413,9 @@ export default {
       }
     },
 
-    // 打开设置
-    openSetEject() {
-      this.setEject = true;
-      this.gamePackageBo.quality = this.gamePackageBo.quality.split(",");
+    // 打开组队
+    openOrganize() {
+      this.organizeEject = true;
     },
 
     // 自动出售设置的获取
@@ -274,16 +429,20 @@ export default {
           if (this.gamePackageBo.quality) {
             this.gamePackageBo.quality = this.gamePackageBo.quality.split(",");
           }
-          // console.log(this.gamePackageBo.quality,"获取")
         })
         .catch((err) => {
           this.$Message.warning("自动出售设置获取列表失败,请联系管理员");
         });
     },
 
+    // 打开设置
+    openSetEject() {
+      this.setEject = true;
+      this.gamePackageBo.quality = this.gamePackageBo.quality.split(",");
+    },
+
     // 设置的确定
     changeSet() {
-      // this.getPackageBo()
       if (!(this.gamePackageBo.minLevel >= 0)) {
         this.$Message.warning("最低等级不能为空");
         return;
@@ -300,10 +459,8 @@ export default {
         this.$Message.warning("品质列表必须选择一个");
         return;
       }
-      // console.log(this.gamePackageBo.quality,"设置确定q")
       this.gamePackageBo.charaId = this.getCookie("charaId");
       this.gamePackageBo.quality = this.gamePackageBo.quality.join(",");
-      // console.log(this.gamePackageBo.quality,"设置确定h")
       this.$http
         .post("/gameMarket/setScreenPackage", this.gamePackageBo)
         .then((res) => {
@@ -316,25 +473,13 @@ export default {
 
     // 退出登录
     out() {
+      this.$bus.$emit("tcdlMsg", "退出登录那里发送过来的");
       this.$router.push({ name: "Login" });
     },
 
     // 打开攻略
     openStrategy() {
       this.strategy = true;
-
-      if (this.mapLootsList) return;
-
-      this.$http
-        .post("/gameChara/mapDropItems")
-        .then((res) => {
-          // this.$Message.success(res.data.msg);
-          console.log(res.data.data);
-          this.mapLootsList = res.data.data;
-        })
-        .catch((err) => {
-          this.$Message.warning("获取地图掉落失败");
-        });
     },
 
     // 打开修改密码
@@ -366,11 +511,6 @@ export default {
         });
     },
 
-    // 小游戏
-    games() {
-      this.gamesEject = true;
-    },
-
     // 打开兑换码
     openExchange() {
       this.exchangeEject = true;
@@ -392,123 +532,8 @@ export default {
         .catch((err) => {
           this.$Message.warning("兑换失败,请联系管理员");
         });
-      this.$bus.$emit("aMsg", "兑换码那里发送过来的");
+      this.$bus.$emit("dhmMsg", "兑换码那里发送过来的");
     },
-  },
-  mounted() {
-    //获取内容区里面得#main和#go，以及获取计数区。
-    var main = document.getElementById("main");
-    var go = document.getElementById("go");
-    var count = document.getElementById("count");
-    //设置四种颜色
-    var cols = ["#1AAB8A", "#E15650", "#121B39", "#80A84E"];
-    //动态创建div
-    function CDiv(classname) {
-      //创建div节点，为一行
-      var Div = document.createElement("div");
-      //生成随机数，Math.floor()是四舍五入的作用，产生的数永远不会大于4，产生的随机数表示那个有颜色的那一个
-      var index = Math.floor(Math.random() * 4);
-      //设置class
-      Div.className = classname;
-
-      //在一行里面动态添加四个div，一行里面的四块
-      for (var i = 0; i < 4; i++) {
-        var iDiv = document.createElement("div");
-        Div.appendChild(iDiv);
-      }
-
-      console.log(Div);
-      //判断#main里面是否有元素
-      if (main.children.length == 0) {
-        main.appendChild(Div);
-      } else {
-        //如果有元素，则在该元素之前插入
-        main.insertBefore(Div, main.children[0]);
-      }
-      //随机的设置四个div块的背景颜色
-      Div.children[index].style.backgroundColor = cols[index];
-      console.log(cols[index]);
-      Div.children[index].className = "i";
-    }
-    function move(obj) {
-      //默认速度与计分
-      var speed = 5,
-        num = 0;
-      //定义一个定时器
-      obj.timer = setInterval(function () {
-        //速度
-        var step = parseInt(getComputedStyle(obj, null)["top"]) + speed;
-        obj.style.top = step + "px";
-        if (parseInt(getComputedStyle(obj, null)["top"]) >= 0) {
-          CDiv("row");
-          obj.style.top = -150 + "px";
-        }
-        if (obj.children.length == 6) {
-          for (var i = 0; i < 4; i++) {
-            if (
-              obj.children[obj.children.length - 1].children[i].className == "i"
-            ) {
-              //游戏结束
-              obj.style.top = "-150px";
-              count.innerHTML = "游戏结束,最高得分: " + num;
-              //关闭定时器
-              clearInterval(obj.timer);
-              //显示开始游戏
-              go.children[0].innerHTML = "游戏结束";
-              go.style.display = "block";
-            }
-          }
-          obj.removeChild(obj.children[obj.children.length - 1]);
-        }
-        //点击与计分
-        obj.onmousedown = function (event) {
-          //点击的不是白盒子
-          // 兼容IE
-          event = event || window.event;
-          if (
-            (event.target ? event.target : event.srcElement).className == "i"
-          ) {
-            //点击后的盒子颜色
-            (event.target
-              ? event.target
-              : event.srcElement
-            ).style.backgroundColor = "#bbb";
-            //清除盒子标记
-            (event.target ? event.target : event.srcElement).className = "";
-            //计分
-            num++;
-            //显示得分
-            count.innerHTML = "当前得分: " + num;
-          } else {
-            //游戏结束
-            obj.style.top = 0;
-            count.innerHTML = "游戏结束,最高得分: " + num;
-            //关闭定时器
-            clearInterval(obj.timer);
-            //显示开始游戏
-            go.children[0].innerHTML = "游戏结束";
-            go.style.display = "block";
-          }
-          //盒子加速
-          if (num % 10 == 0) {
-            speed++;
-          }
-        };
-        //松开触发停止
-        obj.onmouseup = function (event) {};
-      }, 20);
-    }
-    go.children[0].onclick = function () {
-      if (main.children.length) {
-        //暴力清除main里面所有盒子
-        main.innerHTML = "";
-      }
-      //清空计分
-      count.innerHTML = "游戏开始";
-      //隐藏开始盒子
-      this.parentNode.style.display = "none";
-      move(main);
-    };
   },
 };
 </script>
@@ -560,66 +585,32 @@ export default {
   line-height: 2;
 }
 
-/* 小游戏 */
-.box {
-  margin: 50px auto 0 auto;
-  width: 400px;
-  height: auto;
-  border: solid 1px #222;
+/* 重要更新或者文字突出 */
+.importantFont {
+  color: #007eff;
+  font-size: 16px;
 }
 
-/* 内容区域 */
-#cont {
-  width: 400px;
-  height: 600px;
-  position: relative;
-  overflow: hidden;
+/* 组队列表 */
+.organizeEject /deep/ .ivu-modal-body {
+  display: flex;
+  justify-content: space-between;
 }
 
-/* 内容区域里面的go区域 */
-#go {
-  width: 100%;
-  height: 600px;
-  position: absolute;
-  top: 0;
-  font: 700 60px "微软雅黑";
+.organizeList {
+  width: 33.3333%;
+  margin-bottom: 15px;
+}
+
+.organizeList_face {
+  width: 300px;
+  height: 300px;
+  display: block;
+  margin: 0 auto 15px;
+}
+
+.organizeList_name {
   text-align: center;
-  z-index: 99;
-}
-#go span {
-  cursor: pointer;
-  background-color: #fff;
-  border-bottom: solid 1px #222;
-}
-
-/* 内容区域里面的游戏区域 ，注意这里定位向上移了一行的距离*/
-#main {
-  width: 400px;
-  height: 600px;
-  position: relative;
-  top: -150px;
-}
-/* 设置每一行的高度 */
-.row {
-  width: 400px;
-  height: 150px;
-}
-/* 设置行里面的每一个格子 */
-.row div {
-  width: 99px;
-  height: 149px !important;
-  border: solid 1px #222;
-  float: left;
-  border-top-width: 0;
-  border-left-width: 0;
-  cursor: pointer;
-}
-/* 计数区域 */
-#count {
-  border-top: solid 1px #222;
-  width: 400px;
-  height: 50px;
-  font: 700 36px/50px "微软雅黑";
-  text-align: center;
+  font-size: 18px;
 }
 </style>
