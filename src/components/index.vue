@@ -313,7 +313,19 @@
           <Button
             slot="extra"
             changeMap
-            @click.prevent="deteSetMap"
+            @click.prevent="withdrawFromAction"
+            size="small"
+            type="warning"
+            >退出战斗{{ withdrawFromActionStatus }}</Button
+          >
+          <Button
+            style="margin-left: 30px"
+            slot="extra"
+            changeMap
+            @click.prevent="
+              withdrawFromActionStatus = false;
+              deteSetMap();
+            "
             size="small"
             type="info"
             >确定</Button
@@ -749,6 +761,7 @@ export default {
       classification: "0", // 装备分类
       quality: "0", // 装备品质
       strengthenEject: false, // 强化提示框
+      withdrawFromActionStatus: false, // 退出战斗的判断
       materialsRequired: {
         coin: "",
         coninType: "",
@@ -846,8 +859,12 @@ export default {
 
     // 退出登录发送过来的
     this.$bus.$on("tcdlMsg", (msg) => {
-      clearTimeout(this.battleTimer);
-      this.battleTimer = null;
+      this.closeBattleTimer();
+    });
+
+    // 有队伍之后才发送的
+    this.$bus.$on("teamStatusMsg", (msg) => {
+      this.closeBattleTimer();
     });
   },
   created() {},
@@ -858,8 +875,6 @@ export default {
       var mapid = this.user.accountId + "mapid";
       var mapName = this.user.accountId + "mapName";
       if (window.localStorage[mapid]) {
-        clearTimeout(this.battleTimer);
-        this.battleTimer = null;
         this.mapName = window.localStorage[mapName];
         this.mapNameF = window.localStorage[mapName];
         this.deteSetMap(window.localStorage[mapid]);
@@ -938,6 +953,7 @@ export default {
         )
         .then((res) => {
           this.getAllUser();
+          this.$Message.warning(res.data.msg);
         });
       return false;
     },
@@ -1013,6 +1029,17 @@ export default {
       this.mapEject = true;
     },
 
+    // 退出战斗
+    withdrawFromAction() {
+      this.withdrawFromActionStatus = true;
+    },
+
+    // 关闭战斗定时
+    closeBattleTimer() {
+      clearTimeout(this.battleTimer);
+      this.battleTimer = null;
+    },
+
     // 切换地图弹出框的确定
     deteSetMap(mapid) {
       if (this.battleState) {
@@ -1020,11 +1047,17 @@ export default {
         return;
       }
 
-      clearTimeout(this.battleTimer);
-      this.battleTimer = null;
+      if (this.withdrawFromActionStatus) {
+        this.$Message.success("退出战斗");
+        this.recording = [];
+        this.monsterList = [];
+        this.closeBattleTimer();
+        return;
+      }
+
+      this.closeBattleTimer();
 
       this.mapNameF = this.mapName;
-
       this.mapid = mapid;
 
       for (var i = 0; i < this.mapList.length; i++) {
@@ -1048,20 +1081,18 @@ export default {
             this.mapid
         )
         .then((res) => {
+          // 判断他有没有战斗结束就重新调用接口
           if (res.data.status == 205) {
-            clearTimeout(this.battleTimer);
-            this.battleTimer = null;
+            this.closeBattleTimer();
             this.$Message.warning(res.data.msg);
             setTimeout(() => {
               this.battleState = false;
               this.deteSetMap(mapid);
-            }, 5000);
+            }, 6000);
             return;
           }
-          // console.log(res.data.data.dropExp) //本次战斗总掉落经验
-          this.monsterList = res.data.data.gameMonList; // 怪物信息
-          // console.log(res.data.data.combatInfo) // 战斗信息
 
+          this.monsterList = res.data.data.gameMonList; // 怪物信息
           let combatInfo = res.data.data.combatInfo; // 战斗信息
 
           combatInfo.forEach((val, idx) => {
@@ -1080,6 +1111,7 @@ export default {
 
                   this.battleState = false;
                 } else {
+                  // 物品列表
                   let goods = res.data.data.gameItemsList.map((val) => {
                     return val.itemName;
                   });
@@ -1115,11 +1147,12 @@ export default {
           });
         })
         .catch((err) => {
-          this.$Message.warning("战斗开始失败5秒后自动请求战斗,请联系管理员");
+          this.$Message.warning("战斗开始失败6秒后自动请求战斗,请联系管理员");
+
           setTimeout(() => {
             this.battleState = false;
             this.deteSetMap(mapid);
-          }, 5000);
+          }, 6000);
         });
     },
 

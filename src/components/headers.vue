@@ -3,7 +3,7 @@
     <div class="head-cen">
       <div class="heade-left">
         <ul>
-          <li @click="openOrganize">组队(不可用)</li>
+          <li @click="openOrganize">组队</li>
           <li @click="openSetEject">设置</li>
           <li @click="changePas">修改密码</li>
           <li @click="openStrategy">攻略(新手点这)</li>
@@ -21,29 +21,96 @@
       <!-- 组队 -->
       <Modal
         width="1020"
-        title="组队"
+        :title="organizeList.armyName ? organizeList.armyName : '组队'"
         v-model="organizeEject"
         :styles="{ top: '100px' }"
         class="organizeEject"
       >
         <div
-          v-for="(item, idx) in organizeList"
+          v-for="(item, idx) in organizeList.charaInfoVoList"
           :key="idx"
           class="organizeList"
         >
-          <img
-            v-if="item.face"
-            :src="item.face"
-            alt="老弟,没图片找群主要啊"
-            class="organizeList_face"
-          />
+          <div v-if="item.avatar" style="position: relative">
+            <img
+              :src="item.avatar"
+              alt="老弟,没图片找群主要啊"
+              class="organizeList_face"
+            />
+            <span @click="kickOut(item)" v-if="idx != 0"
+              ><Icon type="md-close"
+            /></span>
+          </div>
           <div
             v-else
             style="text-align: center; font-size: 160px; cursor: pointer"
           >
-            <Icon type="md-add" />
+            <Icon type="ios-body" />
           </div>
-          <p class="organizeList_name">{{ item.name }}</p>
+          <p class="organizeList_name" v-if="item.charaName">
+            {{ item.charaName }} {{ item.charaLevel }} 级
+          </p>
+        </div>
+        <div slot="footer">
+          <Button
+            type="primary"
+            size="small"
+            @click="join"
+            v-if="teamStatus == 0"
+            >队伍列表</Button
+          >
+          <Button
+            type="primary"
+            size="small"
+            @click="establish"
+            v-if="teamStatus == 0"
+            >创建队伍</Button
+          >
+          <Button
+            type="primary"
+            size="small"
+            @click="quitTheTeam"
+            v-if="teamStatus == 1"
+            >退出队伍</Button
+          >
+        </div>
+      </Modal>
+
+      <!-- 队伍名字弹出框 -->
+      <Modal
+        width="320"
+        title="队伍名字"
+        v-model="armyEject"
+        @on-ok="changeEstablish()"
+        :styles="{ top: '100px' }"
+      >
+        <div class="pasEject">
+          <Input v-model="armyName" placeholder="请输入队伍名字" />
+        </div>
+      </Modal>
+
+      <!-- 队伍列表弹出框 -->
+      <Modal
+        width="520"
+        title="队伍列表"
+        v-model="armyListEject"
+        :styles="{ top: '100px' }"
+      >
+        <div
+          v-for="(item, idx) in armyList"
+          :key="idx"
+          style="margin-bottom: 5px"
+        >
+          队伍名:
+          <span style="color: red">{{ item.armyName }}</span>
+          &nbsp;&nbsp;&nbsp;&nbsp; 队长名字:
+          <span style="color: #0090ff">{{ item.captainName }}</span>
+          &nbsp;&nbsp;&nbsp;&nbsp; 剩余位置:
+          <span style="color: rgb(232 0 255)">{{ item.armyNum }}</span>
+          &nbsp;&nbsp;&nbsp;&nbsp;
+          <Button type="primary" size="small" @click="JoinTheTeam(item)"
+            >加入队伍</Button
+          >
         </div>
       </Modal>
 
@@ -91,11 +158,22 @@
         :styles="{ top: '40px' }"
       >
         <p>进群可以免费领取兑换码</p>
-        <p>每升一级加3个属性点,装备品质分为,黑色,黄色,绿色,蓝色,紫色,红色</p>
-        <p>
+        <p class="importantFont">
+          角色50级之后可以带3个被动 前期35级前尽量别强化装备
+          用来升级技能或者后面用
+        </p>
+        <br />
+        <p class="importantFont">
+          每升一级加3个属性点,装备品质分为,黑色,黄色,绿色,蓝色,紫色,红色
+        </p>
+        <br />
+
+        <p class="importantFont">
           如果有任何bug 或者有任何意见 反馈qq群:
           <span class="importantFont">808647555</span>
         </p>
+        <br />
+
         <p class="importantFont">地图掉落说明</p>
         <p class="importantFont">
           普通图只掉落除红色以下与地图同等级的装备，挑战掉落紫色以上同等级装备。地狱掉落技能
@@ -205,19 +283,23 @@
         <p>测试版: v0.10.5(2020-11-10)</p>
         <p class="importantFont">1: 新增装备对比...</p>
         <br />
-        <p>测试版: v0.10.5(2020-11-11)</p>
+        <p>测试版: v0.10.6(2020-11-11)</p>
         <p class="importantFont">
           1: 新增编号(以后群里有问题就报编号,组队也需要编号)
         </p>
         <p class="importantFont">2: 更新上传头像(点击图片就可以)</p>
         <p class="importantFont">
-          3: 新增自动战斗 (修改了 已角色id几率最近的地图
+          3: 新增自动战斗 (修改了 已角色id记录最近的地图
           不会出现换小号就不行的情况)
         </p>
         <p class="importantFont">
           4: 增强持续伤害buff 从每回合单次伤害 改为怪物攻击次数
         </p>
         <p class="importantFont">5: 反击增强，无视防御可暴击</p>
+        <br />
+        <p>测试版: v0.10.7(2020-11-13)</p>
+        <p class="importantFont">1: 组队先上线了..(战斗还差点)</p>
+        <p>2: 战斗调整,buff可叠加</p>
       </Modal>
 
       <!-- 修改密码弹出框 -->
@@ -283,102 +365,18 @@ export default {
       PlanEject: false, // 排行榜弹出框
       RackingEject: false, // 在线玩家弹出框
       organizeEject: false, // 组队弹出框
+      armyEject: false, // 队伍名字的弹出框
+      armyListEject: false, // 队伍列表弹出框
       setEject: false, // 设置自动出售
       originalPas: "", // 原密码
       newPas: "", // 新密码
       confirmPas: "", // 确认密码
       mapLootsList: undefined, // 地图掉落
       exchange: "", // 兑换码
-      organizeList: [
-        // 组队列表
-        {
-          face: banner1,
-          id: "20110979D79ZW4X4",
-          accountId: 10005,
-          name: "螃蟹龙虾一起炒",
-          status: 0,
-          level: 18,
-          exp: 33086,
-          upgradeExp: 59090,
-          money: 1007,
-          coin: 235,
-          mapId: 0,
-          health: 1659,
-          mana: 571,
-          physicalAttack: 398,
-          magicAttack: 64,
-          defense: 14,
-          criticalHitValue: 0.3,
-          critDamage: 1.68,
-          hitRate: 1.0,
-          evade: 0.0,
-          movingSpeed: 1.21,
-          physique: 24,
-          spirit: 11,
-          dexterous: 59,
-          lucky: 0,
-          reAttrPoint: 0,
-          packageNum: 50,
-        },
-        {
-          // face: banner1,
-          id: "20110979D79ZW4X4",
-          accountId: 10005,
-          // name: "螃蟹龙虾一起炒1",
-          status: 0,
-          level: 18,
-          exp: 33086,
-          upgradeExp: 59090,
-          money: 1007,
-          coin: 235,
-          mapId: 0,
-          health: 1659,
-          mana: 571,
-          physicalAttack: 398,
-          magicAttack: 64,
-          defense: 14,
-          criticalHitValue: 0.3,
-          critDamage: 1.68,
-          hitRate: 1.0,
-          evade: 0.0,
-          movingSpeed: 1.21,
-          physique: 24,
-          spirit: 11,
-          dexterous: 59,
-          lucky: 0,
-          reAttrPoint: 0,
-          packageNum: 50,
-        },
-        {
-          // face: banner1,
-          id: "20110979D79ZW4X4",
-          accountId: 10005,
-          // name: "螃蟹龙虾一起炒2",
-          status: 0,
-          level: 18,
-          exp: 33086,
-          upgradeExp: 59090,
-          money: 1007,
-          coin: 235,
-          mapId: 0,
-          health: 1659,
-          mana: 571,
-          physicalAttack: 398,
-          magicAttack: 64,
-          defense: 14,
-          criticalHitValue: 0.3,
-          critDamage: 1.68,
-          hitRate: 1.0,
-          evade: 0.0,
-          movingSpeed: 1.21,
-          physique: 24,
-          spirit: 11,
-          dexterous: 59,
-          lucky: 0,
-          reAttrPoint: 0,
-          packageNum: 50,
-        },
-      ],
+      teamStatus: 0, // 组队状态 0 无队伍 1有队伍
+      armyName: "", //  队伍名字
+      armyList: [], // 队伍列表
+      organizeList: [], // 组队列表
       gamePackageBo: {
         // 出售设置
         charaId: "",
@@ -416,6 +414,99 @@ export default {
     // 打开组队
     openOrganize() {
       this.organizeEject = true;
+      this.armyBoundary();
+    },
+
+    // 进入队伍界面
+    armyBoundary() {
+      this.$http
+        .post("/gameAmry/armyBoundary/?charaId=" + this.getCookie("charaId"))
+        .then((res) => {
+          if (res.data.msg == "无队伍") {
+            this.teamStatus = 0;
+            this.organizeList = {};
+            this.organizeList.charaInfoVoList = [{}, {}, {}];
+          } else {
+            this.teamStatus = 1;
+            this.organizeList = res.data.data;
+            this.$bus.$emit("teamStatusMsg", "有队伍了");
+          }
+          console.log(res, "进入队伍界面");
+        })
+        .catch((err) => {
+          console.log(err, "进入队伍界面");
+        });
+    },
+
+    // 打开队伍列表
+    join() {
+      this.armyListEject = true;
+      this.$http.get("/gameAmry/getArmyList?armyName").then((res) => {
+        this.armyList = res.data.data;
+      });
+    },
+
+    // 队伍列表里的加入按钮
+    JoinTheTeam(item) {
+      this.$http
+        .post(
+          "/gameAmry/playerJoinAmry/?charaId=" +
+            this.getCookie("charaId") +
+            "&amryId=" +
+            item.armyId
+        )
+        .then((res) => {
+          this.$Message.success(res.data.msg);
+          this.armyBoundary();
+          this.armyListEject = false;
+        });
+    },
+
+    // 创建队伍
+    establish() {
+      this.armyEject = true;
+    },
+
+    // 队伍名字的确定
+    changeEstablish() {
+      this.$http
+        .post(
+          "/gameAmry/playerCreateAmry/?charaId=" +
+            this.getCookie("charaId") +
+            "&armyName=" +
+            this.armyName
+        )
+        .then((res) => {
+          this.$Message.success(res.data.msg);
+          if (res.data.msg == "OK") {
+            this.armyBoundary();
+          }
+          console.log(res, "队伍名字的确定");
+        });
+    },
+
+    // 退出队伍
+    quitTheTeam() {
+      this.$http
+        .post("/gameAmry/exitAmry/?charaId=" + this.getCookie("charaId"))
+        .then((res) => {
+          this.armyBoundary();
+          this.$Message.success(res.data.msg);
+        });
+    },
+
+    // 踢出队伍失败
+    kickOut(item) {
+      this.$http
+        .post(
+          "/gameAmry/kickOutAmry/?charaId=" +
+            this.getCookie("charaId") +
+            "&charaNo=" +
+            item.charaNo
+        )
+        .then((res) => {
+          this.$Message.success(res.data.msg);
+        });
     },
 
     // 自动出售设置的获取
@@ -606,7 +697,17 @@ export default {
   width: 300px;
   height: 300px;
   display: block;
+  border: 1px dashed skyblue;
   margin: 0 auto 15px;
+}
+
+.organizeList_face + span {
+  position: absolute;
+  font-size: 20px;
+  right: 20px;
+  top: 0;
+  cursor: pointer;
+  color: red;
 }
 
 .organizeList_name {

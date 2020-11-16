@@ -6,7 +6,7 @@ import router from './router'
 import axios from 'axios'
 import ViewUI from 'view-design';
 import 'view-design/dist/styles/iview.css';
-
+import store from './store/store.js';
 
 Vue.use(ViewUI);
 
