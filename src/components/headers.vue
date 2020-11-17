@@ -300,6 +300,9 @@
         <p>测试版: v0.10.7(2020-11-13)</p>
         <p class="importantFont">1: 组队先上线了..(战斗还差点)</p>
         <p>2: 战斗调整,buff可叠加</p>
+        <br />
+        <p>测试版: v0.10.8(2020-11-16)</p>
+        <p class="importantFont">1: 组队副本来了</p>
       </Modal>
 
       <!-- 修改密码弹出框 -->
@@ -389,6 +392,7 @@ export default {
   },
   created() {
     this.getPackageBo();
+    this.armyBoundary()
   },
   components: { playersList, rankingList },
   methods: {
@@ -426,6 +430,7 @@ export default {
             this.teamStatus = 0;
             this.organizeList = {};
             this.organizeList.charaInfoVoList = [{}, {}, {}];
+            this.$bus.$emit("teamStatusMsg1", "无队伍了");
           } else {
             this.teamStatus = 1;
             this.organizeList = res.data.data;

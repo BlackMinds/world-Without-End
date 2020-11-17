@@ -714,7 +714,7 @@
 
       <div id="right">
         <div class="line"></div>
-
+        {{teamStatus}}
         <!-- 技能 -->
         <skill></skill>
       </div>
@@ -741,6 +741,7 @@ export default {
       nameEject: false,
       mapName: "桑林村", // 下拉的地图名字
       mapNameF: "桑林村", // 显示的地图名字
+      teamStatus: 0,
       mapEject: false,
       user: {}, // 用户的全部消息
       mapList: [], // 地图列表
@@ -821,17 +822,10 @@ export default {
       return;
     }
 
-    // 获取地图列表
-    this.$http.get("gameChara/queryMapList").then((res) => {
-      this.mapList = res.data.data;
-    });
-
     this.getAllUser(); // 获取用户
     this.getAllPackage(); // 获取全部包裹
     this.getAliiEquip(); // 获取穿戴的装备列表
-    setTimeout(() => {
-      this.automaticCombat(); // 自动战斗
-    }, 500);
+    
 
     // 兑换码发送过来的
     this.$bus.$on("dhmMsg", (msg) => {
@@ -865,10 +859,40 @@ export default {
     // 有队伍之后才发送的
     this.$bus.$on("teamStatusMsg", (msg) => {
       this.closeBattleTimer();
+      this.teamStatus = 1
+      this.TeamMapList()
     });
+
+    // 没队伍之后才发送的
+    this.$bus.$on("teamStatusMsg1", (msg) => {
+      this.teamStatus = 0
+      this.MapList()
+    });
+
+      setTimeout(() => {
+        if (this.teamStatus == 0) {
+            this.automaticCombat(); // 自动战斗
+        }
+      }, 500);
+
+  
   },
   created() {},
   methods: {
+    // 获取地图列表
+    MapList() {
+      this.$http.get("gameChara/queryMapList").then((res) => {
+        this.mapList = res.data.data;
+      });
+    },
+
+    // 获取组队地图列表
+    TeamMapList () {
+      this.$http.get("/gameAmry/queryMapList").then((res) => {
+        this.mapList = res.data.data;
+      });
+    },
+
     // 自动战斗
     automaticCombat() {
       // 如果地图id存在就自动战斗
@@ -1073,9 +1097,11 @@ export default {
         this.mapName
       );
 
+      // 
+      let combatAddress = this.teamStatus == 0 ? "gameChara/checkMapGenMon" : "/gameAmry/checkMapGenMon"
       this.$http
         .post(
-          "gameChara/checkMapGenMon?charaId=" +
+          combatAddress + "?charaId=" +
             this.getCookie("charaId") +
             "&mapId=" +
             this.mapid
@@ -1093,8 +1119,8 @@ export default {
           }
 
           this.monsterList = res.data.data.gameMonList; // 怪物信息
-          let combatInfo = res.data.data.combatInfo; // 战斗信息
-
+          let combatInfo = res.data.data.combatInfo; 
+          console.log(res.data.data.combatInfo,"战斗信息")// 战斗信息
           combatInfo.forEach((val, idx) => {
             this.time = setTimeout(() => {
               val.type = "combat";
