@@ -106,7 +106,7 @@ export default {
     this.getEquipmentSkill();
   },
   mounted() {
-    this.$bus.$on("getSkillMsg", (msg) => {
+    this.$bus.$on("getSkillMsg", () => {
       this.getAllSkill();
     });
   },

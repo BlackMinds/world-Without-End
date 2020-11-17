@@ -37,9 +37,9 @@
               alt="老弟,没图片找群主要啊"
               class="organizeList_face"
             />
-            <span @click="kickOut(item)" v-if="idx != 0"
-              ><Icon type="md-close"
-            /></span>
+            <span @click="kickOut(item)" v-if="idx != 0">
+              <Icon type="md-close" />
+            </span>
           </div>
           <div
             v-else
@@ -57,22 +57,25 @@
             size="small"
             @click="join"
             v-if="teamStatus == 0"
-            >队伍列表</Button
           >
+            队伍列表
+          </Button>
           <Button
             type="primary"
             size="small"
             @click="establish"
             v-if="teamStatus == 0"
-            >创建队伍</Button
           >
+            创建队伍
+          </Button>
           <Button
             type="primary"
             size="small"
             @click="quitTheTeam"
             v-if="teamStatus == 1"
-            >退出队伍</Button
           >
+            退出队伍
+          </Button>
         </div>
       </Modal>
 
@@ -108,9 +111,9 @@
           &nbsp;&nbsp;&nbsp;&nbsp; 剩余位置:
           <span style="color: rgb(232 0 255)">{{ item.armyNum }}</span>
           &nbsp;&nbsp;&nbsp;&nbsp;
-          <Button type="primary" size="small" @click="JoinTheTeam(item)"
-            >加入队伍</Button
-          >
+          <Button type="primary" size="small" @click="JoinTheTeam(item)">
+            加入队伍
+          </Button>
         </div>
       </Modal>
 
@@ -131,10 +134,10 @@
             />
           </FormItem>
           <FormItem label="最低等级">
-            <Input type="text" v-model="gamePackageBo.minLevel"> </Input>
+            <Input type="text" v-model="gamePackageBo.minLevel"></Input>
           </FormItem>
           <FormItem label="最高等级">
-            <Input type="text" v-model="gamePackageBo.maxLevel"> </Input>
+            <Input type="text" v-model="gamePackageBo.maxLevel"></Input>
           </FormItem>
           <FormItem label="品质列表">
             <CheckboxGroup v-model="gamePackageBo.quality">
@@ -386,13 +389,13 @@ export default {
         isOpen: 0,
         maxLevel: "",
         minLevel: "",
-        quality: [],
-      },
+        quality: []
+      }
     };
   },
   created() {
     this.getPackageBo();
-    this.armyBoundary()
+    this.armyBoundary();
   },
   components: { playersList, rankingList },
   methods: {
@@ -425,7 +428,7 @@ export default {
     armyBoundary() {
       this.$http
         .post("/gameAmry/armyBoundary/?charaId=" + this.getCookie("charaId"))
-        .then((res) => {
+        .then(res => {
           if (res.data.msg == "无队伍") {
             this.teamStatus = 0;
             this.organizeList = {};
@@ -438,7 +441,7 @@ export default {
           }
           console.log(res, "进入队伍界面");
         })
-        .catch((err) => {
+        .catch(err => {
           console.log(err, "进入队伍界面");
         });
     },
@@ -446,7 +449,7 @@ export default {
     // 打开队伍列表
     join() {
       this.armyListEject = true;
-      this.$http.get("/gameAmry/getArmyList?armyName").then((res) => {
+      this.$http.get("/gameAmry/getArmyList?armyName").then(res => {
         this.armyList = res.data.data;
       });
     },
@@ -460,7 +463,7 @@ export default {
             "&amryId=" +
             item.armyId
         )
-        .then((res) => {
+        .then(res => {
           this.$Message.success(res.data.msg);
           this.armyBoundary();
           this.armyListEject = false;
@@ -481,7 +484,7 @@ export default {
             "&armyName=" +
             this.armyName
         )
-        .then((res) => {
+        .then(res => {
           this.$Message.success(res.data.msg);
           if (res.data.msg == "OK") {
             this.armyBoundary();
@@ -494,7 +497,7 @@ export default {
     quitTheTeam() {
       this.$http
         .post("/gameAmry/exitAmry/?charaId=" + this.getCookie("charaId"))
-        .then((res) => {
+        .then(res => {
           this.armyBoundary();
           this.$Message.success(res.data.msg);
         });
@@ -509,7 +512,7 @@ export default {
             "&charaNo=" +
             item.charaNo
         )
-        .then((res) => {
+        .then(res => {
           this.$Message.success(res.data.msg);
         });
     },
@@ -520,13 +523,14 @@ export default {
         .post(
           "/gameMarket/getScreenPackage?charaId=" + this.getCookie("charaId")
         )
-        .then((res) => {
+        .then(res => {
           this.gamePackageBo = res.data.data;
-          if (this.gamePackageBo.quality) {
-            this.gamePackageBo.quality = this.gamePackageBo.quality.split(",");
-          }
+          if (this.gamePackageBo.isOpen === null) this.gamePackageBo.isOpen = 0;
+          this.gamePackageBo.quality = this.gamePackageBo.quality
+            ? this.gamePackageBo.quality.split(",")
+            : [];
         })
-        .catch((err) => {
+        .catch(err => {
           this.$Message.warning("自动出售设置获取列表失败,请联系管理员");
         });
     },
@@ -534,7 +538,6 @@ export default {
     // 打开设置
     openSetEject() {
       this.setEject = true;
-      this.gamePackageBo.quality = this.gamePackageBo.quality.split(",");
     },
 
     // 设置的确定
@@ -555,14 +558,17 @@ export default {
         this.$Message.warning("品质列表必须选择一个");
         return;
       }
-      this.gamePackageBo.charaId = this.getCookie("charaId");
-      this.gamePackageBo.quality = this.gamePackageBo.quality.join(",");
+
       this.$http
-        .post("/gameMarket/setScreenPackage", this.gamePackageBo)
-        .then((res) => {
+        .post("/gameMarket/setScreenPackage", {
+          ...this.gamePackageBo,
+          charaId: this.getCookie("charaId"),
+          quality: this.gamePackageBo.quality.join(",")
+        })
+        .then(res => {
           this.$Message.success(res.data.data);
         })
-        .catch((err) => {
+        .catch(err => {
           this.$Message.warning("设置失败");
         });
     },
@@ -599,10 +605,10 @@ export default {
             "&confirmPwd=" +
             this.confirmPas
         )
-        .then((res) => {
+        .then(res => {
           this.$Message.success(res.data.msg);
         })
-        .catch((err) => {
+        .catch(err => {
           this.$Message.warning("修改密码失败,请联系管理员");
         });
     },
@@ -622,15 +628,15 @@ export default {
             "&exchangeCode=" +
             this.exchange
         )
-        .then((res) => {
+        .then(res => {
           this.$Message.warning(res.data.msg);
         })
-        .catch((err) => {
+        .catch(err => {
           this.$Message.warning("兑换失败,请联系管理员");
         });
       this.$bus.$emit("dhmMsg", "兑换码那里发送过来的");
-    },
-  },
+    }
+  }
 };
 </script>
 <style>

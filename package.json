@@ -16,6 +16,7 @@
     "axios": "^0.19.2",
     "element-ui": "^2.13.2",
     "iview": "^3.5.4",
+    "query-string": "^6.13.7",
     "view-design": "^4.3.2",
     "vue": "^2.5.2",
     "vue-canvas-nest": "^2.0.0",

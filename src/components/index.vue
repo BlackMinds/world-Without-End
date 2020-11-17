@@ -22,8 +22,9 @@
             @click.prevent="editName"
             size="small"
             type="info"
-            >修改名字</Button
           >
+            修改名字
+          </Button>
           <div>
             <div class="character">
               <Upload
@@ -80,13 +81,14 @@
                 color: #fff;
                 font-size: 14px;
               "
-              >{{ user.reAttrPoint }}</span
             >
+              {{ user.reAttrPoint }}
+            </span>
           </p>
           <!-- 这个确认修改不确定要不要 我想的是买药水然后使用修改 -->
-          <Button slot="extra" size="small" @click="setAttribute" type="info"
-            >确认修改</Button
-          >
+          <Button slot="extra" size="small" @click="setAttribute" type="info">
+            确认修改
+          </Button>
           <div style="overflow: hidden">
             <div class="basics">
               <h6>基础</h6>
@@ -148,9 +150,9 @@
               </p>
               <p>
                 暴击率:
-                <span
-                  >{{ (user.criticalHitValue * 100).toFixed(2) || 0 }}%</span
-                >
+                <span>
+                  {{ (user.criticalHitValue * 100).toFixed(2) || 0 }}%
+                </span>
               </p>
               <p>
                 暴击伤害:
@@ -177,8 +179,9 @@
               @click.prevent="allTake"
               size="small"
               type="info"
-              >一键脱下</Button
             >
+              一键脱下
+            </Button>
           </div>
           <div class="equipmentBar">
             <div v-for="(item, key, index) in equipmentList" :key="index">
@@ -199,21 +202,23 @@
                       item.itemType != 4 &&
                       item.enhanLevel != 0
                     "
-                    >+{{ item.enhanLevel }}</span
                   >
+                    +{{ item.enhanLevel }}
+                  </span>
                   <Button
                     @click.prevent="TakeOffsingleton(item)"
                     size="small"
                     type="info"
-                    >脱下</Button
                   >
+                    脱下
+                  </Button>
                 </p>
                 <div slot="content">
                   <p>
                     {{ item.equitName }}
-                    <span v-if="item.itemType != 3 && item.itemType != 4"
-                      >+{{ item.enhanLevel }}</span
-                    >
+                    <span v-if="item.itemType != 3 && item.itemType != 4">
+                      +{{ item.enhanLevel }}
+                    </span>
                   </p>
                   <p v-if="item.typeDec">装备类型 {{ item.typeDec }}</p>
                   <p v-if="item.level">装备等级 {{ item.level }}</p>
@@ -228,21 +233,21 @@
                   </p>
                   <p v-if="item.attack">
                     攻击力 {{ item.attack }}
-                    <span v-if="item.strengAttack"
-                      >({{ item.strengAttack }})</span
-                    >
+                    <span v-if="item.strengAttack">
+                      ({{ item.strengAttack }})
+                    </span>
                   </p>
                   <p v-if="item.magAttack">
                     法术攻击力 {{ item.magAttack }}
-                    <span v-if="item.strengMagAttack"
-                      >({{ item.strengMagAttack }})</span
-                    >
+                    <span v-if="item.strengMagAttack">
+                      ({{ item.strengMagAttack }})
+                    </span>
                   </p>
                   <p v-if="item.defense">
                     防御力 {{ item.defense }}
-                    <span v-if="item.strengDefense"
-                      >({{ item.strengDefense }})</span
-                    >
+                    <span v-if="item.strengDefense">
+                      ({{ item.strengDefense }})
+                    </span>
                   </p>
                   <p v-if="item.hitRate">
                     命中率 {{ (item.hitRate * 100).toFixed(2) }}%
@@ -259,21 +264,21 @@
                   <p v-if="item.speed">行动速度 {{ item.speed }}</p>
                   <p v-if="item.physique">
                     体格 {{ item.physique }}
-                    <span v-if="item.strengPhysique"
-                      >({{ item.strengPhysique }})</span
-                    >
+                    <span v-if="item.strengPhysique">
+                      ({{ item.strengPhysique }})
+                    </span>
                   </p>
                   <p v-if="item.dexterous">
                     灵巧 {{ item.dexterous }}
-                    <span v-if="item.strengDexterous"
-                      >({{ item.strengDexterous }})</span
-                    >
+                    <span v-if="item.strengDexterous">
+                      ({{ item.strengDexterous }})
+                    </span>
                   </p>
                   <p v-if="item.spirit">
                     灵力 {{ item.spirit }}
-                    <span v-if="item.strengSpirit"
-                      >({{ item.strengSpirit }})</span
-                    >
+                    <span v-if="item.strengSpirit">
+                      ({{ item.strengSpirit }})
+                    </span>
                   </p>
                   <p v-if="item.decs">描述： {{ item.decs }}</p>
                 </div>
@@ -296,8 +301,9 @@
               :value="item.mapName"
               :name="item.mapId"
               :key="item.mapId"
-              >{{ item.mapName }}</Option
             >
+              {{ item.mapName }}
+            </Option>
           </Select>
         </Modal>
       </div>
@@ -312,24 +318,25 @@
           <!-- changeMap -->
           <Button
             slot="extra"
-            changeMap
             @click.prevent="withdrawFromAction"
             size="small"
             type="warning"
-            >退出战斗{{ withdrawFromActionStatus }}</Button
+            :loading="withdrawFromActionStatus"
           >
+            退出战斗
+          </Button>
           <Button
             style="margin-left: 30px"
             slot="extra"
-            changeMap
             @click.prevent="
               withdrawFromActionStatus = false;
               deteSetMap();
             "
             size="small"
             type="info"
-            >确定</Button
           >
+            确定
+          </Button>
           <Select v-model="mapName">
             <!-- ({{ item.minLv }}) -->
             <Option
@@ -337,8 +344,9 @@
               :value="item.mapName"
               :name="item.mapId"
               :key="item.mapId"
-              >{{ item.mapName }}{{ item.minLv }}-{{ item.maxLv }}</Option
             >
+              {{ item.mapName }}{{ item.minLv }}-{{ item.maxLv }}
+            </Option>
           </Select>
           <div>
             <div
@@ -374,39 +382,46 @@
                     :style="{
                       color: item.identity == 0 ? 'orange' : '#5b00ff',
                     }"
-                    >{{ item.attacker }}</span
                   >
-                  攻击了<span style="color: red">{{ item.hinjured }}</span>
-                  <span v-if="item.isSkill != 1"
-                    >造成了<span
+                    {{ item.attacker }}
+                  </span>
+                  攻击了
+                  <span style="color: red">{{ item.hinjured }}</span>
+                  <span v-if="item.isSkill != 1">
+                    造成了
+                    <span
                       :style="{
                         color: '#5b00ff',
                         fontSize: item.isCritical == 0 ? '14px' : '20px',
                       }"
-                      >{{ item.hurt }}</span
-                    ></span
-                  >
-                  <span v-else
-                    >用{{ item.skillName }}造成了<span
-                      :style="{ color: 'rgb(110 0 255)' }"
-                      >{{ item.hurt }}</span
-                    ></span
-                  >
-                  剩余<span style="color: red">{{ item.surplusHealth }}</span
-                  >血量
+                    >
+                      {{ item.hurt }}
+                    </span>
+                  </span>
+                  <span v-else>
+                    用{{ item.skillName }}造成了
+                    <span :style="{ color: 'rgb(110 0 255)' }">
+                      {{ item.hurt }}
+                    </span>
+                  </span>
+                  剩余
+                  <span style="color: red">{{ item.surplusHealth }}</span>
+                  血量
                   <span
                     v-if="item.isCritical == 2"
                     :style="{
                       color: '#5b00ff',
                       fontSize: '20px',
                     }"
-                    >被闪避了</span
                   >
+                    被闪避了
+                  </span>
                 </span>
                 <span
                   style="color: rgb(255, 0, 224)"
                   v-if="item.type == 'result'"
-                  >{{ item.result }}: 剩余血量:{{ item.reHealth }} 剩余蓝量:
+                >
+                  {{ item.result }}: 剩余血量:{{ item.reHealth }} 剩余蓝量:
                   {{ item.reMana }} {{ item.exp }} {{ item.goods }}
                 </span>
               </p>
@@ -442,12 +457,12 @@
         <Card>
           <p slot="title">背包</p>
           <div slot="extra">
-            <span
-              >背包容量{{ knapsackList.length }} / {{ user.packageNum }}</span
-            >
-            <Button @click.prevent="sellAll" size="small" type="info"
-              >出售全部装备</Button
-            >
+            <span>
+              背包容量{{ knapsackList.length }} / {{ user.packageNum }}
+            </span>
+            <Button @click.prevent="sellAll" size="small" type="info">
+              出售全部装备
+            </Button>
           </div>
           <div>
             <div>
@@ -484,9 +499,9 @@
                   style="white-space: nowrap; height: 24px"
                   :style="{ color: distinguishColor(item.color) }"
                 >
-                  <span v-if="item.itemType != 3 && item.itemType != 4"
-                    >[LV:{{ item.level }}]</span
-                  >
+                  <span v-if="item.itemType != 3 && item.itemType != 4">
+                    [LV:{{ item.level }}]
+                  </span>
                   {{ item.itemName }}
                   <span
                     v-if="
@@ -494,60 +509,68 @@
                       item.itemType != 4 &&
                       item.enhanLevel != 0
                     "
-                    >+{{ item.enhanLevel }}</span
                   >
+                    +{{ item.enhanLevel }}
+                  </span>
                   <span
                     class="jjt_smail"
                     v-if="item.itemType == 3 || item.itemType == 4"
-                    >{{ item.itemNum }}</span
                   >
+                    {{ item.itemNum }}
+                  </span>
                   <Button
                     @click.prevent="useItems(item)"
                     size="small"
                     v-if="item.itemType == 3 && item.itemType != 4"
                     type="info"
-                    >使用</Button
                   >
+                    使用
+                  </Button>
                   <Button
                     @click.prevent="equipment(item)"
                     size="small"
                     v-if="item.itemType != 3 && item.itemType != 4"
                     type="info"
-                    >装备</Button
                   >
+                    装备
+                  </Button>
                   <Button
                     @click.prevent="strengthen(item)"
                     size="small"
                     type="info"
                     v-if="item.itemType != 3 && item.itemType != 4"
-                    >强化</Button
                   >
+                    强化
+                  </Button>
                   <Button
                     @click.prevent="locking(item)"
                     size="small"
                     type="info"
-                    >{{ item.bind == 0 ? "绑定" : "解绑" }}</Button
                   >
+                    {{ item.bind == 0 ? "绑定" : "解绑" }}
+                  </Button>
                   <Button
                     @click.prevent="sellSingle(item)"
                     size="small"
                     v-if="item.itemType != 3 && item.itemType != 4"
                     type="info"
-                    >出售</Button
                   >
+                    出售
+                  </Button>
                 </p>
                 <div slot="content" class="poptipExplain">
                   <!-- 装备栏显示的数据 -->
                   <div v-if="Equipment" class="Equipment">
                     <div slot="content">
                       <p>
-                        {{ Equipment.equitName
-                        }}<span
+                        {{ Equipment.equitName }}
+                        <span
                           v-if="
                             Equipment.itemType != 3 && Equipment.itemType != 4
                           "
-                          >+{{ Equipment.enhanLevel }}</span
                         >
+                          +{{ Equipment.enhanLevel }}
+                        </span>
                         &nbsp;&nbsp;(已装备)
                       </p>
                       <p>装备类型 {{ Equipment.typeDec }}</p>
@@ -560,33 +583,33 @@
                       </p>
                       <p v-if="Equipment.life">
                         生命值 {{ Equipment.life }}
-                        <span v-if="Equipment.strengLife"
-                          >({{ Equipment.strengLife }})</span
-                        >
+                        <span v-if="Equipment.strengLife">
+                          ({{ Equipment.strengLife }})
+                        </span>
                       </p>
                       <p v-if="Equipment.mana">
                         真气值 {{ Equipment.mana }}
-                        <span v-if="Equipment.strengMana"
-                          >({{ Equipment.strengMana }})</span
-                        >
+                        <span v-if="Equipment.strengMana">
+                          ({{ Equipment.strengMana }})
+                        </span>
                       </p>
                       <p v-if="Equipment.attack">
                         攻击力 {{ Equipment.attack }}
-                        <span v-if="Equipment.strengAttack"
-                          >({{ Equipment.strengAttack }})</span
-                        >
+                        <span v-if="Equipment.strengAttack">
+                          ({{ Equipment.strengAttack }})
+                        </span>
                       </p>
                       <p v-if="Equipment.magAttack">
                         法术攻击力 {{ Equipment.magAttack }}
-                        <span v-if="Equipment.strengMagAttack"
-                          >({{ Equipment.strengMagAttack }})</span
-                        >
+                        <span v-if="Equipment.strengMagAttack">
+                          ({{ Equipment.strengMagAttack }})
+                        </span>
                       </p>
                       <p v-if="Equipment.defense">
                         防御力 {{ Equipment.defense }}
-                        <span v-if="Equipment.strengDefense"
-                          >({{ Equipment.strengDefense }})</span
-                        >
+                        <span v-if="Equipment.strengDefense">
+                          ({{ Equipment.strengDefense }})
+                        </span>
                       </p>
                       <p v-if="Equipment.hitRate">
                         命中率 {{ (Equipment.hitRate * 100).toFixed(2) }}%
@@ -605,21 +628,21 @@
                       </p>
                       <p v-if="Equipment.physique">
                         体格 {{ Equipment.physique }}
-                        <span v-if="Equipment.strengPhysique"
-                          >({{ Equipment.strengPhysique }})</span
-                        >
+                        <span v-if="Equipment.strengPhysique">
+                          ({{ Equipment.strengPhysique }})
+                        </span>
                       </p>
                       <p v-if="Equipment.dexterous">
                         灵巧 {{ Equipment.dexterous }}
-                        <span v-if="Equipment.strengDexterous"
-                          >({{ Equipment.strengDexterous }})</span
-                        >
+                        <span v-if="Equipment.strengDexterous">
+                          ({{ Equipment.strengDexterous }})
+                        </span>
                       </p>
                       <p v-if="Equipment.spirit">
                         灵力 {{ Equipment.spirit }}
-                        <span v-if="Equipment.strengSpirit"
-                          >({{ Equipment.strengSpirit }})</span
-                        >
+                        <span v-if="Equipment.strengSpirit">
+                          ({{ Equipment.strengSpirit }})
+                        </span>
                       </p>
                       <p v-if="Equipment.equitDec">
                         描述： {{ Equipment.equitDec }}
@@ -629,10 +652,10 @@
 
                   <div>
                     <p>
-                      {{ item.itemName
-                      }}<span v-if="item.itemType != 3 && item.itemType != 4"
-                        >+{{ item.enhanLevel }}</span
-                      >
+                      {{ item.itemName }}
+                      <span v-if="item.itemType != 3 && item.itemType != 4">
+                        +{{ item.enhanLevel }}
+                      </span>
                     </p>
                     <p>装备类型 {{ item.typeDec }}</p>
                     <p>装备等级 {{ item.level }}</p>
@@ -642,33 +665,33 @@
                     </p>
                     <p v-if="item.life">
                       生命值 {{ item.life }}
-                      <span v-if="item.strengLife"
-                        >({{ item.strengLife }})</span
-                      >
+                      <span v-if="item.strengLife">
+                        ({{ item.strengLife }})
+                      </span>
                     </p>
                     <p v-if="item.mana">
                       真气值 {{ item.mana }}
-                      <span v-if="item.strengMana"
-                        >({{ item.strengMana }})</span
-                      >
+                      <span v-if="item.strengMana">
+                        ({{ item.strengMana }})
+                      </span>
                     </p>
                     <p v-if="item.attack">
                       攻击力 {{ item.attack }}
-                      <span v-if="item.strengAttack"
-                        >({{ item.strengAttack }})</span
-                      >
+                      <span v-if="item.strengAttack">
+                        ({{ item.strengAttack }})
+                      </span>
                     </p>
                     <p v-if="item.magAttack">
                       法术攻击力 {{ item.magAttack }}
-                      <span v-if="item.strengMagAttack"
-                        >({{ item.strengMagAttack }})</span
-                      >
+                      <span v-if="item.strengMagAttack">
+                        ({{ item.strengMagAttack }})
+                      </span>
                     </p>
                     <p v-if="item.defense">
                       防御力 {{ item.defense }}
-                      <span v-if="item.strengDefense"
-                        >({{ item.strengDefense }})</span
-                      >
+                      <span v-if="item.strengDefense">
+                        ({{ item.strengDefense }})
+                      </span>
                     </p>
                     <p v-if="item.hitRate">
                       命中率 {{ (item.hitRate * 100).toFixed(2) }}%
@@ -685,21 +708,21 @@
                     <p v-if="item.speed">行动速度 {{ item.speed }}</p>
                     <p v-if="item.physique">
                       体格 {{ item.physique }}
-                      <span v-if="item.strengPhysique"
-                        >({{ item.strengPhysique }})</span
-                      >
+                      <span v-if="item.strengPhysique">
+                        ({{ item.strengPhysique }})
+                      </span>
                     </p>
                     <p v-if="item.dexterous">
                       灵巧 {{ item.dexterous }}
-                      <span v-if="item.strengDexterous"
-                        >({{ item.strengDexterous }})</span
-                      >
+                      <span v-if="item.strengDexterous">
+                        ({{ item.strengDexterous }})
+                      </span>
                     </p>
                     <p v-if="item.spirit">
                       灵力 {{ item.spirit }}
-                      <span v-if="item.strengSpirit"
-                        >({{ item.strengSpirit }})</span
-                      >
+                      <span v-if="item.strengSpirit">
+                        ({{ item.strengSpirit }})
+                      </span>
                     </p>
                     <p v-if="item.decs">描述： {{ item.decs }}</p>
                   </div>
@@ -714,7 +737,7 @@
 
       <div id="right">
         <div class="line"></div>
-        {{teamStatus}}
+        {{ teamStatus }}
         <!-- 技能 -->
         <skill></skill>
       </div>
@@ -723,6 +746,7 @@
 </template>
 
 <script>
+import qs from "query-string";
 import vueCanvasNest from "vue-canvas-nest";
 import headers from "./headers.vue";
 // import playersList from "./playersList.vue";
@@ -730,6 +754,7 @@ import headers from "./headers.vue";
 import shop from "./shop.vue";
 import skill from "./skill.vue";
 import { EquipSlot, SlotName } from "../const";
+import { sleep } from "../utils";
 
 export default {
   name: "index",
@@ -797,8 +822,11 @@ export default {
   components: { vueCanvasNest, headers, shop, skill },
   updated() {
     // 战斗记录定位到底部
-    let ele = document.getElementById("recording");
-    ele.scrollTop = ele.scrollHeight;
+    const el = document.getElementById("recording");
+    const max = el.scrollHeight - el.clientHeight;
+    if (max - el.scrollTop < 80) {
+      el.scrollTop = el.scrollHeight;
+    }
   },
   mounted() {
     // 如果没有用户id就退出登录
@@ -825,7 +853,6 @@ export default {
     this.getAllUser(); // 获取用户
     this.getAllPackage(); // 获取全部包裹
     this.getAliiEquip(); // 获取穿戴的装备列表
-    
 
     // 兑换码发送过来的
     this.$bus.$on("dhmMsg", (msg) => {
@@ -859,26 +886,31 @@ export default {
     // 有队伍之后才发送的
     this.$bus.$on("teamStatusMsg", (msg) => {
       this.closeBattleTimer();
-      this.teamStatus = 1
-      this.TeamMapList()
+      this.teamStatus = 1;
+      this.TeamMapList();
     });
 
     // 没队伍之后才发送的
     this.$bus.$on("teamStatusMsg1", (msg) => {
-      this.teamStatus = 0
-      this.MapList()
+      this.teamStatus = 0;
+      this.MapList();
     });
 
-      setTimeout(() => {
-        if (this.teamStatus == 0) {
-            this.automaticCombat(); // 自动战斗
-        }
-      }, 500);
-
-  
+    setTimeout(() => {
+      if (this.teamStatus == 0) {
+        this.automaticCombat(); // 自动战斗
+      }
+    }, 500);
   },
-  created() {},
   methods: {
+    addRecord(record) {
+      this.recording.push(record);
+      // 战斗记录超过一定条数时移除一部分
+      if (this.recording.length >= 200) {
+        this.recording.splice(0, 100);
+      }
+    },
+
     // 获取地图列表
     MapList() {
       this.$http.get("gameChara/queryMapList").then((res) => {
@@ -887,7 +919,7 @@ export default {
     },
 
     // 获取组队地图列表
-    TeamMapList () {
+    TeamMapList() {
       this.$http.get("/gameAmry/queryMapList").then((res) => {
         this.mapList = res.data.data;
       });
@@ -1065,21 +1097,16 @@ export default {
     },
 
     // 切换地图弹出框的确定
-    deteSetMap(mapid) {
+    async deteSetMap(mapid) {
       if (this.battleState) {
         this.$Message.warning("还在战斗状态 不能切换");
         return;
       }
 
       if (this.withdrawFromActionStatus) {
-        this.$Message.success("退出战斗");
-        this.recording = [];
-        this.monsterList = [];
-        this.closeBattleTimer();
+        this.withdrawFromActionStatus = false;
         return;
       }
-
-      this.closeBattleTimer();
 
       this.mapNameF = this.mapName;
       this.mapid = mapid;
@@ -1097,89 +1124,93 @@ export default {
         this.mapName
       );
 
-      // 
-      let combatAddress = this.teamStatus == 0 ? "gameChara/checkMapGenMon" : "/gameAmry/checkMapGenMon"
-      this.$http
-        .post(
-          combatAddress + "?charaId=" +
-            this.getCookie("charaId") +
-            "&mapId=" +
-            this.mapid
-        )
-        .then((res) => {
-          // 判断他有没有战斗结束就重新调用接口
-          if (res.data.status == 205) {
-            this.closeBattleTimer();
-            this.$Message.warning(res.data.msg);
-            setTimeout(() => {
-              this.battleState = false;
-              this.deteSetMap(mapid);
-            }, 6000);
-            return;
-          }
+      // 是否是游戏副本
+      const isInstanceZones = this.teamStatus !== 0;
+      // 副本使用不同的战斗接口
+      let combatAddress = isInstanceZones
+        ? "/gameAmry/checkMapGenMon"
+        : "/gameChara/checkMapGenMon";
 
-          this.monsterList = res.data.data.gameMonList; // 怪物信息
-          let combatInfo = res.data.data.combatInfo; 
-          console.log(res.data.data.combatInfo,"战斗信息")// 战斗信息
-          combatInfo.forEach((val, idx) => {
-            this.time = setTimeout(() => {
-              val.type = "combat";
-              this.recording.push(val);
+      try {
+        const res = await this.$http.post(
+          `${combatAddress}?${qs.stringify({
+            charaId: this.getCookie("charaId"),
+            mapId: this.mapid,
+          })}`
+        );
+        const body = res.data;
 
-              this.battleState = true;
+        // 判断他有没有战斗结束就重新调用接口
+        if (body.status == 205) {
+          this.closeBattleTimer();
+          this.$Message.warning(body.msg);
+          await sleep(6000);
+          this.battleState = false;
+          this.deteSetMap(mapid);
+          return;
+        }
 
-              if (idx == combatInfo.length - 1) {
-                if (res.data.data.reHealth <= 0) {
-                  this.recording.push({
-                    type: "result",
-                    result: "战斗失败",
-                  });
+        this.battleState = true;
+        // 非副本战斗返回的结果是一个直接的对象，这里转换成一样的结构
+        const combatResults = isInstanceZones ? body.data : [body.data];
+        // 按顺序播报所有的战斗结果
+        for (let i = 0; i < combatResults.length; i++) {
+          await this.boardcastCombatResult(combatResults[i]);
+        }
+        this.battleState = false;
+      } catch (err) {
+        console.error(err);
+        this.$Message.warning("战斗开始失败6秒后自动请求战斗,请联系管理员");
+      }
 
-                  this.battleState = false;
-                } else {
-                  // 物品列表
-                  let goods = res.data.data.gameItemsList.map((val) => {
-                    return val.itemName;
-                  });
-                  goods = goods.join();
+      this.battleTimer = setTimeout(() => {
+        this.deteSetMap(mapid);
+      }, 6000);
+    },
 
-                  this.recording.push({
-                    type: "result",
-                    result: "战斗成功",
-                    exp: "获得" + res.data.data.dropExp + "经验;",
-                    goods: "物品:" + (goods || "无"),
-                    reHealth: res.data.data.reHealth,
-                    reMana: res.data.data.reMana,
-                  });
+    // 播报战斗返回的日志
+    async boardcastCombatResult(result) {
+      this.monsterList = result.gameMonList; // 怪物信息
+      let combatInfo = result.combatInfo;
 
-                  this.getAllPackage(); // 获取全部物品
-                  this.$bus.$emit("getSkillMsg", "战斗胜利发送过来的");
-                  this.getAllUser();
+      for (let i = 0; i < combatInfo.length; i++) {
+        // 每条记录的输出相隔 1.5 秒
+        await sleep(1500);
 
-                  this.battleState = false;
-                }
+        const record = combatInfo[i];
+        record.type = "combat";
+        this.addRecord(record);
+      }
 
-                // 战斗记录超过50条 清空
-                if (this.recording.length >= 50) {
-                  this.recording = [];
-                }
-
-                this.battleTimer = setTimeout(() => {
-                  this.battleState = false;
-                  this.deteSetMap(mapid);
-                }, 6000);
-              }
-            }, idx * 1500);
-          });
-        })
-        .catch((err) => {
-          this.$Message.warning("战斗开始失败6秒后自动请求战斗,请联系管理员");
-
-          setTimeout(() => {
-            this.battleState = false;
-            this.deteSetMap(mapid);
-          }, 6000);
+      // 额外增加一个战斗结果的消息记录
+      if (result.reHealth <= 0) {
+        this.addRecord({
+          type: "result",
+          result: "战斗失败",
         });
+      } else {
+        // 物品列表
+        const goods = result.gameItemsList.map((val) => {
+          return val.itemName;
+        });
+        const droppedGood = goods.length > 0;
+
+        this.addRecord({
+          type: "result",
+          result: "战斗成功",
+          exp: "获得" + result.dropExp + "经验;",
+          goods: "物品:" + (droppedGood ? goods.join() : "无"),
+          reHealth: result.reHealth,
+          reMana: result.reMana,
+        });
+
+        if (droppedGood) {
+          this.getAllPackage();
+          // 通知技能刷新检查
+          this.$bus.$emit("getSkillMsg");
+        }
+        this.getAllUser();
+      }
     },
 
     // 确认修改属性的按钮
