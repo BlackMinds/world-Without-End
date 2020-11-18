@@ -850,32 +850,29 @@ export default {
       return;
     }
 
-    this.getAllUser(); // 获取用户
-    this.getAllPackage(); // 获取全部包裹
-    this.getAliiEquip(); // 获取穿戴的装备列表
+    this.refreshUserInfo(); // 获取用户
+    this.refreshPackage(); // 获取全部包裹
+    this.refreshEquips(); // 获取穿戴的装备列表
 
     // 兑换码发送过来的
     this.$bus.$on("dhmMsg", (msg) => {
-      setTimeout(() => {
-        this.getAllPackage();
-      }, 500);
+      setTimeout(() => this.refreshPackage(), 500);
     });
 
     // 商店购买发送过来的
     this.$bus.$on("shopMsg", (msg) => {
-      this.getAllUser();
-      this.getAllPackage();
-      // this.getAllSkill();
+      this.refreshUserInfo();
+      this.refreshPackage();
     });
 
     // 脱下技能发送过来的
     this.$bus.$on("skillMsg", (msg) => {
-      this.getAllUser();
+      this.refreshUserInfo();
     });
 
     // 装备技能发送过来的
     this.$bus.$on("skillMsg1", (msg) => {
-      this.getAllUser();
+      this.refreshUserInfo();
     });
 
     // 退出登录发送过来的
@@ -965,9 +962,9 @@ export default {
         )
         .then((res) => {
           this.$Message.warning(res.data.data);
-          this.getAllUser(); // 获取用户
-          this.getAliiEquip(); // 获取穿戴的装备列表
-          this.getAllPackage(); // 获取全部包裹
+          this.refreshUserInfo(); // 获取用户
+          this.refreshEquips(); // 获取穿戴的装备列表
+          this.refreshPackage(); // 获取全部包裹
         })
         .catch((err) => {
           this.$Message.warning("装备一键脱下失败,请联系管理员");
@@ -1008,14 +1005,14 @@ export default {
           }
         )
         .then((res) => {
-          this.getAllUser();
+          this.refreshUserInfo();
           this.$Message.warning(res.data.msg);
         });
       return false;
     },
 
     // 获取角色的装备列表
-    getAliiEquip() {
+    refreshEquips() {
       this.$http
         .post(
           "gameCharaEquip/getCharaEquip?charaId=" + this.getCookie("charaId")
@@ -1029,7 +1026,7 @@ export default {
     },
 
     // 获取角色的全部消息
-    getAllUser() {
+    refreshUserInfo() {
       this.$http
         .get(
           "gamepassport/getGameCharacter?charaId=" + this.getCookie("charaId")
@@ -1044,7 +1041,7 @@ export default {
     },
 
     // 获取用户全部包裹
-    getAllPackage() {
+    refreshPackage() {
       this.$http
         .post("gameChara/getCharaPackage?charaId=" + this.getCookie("charaId"))
         .then((res) => {
@@ -1205,11 +1202,11 @@ export default {
         });
 
         if (droppedGood) {
-          this.getAllPackage();
+          this.refreshPackage();
           // 通知技能刷新检查
           this.$bus.$emit("getSkillMsg");
         }
-        this.getAllUser();
+        this.refreshUserInfo();
       }
     },
 
@@ -1220,7 +1217,7 @@ export default {
         .post("gameChara/updateAttrPoint", this.user)
         .then((res) => {
           this.$Message.warning("修改成功");
-          this.getAllUser();
+          this.refreshUserInfo();
         })
         .catch((err) => {
           this.$Message.warning("修改失败,请联系管理员");
@@ -1272,8 +1269,8 @@ export default {
             arrKnapsac
         )
         .then((res) => {
-          this.getAllUser();
-          this.getAllPackage();
+          this.refreshUserInfo();
+          this.refreshPackage();
           // 每次出售完 就退到2个全部
           this.classification = "0";
           this.quality = "0";
@@ -1293,9 +1290,9 @@ export default {
             item.equitId
         )
         .then((res) => {
-          this.getAliiEquip();
-          this.getAllUser();
-          this.getAllPackage();
+          this.refreshEquips();
+          this.refreshUserInfo();
+          this.refreshPackage();
         })
         .catch((err) => {
           this.$Message.warning("脱下单件装备失败,请联系管理员");
@@ -1312,8 +1309,8 @@ export default {
             item.packItemId
         )
         .then((res) => {
-          this.getAllUser();
-          this.getAllPackage();
+          this.refreshUserInfo();
+          this.refreshPackage();
         })
         .catch((err) => {
           this.$Message.warning("出售单件物品失败,请联系管理员");
@@ -1331,9 +1328,9 @@ export default {
         )
         .then((res) => {
           this.$Message.warning(res.data.msg);
-          // this.getAliiEquip();
-          this.getAllPackage();
-          this.getAllUser();
+          // this.refreshEquips();
+          this.refreshPackage();
+          this.refreshUserInfo();
         })
         .catch((err) => {
           this.$Message.warning("使用失败,请联系管理员");
@@ -1351,9 +1348,9 @@ export default {
         )
         .then((res) => {
           this.$Message.warning(res.data.data);
-          this.getAliiEquip();
-          this.getAllPackage();
-          this.getAllUser();
+          this.refreshEquips();
+          this.refreshPackage();
+          this.refreshUserInfo();
         })
         .catch((err) => {
           this.$Message.warning("装备失败,请联系管理员");
@@ -1390,8 +1387,8 @@ export default {
         )
         .then((res) => {
           this.$Message.warning(res.data.msg);
-          this.getAllPackage();
-          this.getAllUser();
+          this.refreshPackage();
+          this.refreshUserInfo();
         })
         .catch((err) => {
           this.$Message.warning("强化失败,请联系管理员");
@@ -1411,7 +1408,7 @@ export default {
         )
         .then((res) => {
           this.$Message.warning(res.data.data);
-          this.getAllPackage();
+          this.refreshPackage();
         })
         .catch((err) => {
           this.$Message.warning("绑定失败,请联系管理员");
