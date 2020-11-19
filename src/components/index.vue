@@ -55,6 +55,7 @@
               <!-- 铜钱买普通物品 -->
               <p>当前铜钱: {{ user.money }}</p>
               <p>当前金币: {{ user.coin }}</p>
+              <p>副本奖励剩余次数: {{ user.rewardNum }}</p>
             </div>
           </div>
         </Card>
@@ -1034,6 +1035,7 @@ export default {
         .then((res) => {
           this.user = res.data.data;
           this.user.charaId = this.getCookie("charaId");
+          console.log(this.user)
         })
         .catch((err) => {
           this.$Message.warning("获取角色失败,请联系管理员");
@@ -1136,7 +1138,6 @@ export default {
           })}`
         );
         const body = res.data;
-
         // 判断他有没有战斗结束就重新调用接口
         if (body.status == 205) {
           this.closeBattleTimer();
@@ -1147,6 +1148,16 @@ export default {
           return;
         }
 
+        // // 有错误提示 就这里出现 并且重新请求战斗
+        // if (body.msg) {
+        //   this.$Message.warning(body.msg + ",6秒后自动请求战斗")
+        //   this.battleTimer = setTimeout(() => {
+        //       this.battleState = false;
+        //     this.deteSetMap(mapid);
+        //   }, 6000);
+        //   return
+        // }
+
         this.battleState = true;
         // 非副本战斗返回的结果是一个直接的对象，这里转换成一样的结构
         const combatResults = isInstanceZones ? body.data : [body.data];
@@ -1156,11 +1167,12 @@ export default {
         }
         this.battleState = false;
       } catch (err) {
-        console.error(err);
+        console.log(err);
         this.$Message.warning("战斗开始失败6秒后自动请求战斗,请联系管理员");
       }
 
       this.battleTimer = setTimeout(() => {
+          this.battleState = false;
         this.deteSetMap(mapid);
       }, 6000);
     },

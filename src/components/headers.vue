@@ -20,7 +20,7 @@
 
       <!-- 组队 -->
       <Modal
-        width="1020"
+        width="720"
         :title="organizeList.armyName ? organizeList.armyName : '组队'"
         v-model="organizeEject"
         :styles="{ top: '100px' }"
@@ -31,26 +31,42 @@
           :key="idx"
           class="organizeList"
         >
-          <div v-if="item.avatar" style="position: relative">
+          <div v-if="item.avatar" style="position: relative;float: left;">
             <img
               :src="item.avatar"
               alt="老弟,没图片找群主要啊"
               class="organizeList_face"
             />
-            <span @click="kickOut(item)" v-if="idx != 0">
+            <span @click="kickOut(item)" v-if="item.status == 0">
               <Icon type="md-close" />
             </span>
           </div>
           <div
             v-else
-            style="text-align: center; font-size: 160px; cursor: pointer"
+            style="text-align: center; font-size: 60px; cursor: pointer;position: relative;float: left;"
           >
-            <Icon type="ios-body" />
+            <Icon type="ios-body" class="organizeList_face"/>
+            
+            <span @click="kickOut(item)" v-if="item.status == 0">
+              <Icon type="md-close" />
+            </span>
           </div>
           <p class="organizeList_name" v-if="item.charaName">
             {{ item.charaName }} {{ item.charaLevel }} 级
           </p>
         </div>
+         <Select v-model="mapName">
+            <!-- ({{ item.minLv }}) -->
+            <Option
+              v-for="item in mapList"
+              :value="item.mapName"
+              :name="item.mapId"
+              :key="item.mapId"
+            >
+              {{ item.mapName }}{{ item.minLv }}-{{ item.maxLv }}
+            </Option>
+          </Select>
+        <Button @click="CombatRecord()">战斗记录</Button>
         <div slot="footer">
           <Button
             type="primary"
@@ -306,6 +322,7 @@
         <br />
         <p>测试版: v0.10.8(2020-11-16)</p>
         <p class="importantFont">1: 组队副本来了</p>
+        <p class="importantFont">1: 组队副本必须满3个人</p>
       </Modal>
 
       <!-- 修改密码弹出框 -->
@@ -365,6 +382,7 @@ export default {
   name: "headers",
   data() {
     return {
+      mapName: "", // 选择查看的地图名字
       strategy: false, // 攻略弹出框
       pasEject: false, // 修改密码弹出框
       exchangeEject: false, // 兑换码弹出框
@@ -383,6 +401,8 @@ export default {
       armyName: "", //  队伍名字
       armyList: [], // 队伍列表
       organizeList: [], // 组队列表
+      mapList: [], // 地图列表
+      mapid: "", // 地图id
       gamePackageBo: {
         // 出售设置
         charaId: "",
@@ -394,8 +414,9 @@ export default {
     };
   },
   created() {
-    this.getPackageBo();
-    this.armyBoundary();
+    this.getPackageBo(); //自动出售设置的获取
+    this.armyBoundary(); 
+    this.TeamMapList() // 获取组队地图列表
   },
   components: { playersList, rankingList },
   methods: {
@@ -416,6 +437,27 @@ export default {
       } else {
         return "#ff00c3e0";
       }
+    },
+
+     // 获取组队地图列表
+    TeamMapList() {
+      this.$http.get("/gameAmry/queryMapList").then((res) => {
+        this.mapList = res.data.data;
+      });
+    },
+
+    // 查看战斗记录
+    CombatRecord () {
+      for (var i = 0; i < this.mapList.length; i++) {
+        if (this.mapName == this.mapList[i].mapName) {
+          this.mapid = this.mapList[i].mapId;
+        }
+      }
+      this.$http.post("/gameAmry/checkMapGenMon?charaId=" + this.getCookie("charaId") + "&mapId=" + this.mapid).then(res => {
+        console.log(res)
+      }).catch(err => {
+        console.log(err)
+      }) 
     },
 
     // 打开组队
@@ -513,6 +555,7 @@ export default {
             item.charaNo
         )
         .then(res => {
+          this.armyBoundary()
           this.$Message.success(res.data.msg);
         });
     },
@@ -695,28 +738,35 @@ export default {
 
 /* 组队列表 */
 .organizeEject /deep/ .ivu-modal-body {
-  display: flex;
-  justify-content: space-between;
+  /* display: flex;
+  justify-content: space-between; */
 }
 
 .organizeList {
-  width: 33.3333%;
   margin-bottom: 15px;
+  overflow: hidden;
+  padding: 10px;
 }
 
 .organizeList_face {
-  width: 300px;
-  height: 300px;
+  width: 100px;
+  height: 100px;
   display: block;
-  border: 1px dashed skyblue;
+  /* border: 1px dashed skyblue; */
   margin: 0 auto 15px;
+  border-radius: 50%;
+  box-shadow: 0px 0px 10px #00adff;
+}
+
+.organizeList_face::before   {
+  line-height: 100px;
 }
 
 .organizeList_face + span {
   position: absolute;
   font-size: 20px;
-  right: 20px;
-  top: 0;
+  right: 0;
+  top: -10px;
   cursor: pointer;
   color: red;
 }
@@ -724,5 +774,7 @@ export default {
 .organizeList_name {
   text-align: center;
   font-size: 18px;
+  float: left;
+  margin-left: 20px;
 }
 </style>
