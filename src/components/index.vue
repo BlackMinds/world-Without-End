@@ -378,6 +378,7 @@
             <div class="recording" id="recording">
               <h6 v-if="monsterList.length <= 0">暂无记录</h6>
               <p v-for="(item, index) in recording" :key="index">
+                <!-- 战斗打架输出的日志 -->
                 <span v-if="item.type == 'combat'">
                   <span
                     :style="{
@@ -418,6 +419,26 @@
                     被闪避了
                   </span>
                 </span>
+                <!-- 战斗恢复的地方 -->
+                <span v-if="item.type == 'gain'">
+                  <span
+                    :style="{
+                      color: item.identity == 0 ? 'orange' : '#5b00ff',
+                    }"
+                  >
+                    {{ item.attacker }}
+                  </span>
+                  <span>
+                    用{{ item.skillName }}回复
+                    <span :style="{ color: 'rgb(110 0 255)' }">
+                      {{ item.hurt }}
+                    </span>
+                  </span>
+                  剩余
+                  <span style="color: red">{{ item.surplusHealth }}</span>
+                  血量
+                </span>
+                <!-- 战斗失败或成功输出的地方 -->
                 <span
                   style="color: rgb(255, 0, 224)"
                   v-if="item.type == 'result'"
@@ -855,6 +876,9 @@ export default {
     this.refreshPackage(); // 获取全部包裹
     this.refreshEquips(); // 获取穿戴的装备列表
 
+    setTimeout(() => {
+      this.$store.commit("edit", this.user);
+    }, 600);
     // 兑换码发送过来的
     this.$bus.$on("dhmMsg", (msg) => {
       setTimeout(() => this.refreshPackage(), 500);
@@ -1035,7 +1059,7 @@ export default {
         .then((res) => {
           this.user = res.data.data;
           this.user.charaId = this.getCookie("charaId");
-          console.log(this.user)
+          console.log(this.user);
         })
         .catch((err) => {
           this.$Message.warning("获取角色失败,请联系管理员");
@@ -1172,7 +1196,7 @@ export default {
       }
 
       this.battleTimer = setTimeout(() => {
-          this.battleState = false;
+        this.battleState = false;
         this.deteSetMap(mapid);
       }, 6000);
     },
@@ -1187,7 +1211,13 @@ export default {
         await sleep(1500);
 
         const record = combatInfo[i];
-        record.type = "combat";
+        // 1 物理伤害 2灵力伤害 3持续伤害 4恢复血量
+        // console.log(record, "战斗日志");
+        if (record.hurtType == 4) {
+          record.type = "gain";
+        } else {
+          record.type = "combat";
+        }
         this.addRecord(record);
       }
 

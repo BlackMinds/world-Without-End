@@ -97,6 +97,8 @@ export default {
           this.$Message.warning("登录成功");
           this.setCookie("userId", res.data.data.userId, 3);
           this.setCookie("charaId", res.data.data.charaId, 3);
+          // console.log(res.data.data);
+
           this.$router.push({ name: "index" });
         }
       });

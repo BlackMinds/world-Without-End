@@ -6,7 +6,7 @@
           <li @click="openOrganize">组队</li>
           <li @click="openSetEject">设置</li>
           <li @click="changePas">修改密码</li>
-          <li @click="openStrategy">攻略(新手点这)</li>
+          <li @click="openStrategy">更新日志</li>
           <li @click="openExchange">兑换码</li>
           <li @click="PlanEject = true">排行榜</li>
           <li @click="RackingEject = true">在线玩家</li>
@@ -31,7 +31,7 @@
           :key="idx"
           class="organizeList"
         >
-          <div v-if="item.avatar" style="position: relative;float: left;">
+          <div v-if="item.avatar" style="position: relative; float: left">
             <img
               :src="item.avatar"
               alt="老弟,没图片找群主要啊"
@@ -43,10 +43,16 @@
           </div>
           <div
             v-else
-            style="text-align: center; font-size: 60px; cursor: pointer;position: relative;float: left;"
+            style="
+              text-align: center;
+              font-size: 60px;
+              cursor: pointer;
+              position: relative;
+              float: left;
+            "
           >
-            <Icon type="ios-body" class="organizeList_face"/>
-            
+            <Icon type="ios-body" class="organizeList_face" />
+
             <span @click="kickOut(item)" v-if="item.status == 0">
               <Icon type="md-close" />
             </span>
@@ -55,18 +61,38 @@
             {{ item.charaName }} {{ item.charaLevel }} 级
           </p>
         </div>
-         <Select v-model="mapName">
-            <!-- ({{ item.minLv }}) -->
-            <Option
-              v-for="item in mapList"
-              :value="item.mapName"
-              :name="item.mapId"
-              :key="item.mapId"
-            >
-              {{ item.mapName }}{{ item.minLv }}-{{ item.maxLv }}
-            </Option>
-          </Select>
-        <Button @click="CombatRecord()">战斗记录</Button>
+        <Select v-model="mapName">
+          <!-- ({{ item.minLv }}) -->
+          <Option
+            v-for="item in mapList"
+            :value="item.mapName"
+            :name="item.mapId"
+            :key="item.mapId"
+          >
+            {{ item.mapName }}{{ item.minLv }}-{{ item.maxLv }}
+          </Option>
+        </Select>
+        <Button
+          @click="CombatRecord()"
+          :loading="recordStatus"
+          style="margin-top: 10px"
+        >
+          战斗记录
+        </Button>
+        <template v-if="combatRecordProcess">
+          <p
+            v-for="(item, idx) in combatRecordProcess"
+            :key="item.reHealth"
+            style="font-size: 18px; margin: 5px 0"
+          >
+            第{{ ++idx }}场战斗
+            <span style="color: red">
+              {{ combatRecordProcess.length == idx ? "失败" : "胜利" }}
+            </span>
+            剩余 {{ item.reHealth }}血量 剩余 {{ item.reMana }}真气 获取
+            {{ item.dropExp }} 经验 物品: {{ item.gameItemsList1 || "空" }}
+          </p>
+        </template>
         <div slot="footer">
           <Button
             type="primary"
@@ -171,7 +197,7 @@
       <!-- 攻略弹出框 -->
       <Modal
         width="620"
-        title="攻略"
+        title="更新日志"
         v-model="strategy"
         @on-ok="this.strategy = false"
         :styles="{ top: '40px' }"
@@ -214,48 +240,56 @@
           </p>
         </div>
         <br /> -->
-        <p>测试版: v0.1(2020-10-19)</p>
-        <p>1: 修复了主动技能不能脱下的问题</p>
-        <p>2: 修复了背包超出,底部留白的问题</p>
-        <p>3: 修复了手机端出现白边的问题</p>
-        <p>4: 修改了人物攻击为橙色,怪物攻击为蓝色</p>
-        <p>5: 战斗间隙时间增加2秒 可以方便看掉落物品</p>
+
+        <p>测试版: v0.10.8(2020-11-16)</p>
+        <p class="importantFont">1: 组队副本来了</p>
+        <p class="importantFont">1: 组队副本必须满3个人</p>
         <br />
-        <p>测试版: v0.2(2020-10-20)</p>
-        <p>1: 增加了修改密码,增加了技能升级</p>
-        <p>
-          2:
-          装备防御力显示的问题,之前装备显示上没加防御力,实际上是有防御力的,显示问题已经修复
+        <p>测试版: v0.10.7(2020-11-13)</p>
+        <p class="importantFont">1: 组队先上线了..(战斗还差点)</p>
+        <p>2: 战斗调整,buff可叠加</p>
+        <br />
+        <p>测试版: v0.10.6(2020-11-11)</p>
+        <p class="importantFont">
+          1: 新增编号(以后群里有问题就报编号,组队也需要编号)
         </p>
-        <p>
-          3:
-          下一步会做兑换码功能,可以进群免费拿兑换码,兑换码可以领取金币,然后就是强化装备(最高强化10次
-          每次在原基础属性上加15%-20%的属性,前5级用铜币 后5级用金币)
+        <p class="importantFont">2: 更新上传头像(点击图片就可以)</p>
+        <p class="importantFont">
+          3: 新增自动战斗 (修改了 已角色id记录最近的地图
+          不会出现换小号就不行的情况)
         </p>
+        <p class="importantFont">
+          4: 增强持续伤害buff 从每回合单次伤害 改为怪物攻击次数
+        </p>
+        <p class="importantFont">5: 反击增强，无视防御可暴击</p>
         <br />
-        <p>测试版: v0.3(2020-10-21)</p>
-        <p>1: 怪物暴击率调整普通怪物20%个别特殊的20%及以上</p>
-        <p>2: 怪物暴击伤害200%下降到150%</p>
-        <p>3: 加强了腰带,戒指,项链,现在精神和法力值加的更多了</p>
-        <p>4: 增加了怪物前缀,会随机让怪物属性提高或者降低</p>
-        <p>5: 增加了一个地图掉落表</p>
-        <p>6: 修改了切换地图</p>
-        <p>7: 全部怪物生命值下降10%</p>
-        <p>8: 增加一键兑换金币</p>
+        <p>测试版: v0.10.5(2020-11-10)</p>
+        <p class="importantFont">1: 新增装备对比...</p>
         <br />
-        <p>测试版: v0.4(2020-10-22)</p>
-        <p>1: 修复了经验值问题</p>
-        <p>2: 新加一个小游戏,别踩白块儿</p>
+        <p>测试版: v0.10.4(2020-11-09)</p>
+        <p class="importantFont">1: 用户体验优化</p>
+        <p>2: 排行榜和在线玩家移动到导航条</p>
         <br />
-        <p>测试版: v0.5(2020-10-23)</p>
-        <p>1: 增加了道具使用(洗点，背包扩充)</p>
-        <p>2: 增加了兑换码</p>
+        <p>测试版: v0.10.3(2020-11-07)</p>
+        <p>1: 每一点灵力成的真气值削弱</p>
+        <p>2: 灵巧加的攻击力增强</p>
+        <p>3: 实装命中，闪避，暴击伤害</p>
+        <p class="importantFont">4: 装备随机属性浮动</p>
+        <p class="importantFont">5: 装备等级限制</p>
         <br />
-        <p>测试版: v0.6(2020-10-26)</p>
-        <p>1: 修复了挂机可能会结束的问题</p>
-        <p>2: 界面大修改</p>
-        <p>3: 修复全体技能在第二回合后无法攻击全部敌人</p>
-        <p>4: 补上灵力体系攻击(需要补灵力装备进行测试)</p>
+        <p>测试版: v0.10.2(2020-11-05)</p>
+        <p class="importantFont">1: 金币兑换关闭 通过商店去兑换</p>
+        <p>2: 装备等级限制，功能道具等级使用限制，商店新增好运袋</p>
+        <br />
+        <p>测试版: v0.10.1(2020-11-04)</p>
+        <p>1: 新增4个技能</p>
+        <br />
+        <p>测试版: v0.9(2020-11-01)</p>
+        <p class="importantFont">1: 开放了强化</p>
+        <br />
+        <p>测试版: v0.8(2020-10-30)</p>
+        <p class="importantFont">1: 自动出售</p>
+        <p>2: 锁定</p>
         <br />
         <p>测试版: v0.7(2020-10-27)</p>
         <p>1: 添加等级排行榜</p>
@@ -274,55 +308,47 @@
           梦泽”。
         </p>
         <br />
-        <p>测试版: v0.8(2020-10-30)</p>
-        <p class="importantFont">1: 自动出售</p>
-        <p>2: 锁定</p>
+        <p>测试版: v0.6(2020-10-26)</p>
+        <p>1: 修复了挂机可能会结束的问题</p>
+        <p>2: 界面大修改</p>
+        <p>3: 修复全体技能在第二回合后无法攻击全部敌人</p>
+        <p>4: 补上灵力体系攻击(需要补灵力装备进行测试)</p>
         <br />
-        <p>测试版: v0.9(2020-11-01)</p>
-        <p class="importantFont">1: 开放了强化</p>
+        <p>测试版: v0.5(2020-10-23)</p>
+        <p>1: 增加了道具使用(洗点，背包扩充)</p>
+        <p>2: 增加了兑换码</p>
         <br />
-        <p>测试版: v0.10.1(2020-11-04)</p>
-        <p>1: 新增4个技能</p>
+        <p>测试版: v0.4(2020-10-22)</p>
+        <p>1: 修复了经验值问题</p>
         <br />
-        <p>测试版: v0.10.2(2020-11-05)</p>
-        <p class="importantFont">1: 金币兑换关闭 通过商店去兑换</p>
-        <p>2: 装备等级限制，功能道具等级使用限制，商店新增好运袋</p>
+        <p>测试版: v0.3(2020-10-21)</p>
+        <p>1: 怪物暴击率调整普通怪物20%个别特殊的20%及以上</p>
+        <p>2: 怪物暴击伤害200%下降到150%</p>
+        <p>3: 加强了腰带,戒指,项链,现在精神和法力值加的更多了</p>
+        <p>4: 增加了怪物前缀,会随机让怪物属性提高或者降低</p>
+        <p>5: 增加了一个地图掉落表</p>
+        <p>6: 修改了切换地图</p>
+        <p>7: 全部怪物生命值下降10%</p>
+        <p>8: 增加一键兑换金币</p>
         <br />
-        <p>测试版: v0.10.3(2020-11-07)</p>
-        <p>1: 每一点灵力成的真气值削弱</p>
-        <p>2: 灵巧加的攻击力增强</p>
-        <p>3: 实装命中，闪避，暴击伤害</p>
-        <p class="importantFont">4: 装备随机属性浮动</p>
-        <p class="importantFont">5: 装备等级限制</p>
-        <br />
-        <p>测试版: v0.10.4(2020-11-09)</p>
-        <p class="importantFont">1: 用户体验优化</p>
-        <p>2: 排行榜和在线玩家移动到导航条</p>
-        <br />
-        <p>测试版: v0.10.5(2020-11-10)</p>
-        <p class="importantFont">1: 新增装备对比...</p>
-        <br />
-        <p>测试版: v0.10.6(2020-11-11)</p>
-        <p class="importantFont">
-          1: 新增编号(以后群里有问题就报编号,组队也需要编号)
+        <p>测试版: v0.2(2020-10-20)</p>
+        <p>1: 增加了修改密码,增加了技能升级</p>
+        <p>
+          2:
+          装备防御力显示的问题,之前装备显示上没加防御力,实际上是有防御力的,显示问题已经修复
         </p>
-        <p class="importantFont">2: 更新上传头像(点击图片就可以)</p>
-        <p class="importantFont">
-          3: 新增自动战斗 (修改了 已角色id记录最近的地图
-          不会出现换小号就不行的情况)
+        <p>
+          3:
+          下一步会做兑换码功能,可以进群免费拿兑换码,兑换码可以领取金币,然后就是强化装备(最高强化10次
+          每次在原基础属性上加15%-20%的属性,前5级用铜币 后5级用金币)
         </p>
-        <p class="importantFont">
-          4: 增强持续伤害buff 从每回合单次伤害 改为怪物攻击次数
-        </p>
-        <p class="importantFont">5: 反击增强，无视防御可暴击</p>
         <br />
-        <p>测试版: v0.10.7(2020-11-13)</p>
-        <p class="importantFont">1: 组队先上线了..(战斗还差点)</p>
-        <p>2: 战斗调整,buff可叠加</p>
-        <br />
-        <p>测试版: v0.10.8(2020-11-16)</p>
-        <p class="importantFont">1: 组队副本来了</p>
-        <p class="importantFont">1: 组队副本必须满3个人</p>
+        <p>测试版: v0.1(2020-10-19)</p>
+        <p>1: 修复了主动技能不能脱下的问题</p>
+        <p>2: 修复了背包超出,底部留白的问题</p>
+        <p>3: 修复了手机端出现白边的问题</p>
+        <p>4: 修改了人物攻击为橙色,怪物攻击为蓝色</p>
+        <p>5: 战斗间隙时间增加2秒 可以方便看掉落物品</p>
       </Modal>
 
       <!-- 修改密码弹出框 -->
@@ -382,6 +408,7 @@ export default {
   name: "headers",
   data() {
     return {
+      recordStatus: false, // 战斗记录的一个状态
       mapName: "", // 选择查看的地图名字
       strategy: false, // 攻略弹出框
       pasEject: false, // 修改密码弹出框
@@ -403,20 +430,21 @@ export default {
       organizeList: [], // 组队列表
       mapList: [], // 地图列表
       mapid: "", // 地图id
+      combatRecordProcess: [], // 战斗记录过程
       gamePackageBo: {
         // 出售设置
         charaId: "",
         isOpen: 0,
         maxLevel: "",
         minLevel: "",
-        quality: []
-      }
+        quality: [],
+      },
     };
   },
   created() {
     this.getPackageBo(); //自动出售设置的获取
-    this.armyBoundary(); 
-    this.TeamMapList() // 获取组队地图列表
+    this.armyBoundary();
+    this.TeamMapList(); // 获取组队地图列表
   },
   components: { playersList, rankingList },
   methods: {
@@ -439,7 +467,7 @@ export default {
       }
     },
 
-     // 获取组队地图列表
+    // 获取组队地图列表
     TeamMapList() {
       this.$http.get("/gameAmry/queryMapList").then((res) => {
         this.mapList = res.data.data;
@@ -447,17 +475,46 @@ export default {
     },
 
     // 查看战斗记录
-    CombatRecord () {
+    CombatRecord() {
+      if (!this.mapName) {
+        this.$Message.warning("请在上方选择一个地图");
+        return;
+      }
       for (var i = 0; i < this.mapList.length; i++) {
         if (this.mapName == this.mapList[i].mapName) {
           this.mapid = this.mapList[i].mapId;
         }
       }
-      this.$http.post("/gameAmry/checkMapGenMon?charaId=" + this.getCookie("charaId") + "&mapId=" + this.mapid).then(res => {
-        console.log(res)
-      }).catch(err => {
-        console.log(err)
-      }) 
+      this.$http
+        .post(
+          "/gameAmry/getAmryRecord?charaNo=" +
+            this.$store.state.user.accountId +
+            "&mapId=" +
+            this.mapid
+        )
+        .then((res) => {
+          this.combatRecordProcess = res.data.data;
+
+          for (let i = 0; i < this.combatRecordProcess.length; i++) {
+            if (this.combatRecordProcess[i].gameItemsList != null) {
+              this.combatRecordProcess[
+                i
+              ].gameItemsList1 = this.combatRecordProcess[i].gameItemsList.map(
+                (val) => {
+                  return val.itemName;
+                }
+              );
+            }
+          }
+
+          this.recordStatus = true;
+          setTimeout(() => {
+            this.recordStatus = false;
+          }, 10000);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     },
 
     // 打开组队
@@ -470,7 +527,7 @@ export default {
     armyBoundary() {
       this.$http
         .post("/gameAmry/armyBoundary/?charaId=" + this.getCookie("charaId"))
-        .then(res => {
+        .then((res) => {
           if (res.data.msg == "无队伍") {
             this.teamStatus = 0;
             this.organizeList = {};
@@ -481,9 +538,8 @@ export default {
             this.organizeList = res.data.data;
             this.$bus.$emit("teamStatusMsg", "有队伍了");
           }
-          console.log(res, "进入队伍界面");
         })
-        .catch(err => {
+        .catch((err) => {
           console.log(err, "进入队伍界面");
         });
     },
@@ -491,7 +547,7 @@ export default {
     // 打开队伍列表
     join() {
       this.armyListEject = true;
-      this.$http.get("/gameAmry/getArmyList?armyName").then(res => {
+      this.$http.get("/gameAmry/getArmyList?armyName").then((res) => {
         this.armyList = res.data.data;
       });
     },
@@ -505,7 +561,7 @@ export default {
             "&amryId=" +
             item.armyId
         )
-        .then(res => {
+        .then((res) => {
           this.$Message.success(res.data.msg);
           this.armyBoundary();
           this.armyListEject = false;
@@ -526,7 +582,7 @@ export default {
             "&armyName=" +
             this.armyName
         )
-        .then(res => {
+        .then((res) => {
           this.$Message.success(res.data.msg);
           if (res.data.msg == "OK") {
             this.armyBoundary();
@@ -539,7 +595,7 @@ export default {
     quitTheTeam() {
       this.$http
         .post("/gameAmry/exitAmry/?charaId=" + this.getCookie("charaId"))
-        .then(res => {
+        .then((res) => {
           this.armyBoundary();
           this.$Message.success(res.data.msg);
         });
@@ -554,8 +610,8 @@ export default {
             "&charaNo=" +
             item.charaNo
         )
-        .then(res => {
-          this.armyBoundary()
+        .then((res) => {
+          this.armyBoundary();
           this.$Message.success(res.data.msg);
         });
     },
@@ -566,14 +622,14 @@ export default {
         .post(
           "/gameMarket/getScreenPackage?charaId=" + this.getCookie("charaId")
         )
-        .then(res => {
+        .then((res) => {
           this.gamePackageBo = res.data.data;
           if (this.gamePackageBo.isOpen === null) this.gamePackageBo.isOpen = 0;
           this.gamePackageBo.quality = this.gamePackageBo.quality
             ? this.gamePackageBo.quality.split(",")
             : [];
         })
-        .catch(err => {
+        .catch((err) => {
           this.$Message.warning("自动出售设置获取列表失败,请联系管理员");
         });
     },
@@ -606,12 +662,12 @@ export default {
         .post("/gameMarket/setScreenPackage", {
           ...this.gamePackageBo,
           charaId: this.getCookie("charaId"),
-          quality: this.gamePackageBo.quality.join(",")
+          quality: this.gamePackageBo.quality.join(","),
         })
-        .then(res => {
+        .then((res) => {
           this.$Message.success(res.data.data);
         })
-        .catch(err => {
+        .catch((err) => {
           this.$Message.warning("设置失败");
         });
     },
@@ -648,10 +704,10 @@ export default {
             "&confirmPwd=" +
             this.confirmPas
         )
-        .then(res => {
+        .then((res) => {
           this.$Message.success(res.data.msg);
         })
-        .catch(err => {
+        .catch((err) => {
           this.$Message.warning("修改密码失败,请联系管理员");
         });
     },
@@ -671,15 +727,15 @@ export default {
             "&exchangeCode=" +
             this.exchange
         )
-        .then(res => {
+        .then((res) => {
           this.$Message.warning(res.data.msg);
         })
-        .catch(err => {
+        .catch((err) => {
           this.$Message.warning("兑换失败,请联系管理员");
         });
       this.$bus.$emit("dhmMsg", "兑换码那里发送过来的");
-    }
-  }
+    },
+  },
 };
 </script>
 <style>
@@ -758,7 +814,7 @@ export default {
   box-shadow: 0px 0px 10px #00adff;
 }
 
-.organizeList_face::before   {
+.organizeList_face::before {
   line-height: 100px;
 }
 

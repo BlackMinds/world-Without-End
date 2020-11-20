@@ -43,6 +43,7 @@ axios.defaults.timeout = 15000
 new Vue({
     el: '#app',
     router,
+    store,
     components: { App },
     template: '<App/>'
 })  
