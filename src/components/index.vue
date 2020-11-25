@@ -51,14 +51,53 @@
             </div>
             <div class="goldCoin">
               <p>当前等级经验: {{ user.exp }} / {{ user.upgradeExp }}</p>
-              <p>境界: 炼气期 &nbsp; 修真经验 0 / 100</p>
               <!-- 铜钱买普通物品 -->
               <p>当前铜钱: {{ user.money }}</p>
               <p>当前金币: {{ user.coin }}</p>
               <p>副本奖励剩余次数: {{ user.rewardNum }}</p>
-            </div>
+              <p>境界: <span  :style="{ color: realmColor, boxShadow: realmShadow, fontSize: '18px'}">{{ user.realmName }}</span> &nbsp; 
+                修真经验 {{ user.realmExp }} / {{ user.realmUpExp }} <Button size="small" @click="breach">突破</Button >
+              </p>
+            </div> 
           </div>
         </Card>
+
+        <!-- 境界突破提示框 -->
+        <Modal
+          v-model="realmEject"
+          title="境界突破提示"
+          @on-ok="changeRealm"
+          :styles="{ top: '240px' }"
+        >
+          <p v-if="breachStuff.realmLevel">
+            突破等级要求: {{ breachStuff.realmLevel}}
+          </p>
+          <p v-if="breachStuff.realmMaxLevel">
+            突破后等级上限: {{ breachStuff.realmMaxLevel}}
+          </p>
+          <p v-if="breachStuff.realmName">
+            突破后境界: {{breachStuff.realmName}}
+          </p>
+          <p v-if="breachStuff.updateExp">
+            突破消耗修真经验: {{breachStuff.updateExp}}
+          </p>
+          <p v-if="breachStuff.materOneName">
+            {{ breachStuff.materOneName }}: 需要
+            {{ breachStuff.materOneNum }}
+          </p>
+          <p v-if="breachStuff.materTwoName">
+            {{ breachStuff.materTwoName }}: 需要
+            {{ breachStuff.materTwoNum }}
+          </p>
+          <p v-if="breachStuff.materThreeName">
+            {{ breachStuff.materThreeName }}: 需要
+            {{ breachStuff.materThreeNum }}
+          </p>
+          <p v-if="breachStuff.coin">
+            需要 {{ breachStuff.coninType == 0 ? "铜币" : "金币" }}
+            {{ breachStuff.coin }}
+          </p>
+        </Modal>
 
         <!-- 修改名字弹出框 -->
         <Modal
@@ -814,15 +853,12 @@ export default {
       classification: "0", // 装备分类
       quality: "0", // 装备品质
       strengthenEject: false, // 强化提示框
+      realmEject: false, // 境界突破提示框
+      breachStuff: [], // 突破的材料
+      realmColor: "skyblue", // 境界的文字颜色
+      realmShadow: "0px 0px 10px #5d5f4d", // 境界的阴影
       withdrawFromActionStatus: false, // 退出战斗的判断
-      materialsRequired: {
-        coin: "",
-        coninType: "",
-        materOneName: "",
-        materOneNum: "",
-        materTwoName: "",
-        materTwoNum: "",
-      }, // 所需材料
+      materialsRequired: {}, // 所需材料
       packItemId: "", // 强化需要用到的
     };
   },
@@ -856,6 +892,19 @@ export default {
     }
   },
   mounted() {
+    // 生成境界的随机颜色
+    var roundColor = Math.round(Math.random()*5)
+    if (roundColor == 1) {
+      this.realmColor = "red"
+    }else if (roundColor == 2) {
+      this.realmColor = "skyblue"
+    } else if (roundColor == 3) {
+      this.realmColor = "orange"
+    } else if (roundColor == 4) {
+      this.realmColor = "greenyellow"
+    } else if (roundColor == 5) {
+      this.realmColor = "pink"
+    } 
     // 如果没有用户id就退出登录
     if (!this.getCookie("userId")) {
       this.$Message.warning("请重新登录");
@@ -1064,7 +1113,7 @@ export default {
         .then((res) => {
           this.user = res.data.data;
           this.user.charaId = this.getCookie("charaId");
-          console.log(this.user);
+          // console.log(this.user);
         })
         .catch((err) => {
           this.$Message.warning("获取角色失败,请联系管理员");
@@ -1439,6 +1488,39 @@ export default {
         })
         .catch((err) => {
           this.$Message.warning("强化失败,请联系管理员");
+        });
+    },
+
+     // 突破按钮
+    breach () {
+      this.realmEject = true;
+      this.$http
+        .post(
+          "/gameRealm/getCaiRealm?charaId=" +
+            this.getCookie("charaId")
+        )
+        .then((res) => {
+          this.breachStuff = res.data.data;
+        })
+        .catch((err) => {
+          this.$Message.warning("突破获取材料失败,请联系管理员");
+        });
+    },
+
+    // 境界突破确定
+    changeRealm () {
+      this.$http
+        .post(
+          "/gameRealm/breakThroughTheRealm?charaId=" +
+            this.getCookie("charaId")
+        )
+        .then((res) => {
+          this.$Message.warning(res.data.msg);
+          this.refreshUserInfo(); // 获取用户
+          this.refreshPackage(); // 获取全部包裹
+        })
+        .catch((err) => {
+          this.$Message.warning("突破失败,请联系管理员");
         });
     },
 
