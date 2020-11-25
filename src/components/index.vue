@@ -281,6 +281,7 @@
                       ({{ item.strengSpirit }})
                     </span>
                   </p>
+                  <Divider v-if="item.decs" />
                   <p v-if="item.decs">描述： {{ item.decs }}</p>
                 </div>
               </Poptip>
@@ -666,6 +667,7 @@
                           ({{ Equipment.strengSpirit }})
                         </span>
                       </p>
+                      <Divider v-if="Equipment.equitDec" />
                       <p v-if="Equipment.equitDec">
                         描述： {{ Equipment.equitDec }}
                       </p>
@@ -685,67 +687,70 @@
                     <p v-if="item.itemNum != 1">
                       物品数量： {{ item.itemNum }}
                     </p>
-                    <p v-if="item.life">
+                    <p v-if="item.life" class="discrimination">
                       生命值 {{ item.life }}
                       <span v-if="item.strengLife">
                         ({{ item.strengLife }})
                       </span>
                     </p>
-                    <p v-if="item.mana">
+                    <p v-if="item.mana" class="discrimination">
                       真气值 {{ item.mana }}
                       <span v-if="item.strengMana">
                         ({{ item.strengMana }})
                       </span>
                     </p>
-                    <p v-if="item.attack">
+                    <p v-if="item.attack" class="discrimination">
                       攻击力 {{ item.attack }}
                       <span v-if="item.strengAttack">
                         ({{ item.strengAttack }})
                       </span>
                     </p>
-                    <p v-if="item.magAttack">
+                    <p v-if="item.magAttack" class="discrimination">
                       法术攻击力 {{ item.magAttack }}
                       <span v-if="item.strengMagAttack">
                         ({{ item.strengMagAttack }})
                       </span>
                     </p>
-                    <p v-if="item.defense">
+                    <p v-if="item.defense" class="discrimination">
                       防御力 {{ item.defense }}
                       <span v-if="item.strengDefense">
                         ({{ item.strengDefense }})
                       </span>
                     </p>
-                    <p v-if="item.hitRate">
+                    <p v-if="item.hitRate" class="discrimination">
                       命中率 {{ (item.hitRate * 100).toFixed(2) }}%
                     </p>
-                    <p v-if="item.evade">
+                    <p v-if="item.evade" class="discrimination">
                       闪避率 {{ (item.evade * 100).toFixed(2) }}%
                     </p>
-                    <p v-if="item.critical">
+                    <p v-if="item.critical" class="discrimination">
                       暴击率 {{ (item.critical * 100).toFixed(2) }}%
                     </p>
-                    <p v-if="item.criDamage">
+                    <p v-if="item.criDamage" class="discrimination">
                       暴击伤害 {{ (item.criDamage * 100).toFixed(2) }}%
                     </p>
-                    <p v-if="item.speed">行动速度 {{ item.speed }}</p>
-                    <p v-if="item.physique">
+                    <p v-if="item.speed" class="discrimination">
+                      行动速度 {{ item.speed }}
+                    </p>
+                    <p v-if="item.physique" class="discrimination">
                       体格 {{ item.physique }}
                       <span v-if="item.strengPhysique">
                         ({{ item.strengPhysique }})
                       </span>
                     </p>
-                    <p v-if="item.dexterous">
+                    <p v-if="item.dexterous" class="discrimination">
                       灵巧 {{ item.dexterous }}
                       <span v-if="item.strengDexterous">
                         ({{ item.strengDexterous }})
                       </span>
                     </p>
-                    <p v-if="item.spirit">
+                    <p v-if="item.spirit" class="discrimination">
                       灵力 {{ item.spirit }}
                       <span v-if="item.strengSpirit">
                         ({{ item.strengSpirit }})
                       </span>
                     </p>
+                    <Divider v-if="item.decs" />
                     <p v-if="item.decs">描述： {{ item.decs }}</p>
                   </div>
                 </div>
