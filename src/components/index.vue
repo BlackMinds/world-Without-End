@@ -57,7 +57,8 @@
               <p>副本奖励剩余次数: {{ user.rewardNum }}</p>
               <p>
                 境界:
-                <span
+                <Poptip trigger="hover" :title="user.realmName" @on-popper-show="getRealmAttribute">
+                  <span
                   :style="{
                     color: realmColor,
                     boxShadow: realmShadow,
@@ -66,6 +67,45 @@
                 >
                   {{ user.realmName }}
                 </span>
+                 <div slot="content" class="realmAttribute">
+                  <p v-if="realmAttribute.realmAttack">
+                    <span>物理攻击加成</span>
+                    {{ realmAttribute.realmAttack * 100 }} %
+                  </p>  
+                  <p v-if="realmAttribute.realmMagicAttack">
+                    <span>灵力攻击加成</span>
+                    {{ realmAttribute.realmMagicAttack * 100 }} %
+                  </p>  
+                  <p v-if="realmAttribute.realmHealth">
+                    <span>血量加成</span>
+                    {{ realmAttribute.realmHealth * 100 }} %
+                  </p>  
+                  <p v-if="realmAttribute.realmMana">
+                    <span>真气加成</span>
+                    {{ realmAttribute.realmMana * 100 }} %
+                  </p>  
+                  <p v-if="realmAttribute.realmDefense">
+                    <span>防御加成</span>
+                    {{ realmAttribute.realmDefense * 100 }} %
+                  </p>  
+                  <p v-if="realmAttribute.realmCriticalHit">
+                    <span>暴击加成</span>
+                    {{ realmAttribute.realmCriticalHit * 100 }} %
+                  </p>  
+                  <p v-if="realmAttribute.realmCriticalDamage">
+                    <span>暴击伤害加成</span>
+                    {{ realmAttribute.realmCriticalDamage * 100 }} %
+                  </p>  
+                  <p v-if="realmAttribute.realmEvade">
+                    <span>闪避加成</span>
+                    {{ realmAttribute.realmEvade * 100 }} %
+                  </p>  
+                  <p v-if="realmAttribute.realmHitRat">
+                    <span>命中加成</span>
+                    {{ realmAttribute.realmHitRat * 100 }} %
+                  </p>
+                 </div>
+                </Poptip>
                 &nbsp; 修真经验 {{ user.realmExp }} / {{ user.realmUpExp }}
                 <Button size="small" @click="breach">突破</Button>
               </p>
@@ -807,6 +847,7 @@
         {{ teamStatus }}
         <!-- 技能 -->
         <skill></skill>
+        <synthesis></synthesis>
       </div>
     </div>
   </div>
@@ -820,6 +861,7 @@ import headers from "./headers.vue";
 // import rankingList from "./rankingList.vue";
 import shop from "./shop.vue";
 import skill from "./skill.vue";
+import synthesis from "./synthesis.vue";
 import { EquipSlot, SlotName } from "../const";
 import { sleep } from "../utils";
 
@@ -859,6 +901,7 @@ export default {
       realmColor: "skyblue", // 境界的文字颜色
       realmShadow: "0px 0px 10px #5d5f4d", // 境界的阴影
       withdrawFromActionStatus: false, // 退出战斗的判断
+      realmAttribute: "", // 境界加成获取到的属性
       materialsRequired: {}, // 所需材料
       packItemId: "", // 强化需要用到的
     };
@@ -883,7 +926,7 @@ export default {
     },
   },
 
-  components: { vueCanvasNest, headers, shop, skill },
+  components: { vueCanvasNest, headers, shop, skill,synthesis },
   updated() {
     // 战斗记录定位到底部
     const el = document.getElementById("recording");
@@ -973,6 +1016,13 @@ export default {
       this.MapList();
     });
 
+    // 合成之后才发送的
+    this.$bus.$on("synthesisMsg", (msg) => {
+      this.refreshPackage();
+    });
+
+    
+
     setTimeout(() => {
       if (this.teamStatus == 0) {
         this.automaticCombat(); // 自动战斗
@@ -980,6 +1030,19 @@ export default {
     }, 500);
   },
   methods: {
+    getRealmAttribute () {
+      this.$http
+        .post(
+          "/gameRealm/getRealmBonus?charaId=" +
+            this.getCookie("charaId")
+        )
+        .then((res) => {
+          this.realmAttribute = res.data.data
+        })
+        .catch((err) => {
+          this.$Message.warning("获取境界属性失败,请联系管理员");
+        });
+    },
     addRecord(record) {
       this.recording.push(record);
       // 战斗记录超过一定条数时移除一部分
@@ -1787,5 +1850,10 @@ body {
 .poptipExplain div p:nth-child(3),
 .poptipExplain div p:nth-child(4) {
   color: inherit;
+}
+
+/* 境界属性带来的提升 */
+.realmAttribute p span {
+  color: rgb(45, 196, 255)
 }
 </style>
