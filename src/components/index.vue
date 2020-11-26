@@ -55,10 +55,21 @@
               <p>当前铜钱: {{ user.money }}</p>
               <p>当前金币: {{ user.coin }}</p>
               <p>副本奖励剩余次数: {{ user.rewardNum }}</p>
-              <p>境界: <span  :style="{ color: realmColor, boxShadow: realmShadow, fontSize: '18px'}">{{ user.realmName }}</span> &nbsp; 
-                修真经验 {{ user.realmExp }} / {{ user.realmUpExp }} <Button size="small" @click="breach">突破</Button >
+              <p>
+                境界:
+                <span
+                  :style="{
+                    color: realmColor,
+                    boxShadow: realmShadow,
+                    fontSize: '18px',
+                  }"
+                >
+                  {{ user.realmName }}
+                </span>
+                &nbsp; 修真经验 {{ user.realmExp }} / {{ user.realmUpExp }}
+                <Button size="small" @click="breach">突破</Button>
               </p>
-            </div> 
+            </div>
           </div>
         </Card>
 
@@ -70,16 +81,16 @@
           :styles="{ top: '240px' }"
         >
           <p v-if="breachStuff.realmLevel">
-            突破等级要求: {{ breachStuff.realmLevel}}
+            突破等级要求: {{ breachStuff.realmLevel }}
           </p>
           <p v-if="breachStuff.realmMaxLevel">
-            突破后等级上限: {{ breachStuff.realmMaxLevel}}
+            突破后等级上限: {{ breachStuff.realmMaxLevel }}
           </p>
           <p v-if="breachStuff.realmName">
-            突破后境界: {{breachStuff.realmName}}
+            突破后境界: {{ breachStuff.realmName }}
           </p>
           <p v-if="breachStuff.updateExp">
-            突破消耗修真经验: {{breachStuff.updateExp}}
+            突破消耗修真经验: {{ breachStuff.updateExp }}
           </p>
           <p v-if="breachStuff.materOneName">
             {{ breachStuff.materOneName }}: 需要
@@ -226,11 +237,7 @@
           <div class="equipmentBar">
             <div v-for="(item, key, index) in equipmentList" :key="index">
               <span>{{ key }}:</span>
-              <Poptip
-                trigger="hover"
-                :style="{ color: distinguishColor(item.color) }"
-                v-if="item"
-              >
+              <Poptip trigger="hover" v-if="item">
                 <p
                   style="white-space: nowrap; height: 24px"
                   :style="{ color: distinguishColor(item.color) }"
@@ -623,98 +630,92 @@
                 <div slot="content" class="poptipExplain">
                   <!-- 装备栏显示的数据 -->
                   <div v-if="Equipment" class="Equipment">
-                    <div slot="content">
-                      <p>
-                        {{ Equipment.equitName }}
-                        <span
-                          v-if="
-                            Equipment.itemType != 3 && Equipment.itemType != 4
-                          "
-                        >
-                          +{{ Equipment.enhanLevel }}
-                        </span>
-                        &nbsp;&nbsp;(已装备)
-                      </p>
-                      <p>装备类型 {{ Equipment.typeDec }}</p>
-                      <p>装备等级 {{ Equipment.level }}</p>
-                      <p>
-                        物品状态 {{ Equipment.bind == 0 ? "解绑" : "绑定" }}
-                      </p>
-                      <p v-if="Equipment.itemNum">
-                        物品数量： {{ Equipment.itemNum }}
-                      </p>
-                      <p v-if="Equipment.life">
-                        生命值 {{ Equipment.life }}
-                        <span v-if="Equipment.strengLife">
-                          ({{ Equipment.strengLife }})
-                        </span>
-                      </p>
-                      <p v-if="Equipment.mana">
-                        真气值 {{ Equipment.mana }}
-                        <span v-if="Equipment.strengMana">
-                          ({{ Equipment.strengMana }})
-                        </span>
-                      </p>
-                      <p v-if="Equipment.attack">
-                        攻击力 {{ Equipment.attack }}
-                        <span v-if="Equipment.strengAttack">
-                          ({{ Equipment.strengAttack }})
-                        </span>
-                      </p>
-                      <p v-if="Equipment.magAttack">
-                        法术攻击力 {{ Equipment.magAttack }}
-                        <span v-if="Equipment.strengMagAttack">
-                          ({{ Equipment.strengMagAttack }})
-                        </span>
-                      </p>
-                      <p v-if="Equipment.defense">
-                        防御力 {{ Equipment.defense }}
-                        <span v-if="Equipment.strengDefense">
-                          ({{ Equipment.strengDefense }})
-                        </span>
-                      </p>
-                      <p v-if="Equipment.hitRate">
-                        命中率 {{ (Equipment.hitRate * 100).toFixed(2) }}%
-                      </p>
-                      <p v-if="Equipment.evade">
-                        闪避率 {{ (Equipment.evade * 100).toFixed(2) }}%
-                      </p>
-                      <p v-if="Equipment.critical">
-                        暴击率 {{ (Equipment.critical * 100).toFixed(2) }}%
-                      </p>
-                      <p v-if="Equipment.criDamage">
-                        暴击伤害 {{ (Equipment.criDamage * 100).toFixed(2) }}%
-                      </p>
-                      <p v-if="Equipment.speed">
-                        行动速度 {{ Equipment.speed }}
-                      </p>
-                      <p v-if="Equipment.physique">
-                        体格 {{ Equipment.physique }}
-                        <span v-if="Equipment.strengPhysique">
-                          ({{ Equipment.strengPhysique }})
-                        </span>
-                      </p>
-                      <p v-if="Equipment.dexterous">
-                        灵巧 {{ Equipment.dexterous }}
-                        <span v-if="Equipment.strengDexterous">
-                          ({{ Equipment.strengDexterous }})
-                        </span>
-                      </p>
-                      <p v-if="Equipment.spirit">
-                        灵力 {{ Equipment.spirit }}
-                        <span v-if="Equipment.strengSpirit">
-                          ({{ Equipment.strengSpirit }})
-                        </span>
-                      </p>
-                      <Divider v-if="Equipment.equitDec" />
-                      <p v-if="Equipment.equitDec">
-                        描述： {{ Equipment.equitDec }}
-                      </p>
-                    </div>
+                    <p :style="{ color: distinguishColor(Equipment.color) }">
+                      {{ Equipment.equitName }}
+                      <span
+                        v-if="
+                          Equipment.itemType != 3 && Equipment.itemType != 4
+                        "
+                      >
+                        +{{ Equipment.enhanLevel }}
+                      </span>
+                      &nbsp;&nbsp;(已装备)
+                    </p>
+                    <p>装备类型 {{ Equipment.typeDec }}</p>
+                    <p>装备等级 {{ Equipment.level }}</p>
+                    <p>物品状态 {{ Equipment.bind == 0 ? "解绑" : "绑定" }}</p>
+                    <p v-if="Equipment.itemNum">
+                      物品数量： {{ Equipment.itemNum }}
+                    </p>
+                    <p v-if="Equipment.life">
+                      生命值 {{ Equipment.life }}
+                      <span v-if="Equipment.strengLife">
+                        ({{ Equipment.strengLife }})
+                      </span>
+                    </p>
+                    <p v-if="Equipment.mana">
+                      真气值 {{ Equipment.mana }}
+                      <span v-if="Equipment.strengMana">
+                        ({{ Equipment.strengMana }})
+                      </span>
+                    </p>
+                    <p v-if="Equipment.attack">
+                      攻击力 {{ Equipment.attack }}
+                      <span v-if="Equipment.strengAttack">
+                        ({{ Equipment.strengAttack }})
+                      </span>
+                    </p>
+                    <p v-if="Equipment.magAttack">
+                      法术攻击力 {{ Equipment.magAttack }}
+                      <span v-if="Equipment.strengMagAttack">
+                        ({{ Equipment.strengMagAttack }})
+                      </span>
+                    </p>
+                    <p v-if="Equipment.defense">
+                      防御力 {{ Equipment.defense }}
+                      <span v-if="Equipment.strengDefense">
+                        ({{ Equipment.strengDefense }})
+                      </span>
+                    </p>
+                    <p v-if="Equipment.hitRate">
+                      命中率 {{ (Equipment.hitRate * 100).toFixed(2) }}%
+                    </p>
+                    <p v-if="Equipment.evade">
+                      闪避率 {{ (Equipment.evade * 100).toFixed(2) }}%
+                    </p>
+                    <p v-if="Equipment.critical">
+                      暴击率 {{ (Equipment.critical * 100).toFixed(2) }}%
+                    </p>
+                    <p v-if="Equipment.criDamage">
+                      暴击伤害 {{ (Equipment.criDamage * 100).toFixed(2) }}%
+                    </p>
+                    <p v-if="Equipment.speed">行动速度 {{ Equipment.speed }}</p>
+                    <p v-if="Equipment.physique">
+                      体格 {{ Equipment.physique }}
+                      <span v-if="Equipment.strengPhysique">
+                        ({{ Equipment.strengPhysique }})
+                      </span>
+                    </p>
+                    <p v-if="Equipment.dexterous">
+                      灵巧 {{ Equipment.dexterous }}
+                      <span v-if="Equipment.strengDexterous">
+                        ({{ Equipment.strengDexterous }})
+                      </span>
+                    </p>
+                    <p v-if="Equipment.spirit">
+                      灵力 {{ Equipment.spirit }}
+                      <span v-if="Equipment.strengSpirit">
+                        ({{ Equipment.strengSpirit }})
+                      </span>
+                    </p>
+                    <Divider v-if="Equipment.equitDec" />
+                    <p v-if="Equipment.equitDec">
+                      描述： {{ Equipment.equitDec }}
+                    </p>
                   </div>
 
                   <div>
-                    <p>
+                    <p :style="{ color: distinguishColor(item.color) }">
                       {{ item.itemName }}
                       <span v-if="item.itemType != 3 && item.itemType != 4">
                         +{{ item.enhanLevel }}
@@ -893,18 +894,18 @@ export default {
   },
   mounted() {
     // 生成境界的随机颜色
-    var roundColor = Math.round(Math.random()*5)
+    var roundColor = Math.round(Math.random() * 5);
     if (roundColor == 1) {
-      this.realmColor = "red"
-    }else if (roundColor == 2) {
-      this.realmColor = "skyblue"
+      this.realmColor = "red";
+    } else if (roundColor == 2) {
+      this.realmColor = "skyblue";
     } else if (roundColor == 3) {
-      this.realmColor = "orange"
+      this.realmColor = "orange";
     } else if (roundColor == 4) {
-      this.realmColor = "greenyellow"
+      this.realmColor = "greenyellow";
     } else if (roundColor == 5) {
-      this.realmColor = "pink"
-    } 
+      this.realmColor = "pink";
+    }
     // 如果没有用户id就退出登录
     if (!this.getCookie("userId")) {
       this.$Message.warning("请重新登录");
@@ -1027,6 +1028,8 @@ export default {
         return "#ff00e0";
       } else if (color == 6) {
         return "#ff0000";
+      } else if (color == 7) {
+        return "orange";
       } else {
         return "#ff00c3e0";
       }
@@ -1491,14 +1494,11 @@ export default {
         });
     },
 
-     // 突破按钮
-    breach () {
+    // 突破按钮
+    breach() {
       this.realmEject = true;
       this.$http
-        .post(
-          "/gameRealm/getCaiRealm?charaId=" +
-            this.getCookie("charaId")
-        )
+        .post("/gameRealm/getCaiRealm?charaId=" + this.getCookie("charaId"))
         .then((res) => {
           this.breachStuff = res.data.data;
         })
@@ -1508,11 +1508,10 @@ export default {
     },
 
     // 境界突破确定
-    changeRealm () {
+    changeRealm() {
       this.$http
         .post(
-          "/gameRealm/breakThroughTheRealm?charaId=" +
-            this.getCookie("charaId")
+          "/gameRealm/breakThroughTheRealm?charaId=" + this.getCookie("charaId")
         )
         .then((res) => {
           this.$Message.warning(res.data.msg);
@@ -1774,5 +1773,19 @@ body {
 /* 装备栏数据对比显示左右对比数据显示 */
 .poptipExplain {
   display: flex;
+}
+
+/* 调整文字颜色 */
+.poptipExplain div p {
+  color: rgb(73, 193, 248);
+}
+.poptipExplain div p span {
+  color: rgb(0, 255, 55);
+}
+.poptipExplain div p:nth-child(1),
+.poptipExplain div p:nth-child(2),
+.poptipExplain div p:nth-child(3),
+.poptipExplain div p:nth-child(4) {
+  color: inherit;
 }
 </style>

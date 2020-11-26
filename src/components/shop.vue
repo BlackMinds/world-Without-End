@@ -17,9 +17,13 @@
           >
             {{ item.marketName }}
             <span class="jjt_smail">{{ item.marketNum }}</span>
-            <Button @click.prevent="purchaseItem(item)" size="small" type="info"
-              >购买</Button
+            <Button
+              @click.prevent="purchaseItem(item)"
+              size="small"
+              type="info"
             >
+              购买
+            </Button>
           </p>
           <div slot="content">
             <p v-if="item.marketPrice">
@@ -77,6 +81,8 @@ export default {
         return "#ff00e0";
       } else if (color == 6) {
         return "#ff0000";
+      } else if (color == 7) {
+        return "orange";
       } else {
         return "#ff00c3e0";
       }
