@@ -26,33 +26,36 @@
           </p>
           <div slot="content">
             <p v-if="item.syntheticDesci">
-                物品描述: {{ item.syntheticDesci }}
+              物品描述: {{ item.syntheticDesci }}
             </p>
             <p v-if="item.syntheticExp">
-                合成消耗的经验: {{ item.syntheticExp }}
+              合成消耗的经验: {{ item.syntheticExp }}
             </p>
             <p v-if="item.syntheticMoney">
-                合成消耗的铜钱: {{ item.syntheticMoney }}
+              合成消耗的铜钱: {{ item.syntheticMoney }}
             </p>
             <p v-if="item.syntheticRealm">
-                合成物品最低境界: <span style="color: rgb(45, 196, 255)">{{item.syntheticRealm}}</span>
+              合成物品最低境界:
+              <span style="color: rgb(45, 196, 255)">
+                {{ item.syntheticRealm }}
+              </span>
             </p>
             <p v-if="item.materOneName">
-            {{ item.materOneName }}: 需要
-            {{ item.materOneNum }}
-          </p>
-          <p v-if="item.materTwoName">
-            {{ item.materTwoName }}: 需要
-            {{ item.materTwoNum }}
-          </p>
-          <p v-if="item.materThreeName">
-            {{ item.materThreeName }}: 需要
-            {{ item.materThreeNum }}
-          </p>
-          <p v-if="item.coin">
-            需要 {{ item.coninType == 0 ? "铜币" : "金币" }}
-            {{ item.coin }}
-          </p>
+              {{ item.materOneName }}: 需要
+              {{ item.materOneNum }}
+            </p>
+            <p v-if="item.materTwoName">
+              {{ item.materTwoName }}: 需要
+              {{ item.materTwoNum }}
+            </p>
+            <p v-if="item.materThreeName">
+              {{ item.materThreeName }}: 需要
+              {{ item.materThreeNum }}
+            </p>
+            <p v-if="item.coin">
+              需要 {{ item.coninType == 0 ? "铜币" : "金币" }}
+              {{ item.coin }}
+            </p>
           </div>
         </Poptip>
       </div>
@@ -94,11 +97,9 @@ export default {
     },
     // 获取合成列表
     waresList() {
-      this.$http
-        .post("/gameRealm/getSyntheticList")
-        .then((res) => {
-          this.synthesisList = res.data.data;
-        });
+      this.$http.post("/gameRealm/getSyntheticList").then((res) => {
+        this.synthesisList = res.data.data;
+      });
     },
     // 合成
     synthesisItem(item) {
@@ -142,9 +143,5 @@ export default {
 }
 .knapsack /deep/ .ivu-poptip p:hover button {
   display: inline-block;
-}
-.jjt_smail {
-  color: #b50111;
-  font-size: 12px;
 }
 </style>

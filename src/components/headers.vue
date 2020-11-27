@@ -241,10 +241,12 @@
         </div>
         <br /> -->
 
+        <p>测试版: v0.11.1(2020-11-27)</p>
+        <p class="importantFont">1: 新增批量购买</p>
+        <p class="importantFont">2: 新增合成</p>
+        <br />
         <p>测试版: v0.11.0(2020-11-25)</p>
-        <p class="importantFont">
-          1: 新增境界(可以大幅度提升属性)
-        </p>
+        <p class="importantFont">1: 新增境界(可以大幅度提升属性)</p>
         <br />
         <p>测试版: v0.10.9(2020-11-24)</p>
         <p class="importantFont">

@@ -24,6 +24,13 @@
             >
               购买
             </Button>
+            <Button
+              @click.prevent="purchaseItem1(item)"
+              size="small"
+              type="info"
+            >
+              批量购买
+            </Button>
           </p>
           <div slot="content">
             <p v-if="item.marketPrice">
@@ -52,6 +59,18 @@
         </Poptip>
       </div>
     </div>
+    <!-- 修改密码弹出框 -->
+    <Modal
+      width="620"
+      title="批量购买"
+      v-model="batchEject"
+      @on-ok="bulkPurchase()"
+      :styles="{ top: '100px' }"
+    >
+      <div>
+        <Input v-model="batchNum" placeholder="请输入数量" />
+      </div>
+    </Modal>
   </Card>
 </template>
        
@@ -61,6 +80,9 @@ export default {
   data() {
     return {
       shopList: [], // 商店列表
+      batchNum: 1,
+      batchEject: false,
+      marketId: "",
     };
   },
   created() {
@@ -102,12 +124,39 @@ export default {
           "/gameMarket/buyWares?charaId=" +
             this.getCookie("charaId") +
             "&waresId=" +
-            item.marketId
+            item.marketId +
+            "&waresNum=" +
+            1
         )
         .then((res) => {
           this.$Message.warning(res.data.data);
           this.waresList();
           this.$bus.$emit("shopMsg", "商店购买发送过来的");
+        })
+        .catch((err) => {
+          this.$Message.warning("购买失败,请联系管理员");
+        });
+    },
+    // 打开批量购买的窗口
+    purchaseItem1(item) {
+      this.batchEject = true;
+      this.marketId = item.marketId;
+    },
+    // 批量购买的确定
+    bulkPurchase() {
+      this.$http
+        .post(
+          "/gameMarket/buyWares?charaId=" +
+            this.getCookie("charaId") +
+            "&waresId=" +
+            this.marketId +
+            "&waresNum=" +
+            this.batchNum
+        )
+        .then((res) => {
+          this.$Message.warning(res.data.data);
+          this.waresList();
+          this.$bus.$emit("shopMsg1", "商店批量购买发送过来的");
         })
         .catch((err) => {
           this.$Message.warning("购买失败,请联系管理员");
