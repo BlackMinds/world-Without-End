@@ -74,39 +74,52 @@
                   <div slot="content" class="realmAttribute">
                     <p v-if="realmAttribute.realmAttack">
                       <span>物理攻击加成</span>
-                      {{ realmAttribute.realmAttack * 100 }} %
+                      {{ (realmAttribute.realmAttack * 100).toFixed(2) || 0 }} %
                     </p>
                     <p v-if="realmAttribute.realmMagicAttack">
                       <span>灵力攻击加成</span>
-                      {{ realmAttribute.realmMagicAttack * 100 }} %
+                      {{
+                        (realmAttribute.realmMagicAttack * 100).toFixed(2) || 0
+                      }}
+                      %
                     </p>
                     <p v-if="realmAttribute.realmHealth">
                       <span>血量加成</span>
-                      {{ realmAttribute.realmHealth * 100 }} %
+                      {{ (realmAttribute.realmHealth * 100).toFixed(2) || 0 }} %
                     </p>
                     <p v-if="realmAttribute.realmMana">
                       <span>真气加成</span>
-                      {{ realmAttribute.realmMana * 100 }} %
+                      {{ (realmAttribute.realmMana * 100).toFixed(2) || 0 }} %
                     </p>
                     <p v-if="realmAttribute.realmDefense">
                       <span>防御加成</span>
-                      {{ realmAttribute.realmDefense * 100 }} %
+                      {{
+                        (realmAttribute.realmDefense * 100).toFixed(2) || 0
+                      }}
+                      %
                     </p>
                     <p v-if="realmAttribute.realmCriticalHit">
                       <span>暴击加成</span>
-                      {{ realmAttribute.realmCriticalHit * 100 }} %
+                      {{
+                        (realmAttribute.realmCriticalHit * 100).toFixed(2) || 0
+                      }}
+                      %
                     </p>
                     <p v-if="realmAttribute.realmCriticalDamage">
                       <span>暴击伤害加成</span>
-                      {{ realmAttribute.realmCriticalDamage * 100 }} %
+                      {{
+                        (realmAttribute.realmCriticalDamage * 100).toFixed(2) ||
+                        0
+                      }}
+                      %
                     </p>
                     <p v-if="realmAttribute.realmEvade">
                       <span>闪避加成</span>
-                      {{ realmAttribute.realmEvade * 100 }} %
+                      {{ (realmAttribute.realmEvade * 100).toFixed(2) || 0 }} %
                     </p>
                     <p v-if="realmAttribute.realmHitRat">
                       <span>命中加成</span>
-                      {{ realmAttribute.realmHitRat * 100 }} %
+                      {{ (realmAttribute.realmHitRat * 100).toFixed(2) || 0 }} %
                     </p>
                   </div>
                 </Poptip>
