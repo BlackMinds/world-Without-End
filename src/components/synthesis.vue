@@ -23,6 +23,13 @@
             >
               合成
             </Button>
+            <Button
+              @click.prevent="synthesisItem1(item)"
+              size="small"
+              type="info"
+            >
+              批量合成
+            </Button>
           </p>
           <div slot="content">
             <p v-if="item.syntheticDesci">
@@ -60,6 +67,18 @@
         </Poptip>
       </div>
     </div>
+    <!-- 批量合成弹出框 -->
+    <Modal
+      width="620"
+      title="批量合成"
+      v-model="batchEject"
+      @on-ok="bulkPurchase()"
+      :styles="{ top: '100px' }"
+    >
+      <div>
+        <Input v-model="batchNum" placeholder="请输入数量" />
+      </div>
+    </Modal>
   </Card>
 </template>
        
@@ -69,6 +88,9 @@ export default {
   data() {
     return {
       synthesisList: [], // 合成列表
+      syntheticId: "",
+      batchEject: false,
+      batchNum: 1
     };
   },
   created() {
@@ -108,16 +130,42 @@ export default {
           "	/gameRealm/breakThroughTheSynthetic?charaId=" +
             this.getCookie("charaId") +
             "&syntheticId=" +
-            item.syntheticId
+            item.syntheticId + 
+            "&syntheticNum=" + 
+            1
         )
         .then((res) => {
-          this.$Message.warning(res.data.data);
+          this.$Message.warning(res.data.msg);
           this.$bus.$emit("synthesisMsg", "合成发送过来的");
         })
         .catch((err) => {
           this.$Message.warning("合成失败,请联系管理员");
         });
     },
+    // 合成
+    synthesisItem1(item) {
+      this.batchEject = true;
+      this.syntheticId = item.syntheticId
+    },
+    bulkPurchase() {
+      this.$http
+        .post(
+          "	/gameRealm/breakThroughTheSynthetic?charaId=" +
+            this.getCookie("charaId") +
+            "&syntheticId=" +
+            this.syntheticId + 
+            "&syntheticNum=" + 
+            this.batchNum
+        )
+        .then((res) => {
+          console.log(res)
+          this.$Message.warning(res.data.msg);
+          this.$bus.$emit("synthesisMsg1", "合成发送过来的");
+        })
+        .catch((err) => {
+          this.$Message.warning("合成失败,请联系管理员");
+        });
+    }
   },
 };
 </script>

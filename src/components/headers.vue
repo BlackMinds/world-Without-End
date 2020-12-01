@@ -240,7 +240,10 @@
           </p>
         </div>
         <br /> -->
-
+        <p>测试版: v0.11.2(2020-12-1)</p>
+        <p class="importantFont">1: 新增批量合成</p>
+        <p class="importantFont">2: 新增批量使用</p>
+        <br />
         <p>测试版: v0.11.1(2020-11-27)</p>
         <p class="importantFont">1: 新增批量购买</p>
         <p class="importantFont">2: 新增合成</p>

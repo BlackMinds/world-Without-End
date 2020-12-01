@@ -579,6 +579,19 @@
           </p>
         </Modal>
 
+        <!-- 批量使用弹出框 -->
+    <Modal
+      width="620"
+      title="批量使用"
+      v-model="batchEject"
+      @on-ok="bulkPurchase()"
+      :styles="{ top: '100px' }"
+    >
+      <div>
+        <Input v-model="batchNum" placeholder="请输入数量" />
+      </div>
+    </Modal>
+  </Card>
         <!-- 背包 -->
         <Card>
           <p slot="title">背包</p>
@@ -651,6 +664,14 @@
                     type="info"
                   >
                     使用
+                  </Button>
+                  <Button
+                    @click.prevent="useItems1(item)"
+                    size="small"
+                    v-if="item.itemType == 3 && item.itemType != 4"
+                    type="info"
+                  >
+                    批量使用
                   </Button>
                   <Button
                     @click.prevent="equipment(item)"
@@ -921,6 +942,8 @@ export default {
       realmAttribute: "", // 境界加成获取到的属性
       materialsRequired: {}, // 所需材料
       packItemId: "", // 强化需要用到的
+      batchNum: "", // 使用物品数量
+      batchEject: false, // 批量使用的弹出框
     };
   },
   computed: {
@@ -1041,6 +1064,11 @@ export default {
 
     // 合成之后才发送的
     this.$bus.$on("synthesisMsg", (msg) => {
+      this.refreshPackage();
+    });
+    
+    // 批量合成之后才发送的
+    this.$bus.$on("synthesisMsg1", (msg) => {
       this.refreshPackage();
     });
 
@@ -1504,7 +1532,9 @@ export default {
           "/gameCharaEquip/usePropypackage?charaId=" +
             this.getCookie("charaId") +
             "&packItemId=" +
-            item.packItemId
+            item.packItemId + 
+            "&useNum=" + 
+            1
         )
         .then((res) => {
           this.$Message.warning(res.data.msg);
@@ -1516,6 +1546,35 @@ export default {
           this.$Message.warning("使用失败,请联系管理员");
         });
     },
+
+    // 批量使用按钮
+    useItems1(item) {
+      this.batchEject = true;
+      this.packItemId = item.packItemId
+    },
+
+    // 批量使用的确定
+    bulkPurchase() {
+      this.$http
+        .post(
+          "/gameCharaEquip/usePropypackage?charaId=" +
+            this.getCookie("charaId") +
+            "&packItemId=" +
+            this.packItemId + 
+            "&useNum=" + 
+            this.batchNum
+        )
+        .then((res) => {
+          this.$Message.warning(res.data.msg);
+          // this.refreshEquips();
+          this.refreshPackage();
+          this.refreshUserInfo();
+        })
+        .catch((err) => {
+          this.$Message.warning("使用失败,请联系管理员");
+        });
+    },
+    
 
     // 装备界面上的装备按钮
     equipment(item) {
