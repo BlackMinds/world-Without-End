@@ -19,6 +19,16 @@
             {{ ++idx }}: {{ item.name }}: {{ item.money }}
           </p>
         </TabPane>
+        <TabPane label="天榜" name="name4">
+          <p v-for="(item, idx) in leaderboardLst4" :key="idx">
+            {{ ++idx }}: {{ item.name }}: {{ item.realmName }}
+          </p>
+        </TabPane>
+        <TabPane label="地榜" name="name5">
+          <p v-for="(item, idx) in leaderboardLst5" :key="idx">
+            {{ ++idx }}: {{ item.name }}: {{ item.realmName }}
+          </p>
+        </TabPane>
       </Tabs>
     </div>
   </Card>
@@ -32,6 +42,8 @@ export default {
       leaderboardLst1: [], // 金币排行榜列表
       leaderboardLst2: [], // 等级排行榜列表
       leaderboardLst3: [], // 铜币排行榜列表
+      leaderboardLst4: [], // 天榜排行榜列表
+      leaderboardLst5: [], // 地榜排行榜列表
     };
   },
   created() {
@@ -55,6 +67,14 @@ export default {
       // 铜币排行榜
       this.$http.post("/gamepassport/moneyRanking").then((res) => {
         this.leaderboardLst3 = res.data.data;
+      });
+      // 天榜排行榜
+      this.$http.post("/gamepassport/realmHeavenList").then((res) => {
+        this.leaderboardLst4 = res.data.data;
+      });
+      // 地榜排行榜
+      this.$http.post("/gamepassport/realmLandList").then((res) => {
+        this.leaderboardLst5 = res.data.data;
       });
     },
   },

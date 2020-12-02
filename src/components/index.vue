@@ -911,7 +911,7 @@ export default {
       SlotName,
       userName: "",
       nameEject: false,
-      mapName: "桑林村", // 下拉的地图名字
+      mapName: "", // 下拉的地图名字
       mapNameF: "桑林村", // 显示的地图名字
       teamStatus: 0,
       mapEject: false,
@@ -1287,6 +1287,10 @@ export default {
 
     // 切换地图弹出框的确定
     async deteSetMap(mapid) {
+      if (!this.mapName) {
+        this.$Message.warning("请选择地图");
+        return
+      }
       if (this.battleState) {
         this.$Message.warning("还在战斗状态 不能切换");
         return;
