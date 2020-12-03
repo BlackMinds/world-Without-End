@@ -13,15 +13,21 @@
             style="margin-bottom: 4px"
           >
             <!-- <span>{{ item.skillName }}:</span> -->
-            <Poptip trigger="hover" :title="item.skillName">
+            <Poptip
+              trigger="hover"
+              :title="item.skillName"
+              width="400"
+              word-wrap
+            >
               <p style="white-space: nowrap; height: 24px">
                 <span>{{ item.skillName }}:</span>
                 <Button
                   @click.prevent="TakeSkill(item, 1)"
                   size="small"
                   type="info"
-                  >脱下</Button
                 >
+                  脱下
+                </Button>
               </p>
               <div slot="content">
                 <p>技能效果: {{ item.skillDesc }}</p>
@@ -39,15 +45,21 @@
             :key="index"
             style="margin-bottom: 4px"
           >
-            <Poptip trigger="hover" :title="item.skillName">
+            <Poptip
+              width="400"
+              word-wrap
+              trigger="hover"
+              :title="item.skillName"
+            >
               <p style="white-space: nowrap; height: 24px">
                 <span>{{ item.skillName }}:</span>
                 <Button
                   @click.prevent="TakeSkill(item, 2)"
                   size="small"
                   type="info"
-                  >脱下</Button
                 >
+                  脱下
+                </Button>
               </p>
               <div slot="content">
                 <p>技能效果: {{ item.skillDesc }}</p>
@@ -61,6 +73,8 @@
       </div>
       <div class="skillList">
         <Poptip
+          width="400"
+          word-wrap
           trigger="hover"
           v-for="item in skillList"
           :key="item.skillId"
@@ -71,12 +85,12 @@
             :style="{ color: item.color }"
           >
             {{ item.skillName }}
-            <Button @click.prevent="skillEquip(item)" size="small" type="info"
-              >装备</Button
-            >
-            <Button @click.prevent="upgrade(item)" size="small" type="info"
-              >升级</Button
-            >
+            <Button @click.prevent="skillEquip(item)" size="small" type="info">
+              装备
+            </Button>
+            <Button @click.prevent="upgrade(item)" size="small" type="info">
+              升级
+            </Button>
           </p>
           <div slot="content">
             <!-- <p>{{ item.skillName }}</p> -->
@@ -236,6 +250,9 @@ export default {
 }
 
 /* 技能列表 */
+.skillList /deep/ .ivu-poptip-popper {
+  pointer-events: none;
+}
 .skillList /deep/ .ivu-poptip {
   width: 50%;
 }

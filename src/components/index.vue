@@ -93,9 +93,7 @@
                     </p>
                     <p v-if="realmAttribute.realmDefense">
                       <span>防御加成</span>
-                      {{
-                        (realmAttribute.realmDefense * 100).toFixed(2) || 0
-                      }}
+                      {{ (realmAttribute.realmDefense * 100).toFixed(2) || 0 }}
                       %
                     </p>
                     <p v-if="realmAttribute.realmCriticalHit">
@@ -522,6 +520,29 @@
                   >
                     被闪避了
                   </span>
+                  <!-- 持续伤害展示的地方 -->
+                  <template v-if="item.hinjuredConmbatList">
+                    <p
+                      v-for="(continued, idx) in item.hinjuredConmbatList"
+                      :key="idx"
+                    >
+                      <span>{{ continued.attacker }}</span>
+                      使用{{ continued.skillName }} 造成了
+                      <span
+                        :style="{
+                          color: '#5b00ff',
+                          fontSize: continued.isCritical == 0 ? '14px' : '20px',
+                        }"
+                      >
+                        {{ continued.hurt }}
+                      </span>
+                      剩余
+                      <span style="color: red">
+                        {{ continued.surplusHealth }}
+                      </span>
+                      血量
+                    </p>
+                  </template>
                 </span>
                 <!-- 战斗恢复的地方 -->
                 <span v-if="item.type == 'gain'">
@@ -580,18 +601,17 @@
         </Modal>
 
         <!-- 批量使用弹出框 -->
-    <Modal
-      width="620"
-      title="批量使用"
-      v-model="batchEject"
-      @on-ok="bulkPurchase()"
-      :styles="{ top: '100px' }"
-    >
-      <div>
-        <Input v-model="batchNum" placeholder="请输入数量" />
-      </div>
-    </Modal>
-  </Card>
+        <Modal
+          width="620"
+          title="批量使用"
+          v-model="batchEject"
+          @on-ok="bulkPurchase()"
+          :styles="{ top: '100px' }"
+        >
+          <div>
+            <Input v-model="batchNum" placeholder="请输入数量" />
+          </div>
+        </Modal>
         <!-- 背包 -->
         <Card>
           <p slot="title">背包</p>
@@ -1066,7 +1086,7 @@ export default {
     this.$bus.$on("synthesisMsg", (msg) => {
       this.refreshPackage();
     });
-    
+
     // 批量合成之后才发送的
     this.$bus.$on("synthesisMsg1", (msg) => {
       this.refreshPackage();
@@ -1289,7 +1309,7 @@ export default {
     async deteSetMap(mapid) {
       if (!this.mapName) {
         this.$Message.warning("请选择地图");
-        return
+        return;
       }
       if (this.battleState) {
         this.$Message.warning("还在战斗状态 不能切换");
@@ -1536,8 +1556,8 @@ export default {
           "/gameCharaEquip/usePropypackage?charaId=" +
             this.getCookie("charaId") +
             "&packItemId=" +
-            item.packItemId + 
-            "&useNum=" + 
+            item.packItemId +
+            "&useNum=" +
             1
         )
         .then((res) => {
@@ -1554,7 +1574,7 @@ export default {
     // 批量使用按钮
     useItems1(item) {
       this.batchEject = true;
-      this.packItemId = item.packItemId
+      this.packItemId = item.packItemId;
     },
 
     // 批量使用的确定
@@ -1564,8 +1584,8 @@ export default {
           "/gameCharaEquip/usePropypackage?charaId=" +
             this.getCookie("charaId") +
             "&packItemId=" +
-            this.packItemId + 
-            "&useNum=" + 
+            this.packItemId +
+            "&useNum=" +
             this.batchNum
         )
         .then((res) => {
@@ -1578,7 +1598,6 @@ export default {
           this.$Message.warning("使用失败,请联系管理员");
         });
     },
-    
 
     // 装备界面上的装备按钮
     equipment(item) {
