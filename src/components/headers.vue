@@ -240,6 +240,10 @@
           </p>
         </div>
         <br /> -->
+        <p>测试版: v0.11.3(2020-12-14)</p>
+        <p class="importantFont">1: 预计12月14号删档</p>
+        <p class="importantFont">2: 这中间都在准备地图 优化 调整</p>
+        <br />
         <p>测试版: v0.11.2(2020-12-1)</p>
         <p class="importantFont">1: 新增批量合成</p>
         <p class="importantFont">2: 新增批量使用</p>

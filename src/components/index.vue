@@ -1403,7 +1403,7 @@ export default {
         const record = combatInfo[i];
         // 1 物理伤害 2灵力伤害 3持续伤害 4恢复血量
         // console.log(record, "战斗日志");
-        if (record.hurtType == 4) {
+        if (record.hurtType == 5) {
           record.type = "gain";
         } else {
           record.type = "combat";
