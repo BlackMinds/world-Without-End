@@ -558,7 +558,10 @@
                     {{ item.attacker }}
                   </span>
                   <span>
-                    用{{ item.skillName }}回复
+                    用{{ item.skillName }}
+                    帮
+                    <span>{{ item.hinjured }}</span>
+                    回复
                     <span :style="{ color: 'rgb(110 0 255)' }">
                       {{ item.hurt }}
                     </span>
