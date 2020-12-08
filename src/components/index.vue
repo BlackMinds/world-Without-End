@@ -119,6 +119,10 @@
                       <span>命中加成</span>
                       {{ (realmAttribute.realmHitRat * 100).toFixed(2) || 0 }} %
                     </p>
+                    <p v-if="realmAttribute.realmSpeed">
+                      <span>速度加成</span>
+                      {{ realmAttribute.realmSpeed || 0 }}
+                    </p>
                   </div>
                 </Poptip>
                 &nbsp; 修真经验 {{ user.realmExp }} / {{ user.realmUpExp }}
@@ -1709,12 +1713,6 @@ export default {
 };
 </script>
 <style>
-html {
-  height: 100%;
-}
-body {
-  height: 100%;
-}
 #app {
   height: 100%;
 }
