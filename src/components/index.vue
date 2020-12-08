@@ -1051,13 +1051,13 @@ export default {
 
     // 商店购买发送过来的
     this.$bus.$on("shopMsg", (msg) => {
-      this.refreshUserInfo();
+      this.refreshUserInfoCache();
       this.refreshPackage();
     });
 
     // 商店批量购买发送过来的
     this.$bus.$on("shopMsg1", (msg) => {
-      this.refreshUserInfo();
+      this.refreshUserInfoCache();
       this.refreshPackage();
     });
 
@@ -1092,11 +1092,13 @@ export default {
     // 合成之后才发送的
     this.$bus.$on("synthesisMsg", (msg) => {
       this.refreshPackage();
+      this.refreshUserInfoCache()
     });
 
     // 批量合成之后才发送的
     this.$bus.$on("synthesisMsg1", (msg) => {
       this.refreshPackage();
+      this.refreshUserInfoCache()
     });
 
     setTimeout(() => {
@@ -1223,7 +1225,7 @@ export default {
           }
         )
         .then((res) => {
-          this.refreshUserInfo();
+          this.refreshUserInfoCache();
           this.$Message.warning(res.data.msg);
         });
       return false;
@@ -1258,6 +1260,34 @@ export default {
           this.$Message.warning("获取角色失败,请联系管理员");
         });
     },
+
+    // 获取角色的全部消息 有缓存
+    refreshUserInfoCache() {
+      this.$http
+        .get(
+          "/gamepassport/getGameCharacterActivity?charaId=" + this.getCookie("charaId")
+        )
+        .then((res) => {
+          this.user.accountId = res.data.data.accountId
+          this.user.coin = res.data.data.coin
+          this.user.exp = res.data.data.exp
+          this.user.face = res.data.data.face
+          this.user.id = res.data.data.id
+          this.user.money = res.data.data.money 
+          this.user.name = res.data.data.name 
+          this.user.packageNum = res.data.data.packageNum 
+          this.user.realmExp = res.data.data.realmExp 
+          this.user.rewardNum = res.data.data.rewardNum 
+          this.user.upgradeExp = res.data.data.upgradeExp 
+          this.user.charaId = this.getCookie("charaId");
+        })
+        .catch((err) => {
+          this.$Message.warning("获取角色失败,请联系管理员");
+        });
+    },
+
+    	
+
 
     // 获取用户全部包裹
     refreshPackage() {
@@ -1445,7 +1475,7 @@ export default {
           // 通知技能刷新检查
           this.$bus.$emit("getSkillMsg");
         }
-        this.refreshUserInfo();
+        this.refreshUserInfoCache();
       }
     },
 
@@ -1508,7 +1538,7 @@ export default {
             arrKnapsac
         )
         .then((res) => {
-          this.refreshUserInfo();
+          this.refreshUserInfoCache();
           this.refreshPackage();
           // 每次出售完 就退到2个全部
           this.classification = "0";
@@ -1548,7 +1578,7 @@ export default {
             item.packItemId
         )
         .then((res) => {
-          this.refreshUserInfo();
+          this.refreshUserInfoCache();
           this.refreshPackage();
         })
         .catch((err) => {
@@ -1571,7 +1601,7 @@ export default {
           this.$Message.warning(res.data.msg);
           // this.refreshEquips();
           this.refreshPackage();
-          this.refreshUserInfo();
+          this.refreshUserInfoCache();
         })
         .catch((err) => {
           this.$Message.warning("使用失败,请联系管理员");
@@ -1599,7 +1629,7 @@ export default {
           this.$Message.warning(res.data.msg);
           // this.refreshEquips();
           this.refreshPackage();
-          this.refreshUserInfo();
+          this.refreshUserInfoCache();
         })
         .catch((err) => {
           this.$Message.warning("使用失败,请联系管理员");
