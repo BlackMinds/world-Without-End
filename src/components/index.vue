@@ -619,6 +619,7 @@
             <Input v-model="batchNum" placeholder="请输入数量" />
           </div>
         </Modal>
+
         <!-- 背包 -->
         <Card>
           <p slot="title">背包</p>
@@ -632,13 +633,11 @@
           </div>
           <div>
             <div>
-              <p>物品分类</p>
+              <p>装备分类</p>
               <RadioGroup v-model="classification">
                 <Radio label="0">全部</Radio>
                 <Radio label="1">装备</Radio>
                 <Radio label="2">灵力武器</Radio>
-                <Radio label="3">道具</Radio>
-                <Radio label="4">材料</Radio>
               </RadioGroup>
               <p>装备品质</p>
               <RadioGroup v-model="quality">
@@ -684,22 +683,6 @@
                   >
                     {{ item.itemNum }}
                   </span>
-                  <Button
-                    @click.prevent="useItems(item)"
-                    size="small"
-                    v-if="item.itemType == 3 && item.itemType != 4"
-                    type="info"
-                  >
-                    使用
-                  </Button>
-                  <Button
-                    @click.prevent="useItems1(item)"
-                    size="small"
-                    v-if="item.itemType == 3 && item.itemType != 4"
-                    type="info"
-                  >
-                    批量使用
-                  </Button>
                   <Button
                     @click.prevent="equipment(item)"
                     size="small"
@@ -749,9 +732,6 @@
                     <p>装备类型 {{ Equipment.typeDec }}</p>
                     <p>装备等级 {{ Equipment.level }}</p>
                     <p>物品状态 {{ Equipment.bind == 0 ? "解绑" : "绑定" }}</p>
-                    <p v-if="Equipment.itemNum">
-                      物品数量： {{ Equipment.itemNum }}
-                    </p>
                     <p v-if="Equipment.life">
                       生命值 {{ Equipment.life }}
                       <span v-if="Equipment.strengLife">
@@ -829,9 +809,6 @@
                     <p>装备类型 {{ item.typeDec }}</p>
                     <p>装备等级 {{ item.level }}</p>
                     <p>物品状态 {{ item.bind == 0 ? "解绑" : "绑定" }}</p>
-                    <p v-if="item.itemNum != 1">
-                      物品数量： {{ item.itemNum }}
-                    </p>
                     <p v-if="item.life" class="discrimination">
                       生命值 {{ item.life }}
                       <span v-if="item.strengLife">
@@ -904,12 +881,116 @@
           </div>
         </Card>
 
+        <!-- 材料背包 -->
+        <Card>
+          <p slot="title">材料背包</p>
+          <div slot="extra">
+          </div>
+          <div>
+            <div>
+              <p>物品分类</p>
+              <RadioGroup v-model="materialClassification">
+                <Radio label="3">道具</Radio>
+                <Radio label="4">材料</Radio>
+              </RadioGroup>
+              <p>物品品质</p>
+              <RadioGroup v-model="materialQuality">
+                <Radio label="0">全部</Radio>
+                <Radio label="1">黑</Radio>
+                <Radio label="2">黄</Radio>
+                <Radio label="3">绿</Radio>
+                <Radio label="4">蓝</Radio>
+                <Radio label="5">紫</Radio>
+                <Radio label="6">红</Radio>
+              </RadioGroup>
+            </div>
+            <br />
+            <div class="knapsack">
+              <Poptip
+                trigger="hover"
+                v-for="item in materialFilteredItems"
+                :key="item.name"
+                :title="item.name"
+                @on-popper-show="openEquipment(item)"
+                @on-popper-hide="Equipment = null"
+              >
+                <p
+                  style="white-space: nowrap; height: 24px"
+                  :style="{ color: distinguishColor(item.color) }"
+                >
+                  <span v-if="item.itemType != 3 && item.itemType != 4">
+                    [LV:{{ item.level }}]
+                  </span>
+                  {{ item.itemName }}
+                  <span
+                    v-if="
+                      item.itemType != 3 &&
+                      item.itemType != 4 &&
+                      item.enhanLevel != 0
+                    "
+                  >
+                    +{{ item.enhanLevel }}
+                  </span>
+                  <span
+                    class="jjt_smail"
+                    v-if="item.itemType == 3 || item.itemType == 4"
+                  >
+                    {{ item.itemNum }}
+                  </span>
+                  <Button
+                    @click.prevent="useItems(item)"
+                    size="small"
+                    v-if="item.itemType == 3 && item.itemType != 4"
+                    type="info"
+                  >
+                    使用
+                  </Button>
+                  <Button
+                    @click.prevent="useItems1(item)"
+                    size="small"
+                    v-if="item.itemType == 3 && item.itemType != 4"
+                    type="info"
+                  >
+                    批量使用
+                  </Button>
+                  <Button
+                    @click.prevent="locking(item)"
+                    size="small"
+                    type="info"
+                  >
+                    {{ item.bind == 0 ? "绑定" : "解绑" }}
+                  </Button>
+                </p>
+                <div slot="content" class="poptipExplain">
+                    <div ></div>
+                    <div class="Equipment">
+                      <p :style="{ color: distinguishColor(item.color) }">
+                      {{ item.itemName }}
+                      <span v-if="item.itemType != 3 && item.itemType != 4">
+                        +{{ item.enhanLevel }}
+                      </span>
+                    </p>
+                    <p>物品类型 {{ item.typeDec }}</p>
+                    <p>物品等级 {{ item.level }}</p>
+                    <p>物品状态 {{ item.bind == 0 ? "解绑" : "绑定" }}</p>
+                    <p v-if="item.itemNum != 1">
+                      物品数量： {{ item.itemNum }}
+                    </p>
+                    <Divider v-if="item.decs" />
+                    <p v-if="item.decs">描述： {{ item.decs }}</p>
+                    </div>
+                </div>
+              </Poptip>
+            </div>
+          </div>
+        </Card>
+
         <shop></shop>
       </div>
 
       <div id="right">
         <div class="line"></div>
-        {{ teamStatus }}
+        <!-- {{ teamStatus }} -->
         <!-- 技能 -->
         <skill></skill>
         <synthesis></synthesis>
@@ -951,6 +1032,7 @@ export default {
       Equipment: undefined, // 装备栏显示
       battleTimer: null,
       knapsackList: [], // 包裹
+      materialList: [], // 材料包裹
       mapid: null, // 地图id
       activeList: [], // 穿戴的主动技能列表
       passiveList: [], // 穿戴的被动技能列表
@@ -960,6 +1042,8 @@ export default {
       shopList: [], // 商店列表
       classification: "0", // 装备分类
       quality: "0", // 装备品质
+      materialClassification: "3", // 材料分类
+      materialQuality: "0", // 材料品质
       strengthenEject: false, // 强化提示框
       realmEject: false, // 境界突破提示框
       breachStuff: [], // 突破的材料
@@ -976,20 +1060,31 @@ export default {
   computed: {
     filteredItems: function () {
       let knapsackList = this.knapsackList.slice(0);
-
       if (this.classification != 0) {
         knapsackList = knapsackList.filter(
           (item) => item.itemType == this.classification
         );
       }
-
       if (this.quality != 0) {
         knapsackList = knapsackList.filter(
           (item) => item.color == this.quality
         );
       }
-
       return knapsackList;
+    },
+    materialFilteredItems: function () {
+      let materialList = this.materialList.slice(0);
+      if (this.materialClassification != 0) {
+        materialList = materialList.filter(
+          (item) => item.itemType == this.materialClassification
+        );
+      }
+      if (this.materialQuality != 0) {
+        materialList = materialList.filter(
+          (item) => item.color == this.materialQuality
+        );
+      }
+      return materialList;
     },
   },
 
@@ -1040,6 +1135,7 @@ export default {
     this.refreshUserInfo(); // 获取用户 人物属性
     this.refreshUserInfoCache() // 获取用户 基本活动属性
     this.refreshPackage(); // 获取全部包裹
+    this.refreshMaterialPackage() // 获取全部材料包裹
     this.refreshEquips(); // 获取穿戴的装备列表
 
     setTimeout(() => {
@@ -1053,13 +1149,15 @@ export default {
     // 商店购买发送过来的
     this.$bus.$on("shopMsg", (msg) => {
       this.refreshUserInfoCache();
-      this.refreshPackage();
+      // this.refreshPackage();
+      this.refreshMaterialPackage()
     });
 
     // 商店批量购买发送过来的
     this.$bus.$on("shopMsg1", (msg) => {
       this.refreshUserInfoCache();
-      this.refreshPackage();
+      // this.refreshPackage();
+      this.refreshMaterialPackage()
     });
 
     // 脱下技能发送过来的
@@ -1092,13 +1190,13 @@ export default {
 
     // 合成之后才发送的
     this.$bus.$on("synthesisMsg", (msg) => {
-      this.refreshPackage();
+      this.refreshMaterialPackage();
       this.refreshUserInfoCache()
     });
 
     // 批量合成之后才发送的
     this.$bus.$on("synthesisMsg1", (msg) => {
-      this.refreshPackage();
+      this.refreshMaterialPackage();
       this.refreshUserInfoCache()
     });
 
@@ -1290,7 +1388,7 @@ export default {
     	
 
 
-    // 获取用户全部包裹
+    // 获取用户全部装备包裹
     refreshPackage() {
       this.$http
         .post("gameChara/getCharaPackage?charaId=" + this.getCookie("charaId"))
@@ -1298,9 +1396,22 @@ export default {
           this.knapsackList = res.data.data;
         })
         .catch((err) => {
-          this.$Message.warning("获取包裹失败,请联系管理员");
+          this.$Message.warning("获取装备包裹失败,请联系管理员");
         });
     },
+
+    // 获取用户全部材料包裹
+    refreshMaterialPackage() {
+      this.$http
+        .post("/gameChara/getCharaMaterial/?charaId=" + this.getCookie("charaId"))
+        .then((res) => {
+          this.materialList = res.data.data;
+        })
+        .catch((err) => {
+          this.$Message.warning("获取材料包裹失败,请联系管理员");
+        });
+    },
+
 
     // 修改名字的按钮
     editName() {
@@ -1473,6 +1584,7 @@ export default {
 
         if (droppedGood) {
           this.refreshPackage();
+          this.refreshMaterialPackage()
           // 通知技能刷新检查
           this.$bus.$emit("getSkillMsg");
         }
@@ -1601,7 +1713,7 @@ export default {
         .then((res) => {
           this.$Message.warning(res.data.msg);
           // this.refreshEquips();
-          this.refreshPackage();
+          this.refreshMaterialPackage();
           this.refreshUserInfoCache();
         })
         .catch((err) => {
@@ -1629,7 +1741,7 @@ export default {
         .then((res) => {
           this.$Message.warning(res.data.msg);
           // this.refreshEquips();
-          this.refreshPackage();
+          this.refreshMaterialPackage();
           this.refreshUserInfoCache();
         })
         .catch((err) => {
