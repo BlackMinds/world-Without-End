@@ -1037,7 +1037,8 @@ export default {
       return;
     }
 
-    this.refreshUserInfo(); // 获取用户
+    this.refreshUserInfo(); // 获取用户 人物属性
+    this.refreshUserInfoCache() // 获取用户 基本活动属性
     this.refreshPackage(); // 获取全部包裹
     this.refreshEquips(); // 获取穿戴的装备列表
 
@@ -1101,11 +1102,11 @@ export default {
       this.refreshUserInfoCache()
     });
 
-    setTimeout(() => {
-      if (this.teamStatus == 0) {
-        this.automaticCombat(); // 自动战斗
-      }
-    }, 500);
+    // setTimeout(() => {
+    //   if (this.teamStatus == 0) {
+    //     this.automaticCombat(); // 自动战斗
+    //   }
+    // }, 500);
   },
   methods: {
     getRealmAttribute() {
@@ -1140,17 +1141,17 @@ export default {
       });
     },
 
-    // 自动战斗
-    automaticCombat() {
-      // 如果地图id存在就自动战斗
-      var mapid = this.user.accountId + "mapid";
-      var mapName = this.user.accountId + "mapName";
-      if (window.localStorage[mapid]) {
-        this.mapName = window.localStorage[mapName];
-        this.mapNameF = window.localStorage[mapName];
-        this.deteSetMap(window.localStorage[mapid]);
-      }
-    },
+    // // 自动战斗
+    // automaticCombat() {
+    //   // 如果地图id存在就自动战斗
+    //   var mapid = this.user.accountId + "mapid";
+    //   var mapName = this.user.accountId + "mapName";
+    //   if (window.localStorage[mapid]) {
+    //     this.mapName = window.localStorage[mapName];
+    //     this.mapNameF = window.localStorage[mapName];
+    //     this.deteSetMap(window.localStorage[mapid]);
+    //   }
+    // },
 
     // 返回品质颜色
     distinguishColor(color) {
