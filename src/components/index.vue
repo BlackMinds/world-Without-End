@@ -483,103 +483,7 @@
             </div>
             <div class="recording" id="recording">
               <h6 v-if="monsterList.length <= 0">暂无记录</h6>
-              <p v-for="(item, index) in recording" :key="index">
-                <!-- 战斗打架输出的日志 -->
-                <span v-if="item.type == 'combat'">
-                  <span
-                    :style="{
-                      color: item.identity == 0 ? 'orange' : '#5b00ff',
-                    }"
-                  >
-                    {{ item.attacker }}
-                  </span>
-                  攻击了
-                  <span style="color: red">{{ item.hinjured }}</span>
-                  <span v-if="item.isSkill != 1">
-                    造成了
-                    <span
-                      :style="{
-                        color: '#5b00ff',
-                        fontSize: item.isCritical == 0 ? '14px' : '20px',
-                      }"
-                    >
-                      {{ item.hurt }}
-                    </span>
-                  </span>
-                  <span v-else>
-                    用{{ item.skillName }}造成了
-                    <span :style="{ color: 'rgb(110 0 255)' }">
-                      {{ item.hurt }}
-                    </span>
-                  </span>
-                  剩余
-                  <span style="color: red">{{ item.surplusHealth }}</span>
-                  血量
-                  <span
-                    v-if="item.isCritical == 2"
-                    :style="{
-                      color: '#5b00ff',
-                      fontSize: '20px',
-                    }"
-                  >
-                    被闪避了
-                  </span>
-                  <!-- 持续伤害展示的地方 -->
-                  <template v-if="item.hinjuredConmbatList">
-                    <p
-                      v-for="(continued, idx) in item.hinjuredConmbatList"
-                      :key="idx"
-                    >
-                      <span>{{ continued.attacker }}</span>
-                      使用{{ continued.skillName }} 造成了
-                      <span
-                        :style="{
-                          color: '#5b00ff',
-                          fontSize: continued.isCritical == 0 ? '14px' : '20px',
-                        }"
-                      >
-                        {{ continued.hurt }}
-                      </span>
-                      剩余
-                      <span style="color: red">
-                        {{ continued.surplusHealth }}
-                      </span>
-                      血量
-                    </p>
-                  </template>
-                </span>
-                <!-- 战斗恢复的地方 -->
-                <span v-if="item.type == 'gain'">
-                  <span
-                    :style="{
-                      color: item.identity == 0 ? 'orange' : '#5b00ff',
-                    }"
-                  >
-                    {{ item.attacker }}
-                  </span>
-                  <span>
-                    用{{ item.skillName }}
-                    帮
-                    <span>{{ item.hinjured }}</span>
-                    回复
-                    <span :style="{ color: 'rgb(110 0 255)' }">
-                      {{ item.hurt }}
-                    </span>
-                  </span>
-                  剩余
-                  <span style="color: red">{{ item.surplusHealth }}</span>
-                  血量
-                </span>
-                <!-- 战斗失败或成功输出的地方 -->
-                <span
-                  style="color: rgb(255, 0, 224)"
-                  v-if="item.type == 'result'"
-                >
-                  {{ item.result }}: 剩余血量:{{ item.reHealth }} 剩余蓝量:
-                  {{ item.reMana }} {{ item.exp }} {{ item.goods }}
-                </span>
-              </p>
-              <!-- //     newChild.innerHTML = `${combatInfo[i].attacker}攻击了${combatInfo[i].hinjured} 造成了${combatInfo[i].hurt}剩余${combatInfo[i].surplusHealth}` -->
+              <battle-process v-bind:recordings="recording"></battle-process>
             </div>
           </div>
         </Card>
@@ -1007,6 +911,7 @@ import headers from "./headers.vue";
 // import rankingList from "./rankingList.vue";
 import shop from "./shop.vue";
 import skill from "./skill.vue";
+import battleProcess from "./battleProcess.vue";
 import synthesis from "./synthesis.vue";
 import { EquipSlot, SlotName } from "../const";
 import { sleep } from "../utils";
@@ -1088,7 +993,7 @@ export default {
     },
   },
 
-  components: { vueCanvasNest, headers, shop, skill, synthesis },
+  components: { vueCanvasNest, headers, shop, skill, synthesis ,battleProcess},
   updated() {
     // 战斗记录定位到底部
     const el = document.getElementById("recording");
@@ -1511,16 +1416,6 @@ export default {
           return;
         }
 
-        // // 有错误提示 就这里出现 并且重新请求战斗
-        // if (body.msg) {
-        //   this.$Message.warning(body.msg + ",6秒后自动请求战斗")
-        //   this.battleTimer = setTimeout(() => {
-        //       this.battleState = false;
-        //     this.deteSetMap(mapid);
-        //   }, 6000);
-        //   return
-        // }
-
         this.battleState = true;
         // 非副本战斗返回的结果是一个直接的对象，这里转换成一样的结构
         const combatResults = isInstanceZones ? body.data : [body.data];
@@ -1537,7 +1432,7 @@ export default {
       this.battleTimer = setTimeout(() => {
         this.battleState = false;
         this.deteSetMap(mapid);
-      }, 6000);
+      }, 6500);
     },
 
     // 播报战斗返回的日志
