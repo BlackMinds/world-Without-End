@@ -1,7 +1,7 @@
 <template>
   <div
     id="app2"
-    :style="{ background: this.electronicEquipment == false ? '#666' : '' }"
+    :style="{ background: this.electronicEquipment == false ? bgColor : '' }"
   >
     <vue-canvas-nest
       v-if="this.electronicEquipment == true"
@@ -9,6 +9,8 @@
     ></vue-canvas-nest>
 
     <headers></headers>
+
+    <ColorPicker v-model="bgColor" alpha @on-change="changeBg" />
 
     <div id="box">
       <div id="left">
@@ -788,8 +790,7 @@
         <!-- 材料背包 -->
         <Card>
           <p slot="title">材料背包</p>
-          <div slot="extra">
-          </div>
+          <div slot="extra"></div>
           <div>
             <div>
               <p>物品分类</p>
@@ -866,9 +867,9 @@
                   </Button>
                 </p>
                 <div slot="content" class="poptipExplain">
-                    <div ></div>
-                    <div class="Equipment">
-                      <p :style="{ color: distinguishColor(item.color) }">
+                  <div></div>
+                  <div class="Equipment">
+                    <p :style="{ color: distinguishColor(item.color) }">
                       {{ item.itemName }}
                       <span v-if="item.itemType != 3 && item.itemType != 4">
                         +{{ item.enhanLevel }}
@@ -882,7 +883,7 @@
                     </p>
                     <Divider v-if="item.decs" />
                     <p v-if="item.decs">描述： {{ item.decs }}</p>
-                    </div>
+                  </div>
                 </div>
               </Poptip>
             </div>
@@ -960,6 +961,7 @@ export default {
       packItemId: "", // 强化需要用到的
       batchNum: "", // 使用物品数量
       batchEject: false, // 批量使用的弹出框
+      bgColor: "#666",
     };
   },
   computed: {
@@ -993,7 +995,7 @@ export default {
     },
   },
 
-  components: { vueCanvasNest, headers, shop, skill, synthesis ,battleProcess},
+  components: { vueCanvasNest, headers, shop, skill, synthesis, battleProcess },
   updated() {
     // 战斗记录定位到底部
     const el = document.getElementById("recording");
@@ -1038,9 +1040,9 @@ export default {
     }
 
     this.refreshUserInfo(); // 获取用户 人物属性
-    this.refreshUserInfoCache() // 获取用户 基本活动属性
+    this.refreshUserInfoCache(); // 获取用户 基本活动属性
     this.refreshPackage(); // 获取全部包裹
-    this.refreshMaterialPackage() // 获取全部材料包裹
+    this.refreshMaterialPackage(); // 获取全部材料包裹
     this.refreshEquips(); // 获取穿戴的装备列表
 
     setTimeout(() => {
@@ -1055,14 +1057,14 @@ export default {
     this.$bus.$on("shopMsg", (msg) => {
       this.refreshUserInfoCache();
       // this.refreshPackage();
-      this.refreshMaterialPackage()
+      this.refreshMaterialPackage();
     });
 
     // 商店批量购买发送过来的
     this.$bus.$on("shopMsg1", (msg) => {
       this.refreshUserInfoCache();
       // this.refreshPackage();
-      this.refreshMaterialPackage()
+      this.refreshMaterialPackage();
     });
 
     // 脱下技能发送过来的
@@ -1096,13 +1098,13 @@ export default {
     // 合成之后才发送的
     this.$bus.$on("synthesisMsg", (msg) => {
       this.refreshMaterialPackage();
-      this.refreshUserInfoCache()
+      this.refreshUserInfoCache();
     });
 
     // 批量合成之后才发送的
     this.$bus.$on("synthesisMsg1", (msg) => {
       this.refreshMaterialPackage();
-      this.refreshUserInfoCache()
+      this.refreshUserInfoCache();
     });
 
     // setTimeout(() => {
@@ -1110,8 +1112,33 @@ export default {
     //     this.automaticCombat(); // 自动战斗
     //   }
     // }, 500);
+    setTimeout(() => {
+      var mapidColor = this.user.accountId + "mapidColor";
+      if (window.localStorage[mapidColor]) {
+        if (window.localStorage[mapidColor] == "#666") {
+          this.electronicEquipment = false;
+        } else {
+          this.bgColor = window.localStorage[mapidColor];
+          this.electronicEquipment = false;
+        }
+      }
+    }, 500);
   },
   methods: {
+    // 修改背景颜色
+    changeBg(val) {
+      if (this.bgColor != "#666") {
+        window.localStorage.setItem(
+          this.user.accountId + "mapidColor",
+          this.bgColor
+        );
+        this.electronicEquipment = false;
+      }
+      if (!this.bgColor) {
+        this.electronicEquipment = true;
+      }
+    },
+
     getRealmAttribute() {
       this.$http
         .post("/gameRealm/getRealmBonus?charaId=" + this.getCookie("charaId"))
@@ -1269,29 +1296,27 @@ export default {
     refreshUserInfoCache() {
       this.$http
         .get(
-          "/gamepassport/getGameCharacterActivity?charaId=" + this.getCookie("charaId")
+          "/gamepassport/getGameCharacterActivity?charaId=" +
+            this.getCookie("charaId")
         )
         .then((res) => {
-          this.user.accountId = res.data.data.accountId
-          this.user.coin = res.data.data.coin
-          this.user.exp = res.data.data.exp
-          this.user.face = res.data.data.face
-          this.user.id = res.data.data.id
-          this.user.money = res.data.data.money 
-          this.user.name = res.data.data.name 
-          this.user.packageNum = res.data.data.packageNum 
-          this.user.realmExp = res.data.data.realmExp 
-          this.user.rewardNum = res.data.data.rewardNum 
-          this.user.upgradeExp = res.data.data.upgradeExp 
+          this.user.accountId = res.data.data.accountId;
+          this.user.coin = res.data.data.coin;
+          this.user.exp = res.data.data.exp;
+          this.user.face = res.data.data.face;
+          this.user.id = res.data.data.id;
+          this.user.money = res.data.data.money;
+          this.user.name = res.data.data.name;
+          this.user.packageNum = res.data.data.packageNum;
+          this.user.realmExp = res.data.data.realmExp;
+          this.user.rewardNum = res.data.data.rewardNum;
+          this.user.upgradeExp = res.data.data.upgradeExp;
           this.user.charaId = this.getCookie("charaId");
         })
         .catch((err) => {
           this.$Message.warning("获取角色失败,请联系管理员");
         });
     },
-
-    	
-
 
     // 获取用户全部装备包裹
     refreshPackage() {
@@ -1308,7 +1333,9 @@ export default {
     // 获取用户全部材料包裹
     refreshMaterialPackage() {
       this.$http
-        .post("/gameChara/getCharaMaterial/?charaId=" + this.getCookie("charaId"))
+        .post(
+          "/gameChara/getCharaMaterial/?charaId=" + this.getCookie("charaId")
+        )
         .then((res) => {
           this.materialList = res.data.data;
         })
@@ -1316,7 +1343,6 @@ export default {
           this.$Message.warning("获取材料包裹失败,请联系管理员");
         });
     },
-
 
     // 修改名字的按钮
     editName() {
@@ -1479,7 +1505,7 @@ export default {
 
         if (droppedGood) {
           this.refreshPackage();
-          this.refreshMaterialPackage()
+          this.refreshMaterialPackage();
           // 通知技能刷新检查
           this.$bus.$emit("getSkillMsg");
         }
