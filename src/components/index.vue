@@ -469,7 +469,7 @@
                 :title="item.name"
               >
                 ({{ item.prefix == 0 ? "无" : item.prefix }}){{ item.name }}
-                <Progress :percent="(item.life / item.maxLife) * 100">
+                <Progress :percent="Math.max(item.life,0) / item.maxLife * 100">
                   <span>{{ item.life }}</span>
                 </Progress>
                 <div slot="content">
@@ -1420,19 +1420,19 @@ export default {
     // 播报战斗返回的日志
     async boardcastCombatResult(result) {
       this.monsterList = result.gameMonList; // 怪物信息
-      this.monsterList.forEach((m) => (m.maxLife = m.life));
+      this.monsterList.forEach(m => m.maxLife = m.life);
       let combatInfo = result.combatInfo;
       for (let i = 0; i < combatInfo.length; i++) {
         // 每条记录的输出相隔 1.5 秒
         await sleep(1500);
         const record = combatInfo[i];
-        const targets = this.monsterList.filter(
-          (m) => m.name == record.hinjured
-        );
-        if (targets.length > 0) {
+        const targets = this.monsterList.filter(m=>m.name == record.hinjured);
+        if(targets.length > 0)
+        {
           targets[0].life = record.surplusHealth;
         }
-        // 1 物理伤害 2灵力伤害 3持续伤害 4恢复血量 5反击
+
+        // 1 物理伤害 2灵力伤害 3持续伤害 4恢复血量
         // console.log(record, "战斗日志");
         if (record.hurtType == 5) {
           record.type = "gain";
