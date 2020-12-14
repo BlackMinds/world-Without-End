@@ -469,7 +469,7 @@
                 :title="item.name"
               >
                 ({{ item.prefix == 0 ? "无" : item.prefix }}){{ item.name }}
-                <Progress :percent="Math.max(item.life / item.maxLife * 100,0)">
+                <Progress :percent="Math.max(item.life,0) / item.maxLife * 100">
                   <span>{{ item.life }}</span>
                 </Progress>
                 <div slot="content">
