@@ -469,6 +469,10 @@
                 :title="item.name"
               >
                 ({{ item.prefix == 0 ? "无" : item.prefix }}){{ item.name }}
+                <Progress :percent="item.life / maxlife">
+                  <span>{{ item.life }}</span>
+                  {{ recording }}
+                </Progress>
                 <div slot="content">
                   <p>生命值 {{ item.life }}</p>
                   <p>最小攻击力 {{ item.attackMin }}</p>
@@ -479,7 +483,6 @@
                   <p>暴击率 {{ item.explode * 100 }}%</p>
                   <p>暴击伤害 {{ item.criDamage * 100 }}%</p>
                   <p>行动速度 {{ item.speed }}</p>
-                  <!-- <p>掉落物品 {{ item.wp ||  '无'}}</p> -->
                 </div>
               </Poptip>
             </div>
@@ -1816,10 +1819,10 @@ export default {
 .two {
   position: absolute;
   width: 760px;
-  height: 340px;
+  height: 355px;
 }
 .line {
-  height: 354px;
+  height: 370px;
 }
 #app2 {
   min-width: 1140px;
@@ -1923,7 +1926,7 @@ export default {
 
 /*  战斗场景  */
 .recording {
-  max-height: 168px;
+  max-height: 174px;
   overflow: auto;
   transition: all 0.4s;
 }

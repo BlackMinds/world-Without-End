@@ -124,8 +124,7 @@ export default {
 <style scoped>
 .hello {
   height: 100vh;
-  background: url(../assets/back.jpg);
-  background-image: url(../assets/back.jpg);
+  background-image: url(https://s3.ax1x.com/2020/12/10/rFnfDU.jpg);
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center center;

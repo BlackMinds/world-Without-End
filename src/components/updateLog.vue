@@ -28,22 +28,28 @@
       材料副本掉落材料
     </p>
     <br />
-    <!-- <p>地图掉落说明</p>
-        <div class="mapLoots">
-          <p v-for="(mapLoots, index) in mapLootsList" :key="index">
-            {{ mapLoots.mapName }}:
-            <template v-if="mapLoots.itemsVoList">
-              <span v-for="(loot, idx) in mapLoots.itemsVoList" :key="idx">
-                <template v-if="loot">
-                  <span :style="{ color: distinguishColor(loot.color) }"
-                    >{{ loot.itemName }}
-                  </span>
-                </template>
+    <p>地图掉落说明</p>
+    <div class="mapLoots">
+      <p v-for="(mapLoots, index) in mapLootsList" :key="index">
+        {{ mapLoots.mapName }}:
+        <template v-if="mapLoots.itemsVoList">
+          <span v-for="(loot, idx) in mapLoots.itemsVoList" :key="idx">
+            <template v-if="loot">
+              <span :style="{ color: distinguishColor(loot.color) }">
+                {{ loot.itemName }}
               </span>
             </template>
-          </p>
-        </div>
-        <br /> -->
+          </span>
+        </template>
+      </p>
+    </div>
+    <br />
+    <p>测试版: v0.11.4(2020-12-14)</p>
+    <p class="importantFont">1: 前20级怪物属性大幅度削弱</p>
+    <p class="importantFont">
+      2: 20级后的怪物血量大幅度提升,攻击下降,防御提升一点点
+    </p>
+    <br />
     <p>测试版: v0.11.3(2020-12-14)</p>
     <p class="importantFont">1: 预计12月14号删档</p>
     <p class="importantFont">2: 这中间都在准备地图 优化 调整</p>
@@ -184,10 +190,42 @@
 export default {
   name: "playersList",
   data() {
-    return {};
+    return {
+      mapLootsList: [],
+    };
   },
   created() {},
-  methods: {},
+  mounted() {
+    this.$http
+      .post("/gameChara/mapDropItems")
+      .then((res) => {
+        this.mapLootsList = res.data.data;
+      })
+      .catch((err) => {
+        this.$Message.warning("获取地图掉落失败");
+      });
+  },
+  methods: {
+    distinguishColor(color) {
+      if (color == 1) {
+        return "#000";
+      } else if (color == 2) {
+        return "#c5c52f";
+      } else if (color == 3) {
+        return "#049c04";
+      } else if (color == 4) {
+        return "#005aff";
+      } else if (color == 5) {
+        return "#ff00e0";
+      } else if (color == 6) {
+        return "#ff0000";
+      } else if (color == 7) {
+        return "orange";
+      } else {
+        return "#ff00c3e0";
+      }
+    },
+  },
 };
 </script>
 
