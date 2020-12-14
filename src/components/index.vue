@@ -1467,6 +1467,7 @@ export default {
           // 通知技能刷新检查
           this.$bus.$emit("getSkillMsg");
         }
+        this.refreshUserInfo();
         this.refreshUserInfoCache();
       }
     },
