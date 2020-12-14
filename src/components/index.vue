@@ -918,7 +918,6 @@ import battleProcess from "./battleProcess.vue";
 import synthesis from "./synthesis.vue";
 import { EquipSlot, SlotName } from "../const";
 import { sleep } from "../utils";
-
 export default {
   name: "index",
   data() {
@@ -996,7 +995,6 @@ export default {
       return materialList;
     },
   },
-
   components: { vueCanvasNest, headers, shop, skill, synthesis, battleProcess },
   updated() {
     // 战斗记录定位到底部
@@ -1026,27 +1024,23 @@ export default {
       this.$router.push({ name: "Login" });
       return;
     }
-
     // 判断是手机端还是pc端
     if (this._isMobile()) {
       this.electronicEquipment = false;
     } else {
       this.electronicEquipment = true;
     }
-
     // 如果没有角色id就退出登录
     if (!this.getCookie("charaId")) {
       this.$Message.warning("请重新登录");
       this.$router.push({ name: "Login" });
       return;
     }
-
     this.refreshUserInfo(); // 获取用户 人物属性
     this.refreshUserInfoCache(); // 获取用户 基本活动属性
     this.refreshPackage(); // 获取全部包裹
     this.refreshMaterialPackage(); // 获取全部材料包裹
     this.refreshEquips(); // 获取穿戴的装备列表
-
     setTimeout(() => {
       this.$store.commit("edit", this.user);
     }, 600);
@@ -1054,61 +1048,51 @@ export default {
     this.$bus.$on("dhmMsg", (msg) => {
       setTimeout(() => this.refreshPackage(), 500);
     });
-
     // 商店购买发送过来的
     this.$bus.$on("shopMsg", (msg) => {
       this.refreshUserInfoCache();
       // this.refreshPackage();
       this.refreshMaterialPackage();
     });
-
     // 商店批量购买发送过来的
     this.$bus.$on("shopMsg1", (msg) => {
       this.refreshUserInfoCache();
       // this.refreshPackage();
       this.refreshMaterialPackage();
     });
-
     // 脱下技能发送过来的
     this.$bus.$on("skillMsg", (msg) => {
       this.refreshUserInfo();
     });
-
     // 装备技能发送过来的
     this.$bus.$on("skillMsg1", (msg) => {
       this.refreshUserInfo();
     });
-
     // 退出登录发送过来的
     this.$bus.$on("tcdlMsg", (msg) => {
       this.closeBattleTimer();
     });
-
     // 有队伍之后才发送的
     this.$bus.$on("teamStatusMsg", (msg) => {
       this.closeBattleTimer();
       this.teamStatus = 1;
       this.TeamMapList();
     });
-
     // 没队伍之后才发送的
     this.$bus.$on("teamStatusMsg1", (msg) => {
       this.teamStatus = 0;
       this.MapList();
     });
-
     // 合成之后才发送的
     this.$bus.$on("synthesisMsg", (msg) => {
       this.refreshMaterialPackage();
       this.refreshUserInfoCache();
     });
-
     // 批量合成之后才发送的
     this.$bus.$on("synthesisMsg1", (msg) => {
       this.refreshMaterialPackage();
       this.refreshUserInfoCache();
     });
-
     // setTimeout(() => {
     //   if (this.teamStatus == 0) {
     //     this.automaticCombat(); // 自动战斗
@@ -1140,7 +1124,6 @@ export default {
         this.electronicEquipment = true;
       }
     },
-
     getRealmAttribute() {
       this.$http
         .post("/gameRealm/getRealmBonus?charaId=" + this.getCookie("charaId"))
@@ -1158,21 +1141,18 @@ export default {
         this.recording.splice(0, 100);
       }
     },
-
     // 获取地图列表
     MapList() {
       this.$http.get("gameChara/queryMapList").then((res) => {
         this.mapList = res.data.data;
       });
     },
-
     // 获取组队地图列表
     TeamMapList() {
       this.$http.get("/gameAmry/queryMapList").then((res) => {
         this.mapList = res.data.data;
       });
     },
-
     // // 自动战斗
     // automaticCombat() {
     //   // 如果地图id存在就自动战斗
@@ -1184,7 +1164,6 @@ export default {
     //     this.deteSetMap(window.localStorage[mapid]);
     //   }
     // },
-
     // 返回品质颜色
     distinguishColor(color) {
       if (color == 1) {
@@ -1205,7 +1184,6 @@ export default {
         return "#ff00c3e0";
       }
     },
-
     // 一键脱下
     allTake() {
       this.$http
@@ -1223,7 +1201,6 @@ export default {
           this.$Message.warning("装备一键脱下失败,请联系管理员");
         });
     },
-
     // 判断是手机端还是pc端
     _isMobile() {
       let flag = navigator.userAgent.match(
@@ -1231,7 +1208,6 @@ export default {
       );
       return flag;
     },
-
     // 返回数据处理的装备列表
     getEquipMap(player) {
       const equips = {};
@@ -1242,7 +1218,6 @@ export default {
       });
       return equips;
     },
-
     // 头像上传
     handleUpload(file) {
       var image = new FormData();
@@ -1263,7 +1238,6 @@ export default {
         });
       return false;
     },
-
     // 获取角色的装备列表
     refreshEquips() {
       this.$http
@@ -1277,7 +1251,6 @@ export default {
           this.$Message.warning("获取装备列表失败,请联系管理员");
         });
     },
-
     // 获取角色的全部消息
     refreshUserInfo() {
       this.$http
@@ -1293,7 +1266,6 @@ export default {
           this.$Message.warning("获取角色失败,请联系管理员");
         });
     },
-
     // 获取角色的全部消息 有缓存
     refreshUserInfoCache() {
       this.$http
@@ -1319,7 +1291,6 @@ export default {
           this.$Message.warning("获取角色失败,请联系管理员");
         });
     },
-
     // 获取用户全部装备包裹
     refreshPackage() {
       this.$http
@@ -1331,7 +1302,6 @@ export default {
           this.$Message.warning("获取装备包裹失败,请联系管理员");
         });
     },
-
     // 获取用户全部材料包裹
     refreshMaterialPackage() {
       this.$http
@@ -1345,13 +1315,11 @@ export default {
           this.$Message.warning("获取材料包裹失败,请联系管理员");
         });
     },
-
     // 修改名字的按钮
     editName() {
       this.userName = "";
       this.nameEject = true;
     },
-
     // 修改名字弹出框的确定
     deteSetName() {
       this.$http
@@ -1367,26 +1335,21 @@ export default {
         .catch((err) => {
           this.$Message.warning("修改名字失败,请联系管理员");
         });
-
       this.user.name = this.userName;
     },
-
     // 切换地图的按钮
     changeMap() {
       this.mapEject = true;
     },
-
     // 退出战斗
     withdrawFromAction() {
       this.withdrawFromActionStatus = true;
     },
-
     // 关闭战斗定时
     closeBattleTimer() {
       clearTimeout(this.battleTimer);
       this.battleTimer = null;
     },
-
     // 切换地图弹出框的确定
     async deteSetMap(mapid) {
       if (!this.mapName) {
@@ -1397,35 +1360,29 @@ export default {
         this.$Message.warning("还在战斗状态 不能切换");
         return;
       }
-
       if (this.withdrawFromActionStatus) {
         this.withdrawFromActionStatus = false;
         return;
       }
-
       this.mapNameF = this.mapName;
       this.mapid = mapid;
-
       for (var i = 0; i < this.mapList.length; i++) {
         if (this.mapName == this.mapList[i].mapName) {
           this.mapid = this.mapList[i].mapId;
         }
       }
-
       // 存进locastorange做自动战斗
       window.localStorage.setItem(this.user.accountId + "mapid", this.mapid);
       window.localStorage.setItem(
         this.user.accountId + "mapName",
         this.mapName
       );
-
       // 是否是游戏副本
       const isInstanceZones = this.teamStatus !== 0;
       // 副本使用不同的战斗接口
       let combatAddress = isInstanceZones
         ? "/gameAmry/checkMapGenMon"
         : "/gameChara/checkMapGenMon";
-
       try {
         const res = await this.$http.post(
           `${combatAddress}?${qs.stringify({
@@ -1443,7 +1400,6 @@ export default {
           this.deteSetMap(mapid);
           return;
         }
-
         this.battleState = true;
         // 非副本战斗返回的结果是一个直接的对象，这里转换成一样的结构
         const combatResults = isInstanceZones ? body.data : [body.data];
@@ -1456,19 +1412,16 @@ export default {
         console.log(err);
         this.$Message.warning("战斗开始失败6秒后自动请求战斗,请联系管理员");
       }
-
       this.battleTimer = setTimeout(() => {
         this.battleState = false;
         this.deteSetMap(mapid);
       }, 6500);
     },
-
     // 播报战斗返回的日志
     async boardcastCombatResult(result) {
       this.monsterList = result.gameMonList; // 怪物信息
       this.monsterList.forEach(m => m.maxLife = m.life);
       let combatInfo = result.combatInfo;
-
       for (let i = 0; i < combatInfo.length; i++) {
         // 每条记录的输出相隔 1.5 秒
         await sleep(1500);
@@ -1488,7 +1441,6 @@ export default {
         }
         this.addRecord(record);
       }
-
       // 额外增加一个战斗结果的消息记录
       if (result.reHealth <= 0) {
         this.addRecord({
@@ -1501,7 +1453,6 @@ export default {
           return val.itemName;
         });
         const droppedGood = goods.length > 0;
-
         this.addRecord({
           type: "result",
           result: "战斗成功",
@@ -1510,7 +1461,6 @@ export default {
           reHealth: result.reHealth,
           reMana: result.reMana,
         });
-
         if (droppedGood) {
           this.refreshPackage();
           this.refreshMaterialPackage();
@@ -1520,7 +1470,6 @@ export default {
         this.refreshUserInfoCache();
       }
     },
-
     // 确认修改属性的按钮
     setAttribute() {
       this.user.charaId = this.getCookie("charaId");
@@ -1534,19 +1483,16 @@ export default {
           this.$Message.warning("修改失败,请联系管理员");
         });
     },
-
     // 属性加点
     addAttributes(val, spot) {
       if (this.user.reAttrPoint <= 0) {
         this.$Message.warning("没有属性点可加了");
         return;
       }
-
       if (this.user.reAttrPoint < spot) {
         this.$Message.warning("属性点不够了凹");
         return;
       }
-
       if (val == 0) {
         this.user.physique += spot;
       } else if (val == 1) {
@@ -1556,7 +1502,6 @@ export default {
       }
       this.user.reAttrPoint -= spot;
     },
-
     // 显示装备对比属性
     openEquipment(item) {
       for (let key in this.equipmentList) {
@@ -1565,7 +1510,6 @@ export default {
         }
       }
     },
-
     // 出售全部装备
     sellAll() {
       let arrKnapsac = [];
@@ -1590,7 +1534,6 @@ export default {
           this.$Message.warning("出售全部物品失败,请联系管理员");
         });
     },
-
     // 脱下单件装备
     TakeOffsingleton(item) {
       this.$http
@@ -1609,7 +1552,6 @@ export default {
           this.$Message.warning("脱下单件装备失败,请联系管理员");
         });
     },
-
     // 出售单件装备
     sellSingle(item) {
       this.$http
@@ -1627,7 +1569,6 @@ export default {
           this.$Message.warning("出售单件物品失败,请联系管理员");
         });
     },
-
     // 物品使用按钮
     useItems(item) {
       this.$http
@@ -1649,13 +1590,11 @@ export default {
           this.$Message.warning("使用失败,请联系管理员");
         });
     },
-
     // 批量使用按钮
     useItems1(item) {
       this.batchEject = true;
       this.packItemId = item.packItemId;
     },
-
     // 批量使用的确定
     bulkPurchase() {
       this.$http
@@ -1677,7 +1616,6 @@ export default {
           this.$Message.warning("使用失败,请联系管理员");
         });
     },
-
     // 装备界面上的装备按钮
     equipment(item) {
       this.$http
@@ -1697,7 +1635,6 @@ export default {
           this.$Message.warning("装备失败,请联系管理员");
         });
     },
-
     // 装备界面上的强化按钮
     strengthen(item) {
       this.strengthenEject = true;
@@ -1716,7 +1653,6 @@ export default {
           this.$Message.warning("强化材料失败,请联系管理员");
         });
     },
-
     // 强化提示的确定
     changeStrengthen() {
       this.$http
@@ -1735,7 +1671,6 @@ export default {
           this.$Message.warning("强化失败,请联系管理员");
         });
     },
-
     // 突破按钮
     breach() {
       this.realmEject = true;
@@ -1748,7 +1683,6 @@ export default {
           this.$Message.warning("突破获取材料失败,请联系管理员");
         });
     },
-
     // 境界突破确定
     changeRealm() {
       this.$http
@@ -1764,7 +1698,6 @@ export default {
           this.$Message.warning("突破失败,请联系管理员");
         });
     },
-
     // 装备界面上的锁定按钮
     locking(item) {
       this.$http
@@ -1845,7 +1778,6 @@ export default {
   width: 374px;
   /* background-color: skyblue; */
 }
-
 /* 第一块位置 用户头像那一块*/
 .character {
   overflow: hidden;
@@ -1901,7 +1833,6 @@ export default {
 .goldCoin p {
   margin-top: 2px;
 }
-
 /* 地图和战斗场景 */
 .monster {
   display: flex;
@@ -1913,7 +1844,6 @@ export default {
 .monstercenter {
   justify-content: center;
 }
-
 /* 为了给提示设置 颜色 */
 /deep/ .ivu-poptip-popper .ivu-poptip-content .ivu-poptip-inner {
   background-color: rgba(70, 76, 91, 0.9);
@@ -1928,14 +1858,12 @@ export default {
 /deep/ .ivu-poptip-popper .ivu-poptip-content .ivu-poptip-body {
   color: #fff;
 }
-
 /*  战斗场景  */
 .recording {
   max-height: 174px;
   overflow: auto;
   transition: all 0.4s;
 }
-
 /* 头像下面 基础属性 和 加点的位置*/
 .basics {
   width: 50%;
@@ -1964,7 +1892,6 @@ export default {
   margin-left: 1px;
   cursor: pointer;
 }
-
 /* knapsack 背包 */
 .knapsack {
   /* max-height: 516px; */
@@ -1991,7 +1918,6 @@ export default {
   color: #b50111;
   font-size: 12px;
 }
-
 /* 装备栏数据对比显示 */
 .Equipment {
   width: 200px;
@@ -1999,18 +1925,15 @@ export default {
   word-break: break-all;
   margin-right: 15px;
 }
-
 .Equipment + div {
   width: 200px;
   white-space: normal;
   word-break: break-all;
 }
-
 /* 装备栏数据对比显示左右对比数据显示 */
 .poptipExplain {
   display: flex;
 }
-
 /* 调整文字颜色 */
 .poptipExplain div p {
   color: rgb(73, 193, 248);
@@ -2024,7 +1947,6 @@ export default {
 .poptipExplain div p:nth-child(4) {
   color: inherit;
 }
-
 /* 境界属性带来的提升 */
 .realmAttribute p span {
   color: rgb(45, 196, 255);
