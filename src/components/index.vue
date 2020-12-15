@@ -424,8 +424,35 @@
             {{ mapNameF }}
           </p>
 
+          <!-- 批量使用弹出框 -->
+          <Modal
+            width="620"
+            title="结算离线"
+            v-model="settlementjectEject"
+            :styles="{ top: '100px' }"
+          >
+            <div>
+              总共获得 {{ settlementjectList.countExp }} 经验
+              <br />
+              获得 {{ settlementjectList.countItemNum }} 个物品
+              <br />
+              获得 {{ settlementjectList.countMoney }} 铜钱
+              <br />
+              {{ settlementjectList.outboardTime }}
+            </div>
+          </Modal>
+
           <!-- changeMap -->
           <Button
+            slot="extra"
+            @click.prevent="reverseOffLine"
+            size="small"
+            type="success"
+          >
+            {{ this.user.online == 0 ? "开始离线" : "结算离线" }}
+          </Button>
+          <Button
+            style="margin-left: 30px"
             slot="extra"
             @click.prevent="withdrawFromAction"
             size="small"
@@ -965,6 +992,13 @@ export default {
       batchNum: "", // 使用物品数量
       batchEject: false, // 批量使用的弹出框
       bgColor: "#666",
+      settlementjectEject: false, // 结算离线挂机的弹出框
+      settlementjectList: {
+        countExp: "",
+        countItemNum: "",
+        countMoney: "",
+        outboardTime: "",
+      }, // 弹出框的离线收益
     };
   },
   computed: {
@@ -1126,6 +1160,48 @@ export default {
         this.electronicEquipment = true;
       }
     },
+    // 开始离线 结算离线
+    reverseOffLine() {
+      var mapid;
+      for (var i = 0; i < this.mapList.length; i++) {
+        if (this.mapName == this.mapList[i].mapName) {
+          var mapid = this.mapList[i].mapId;
+        }
+      }
+      if (!mapid && this.user.online == 0) {
+        this.$Message.warning("请选择离线地图");
+        return;
+      }
+      if (this.user.online == 0) {
+        this.$http
+          .post(
+            "/gameChara/startOffline/?charaId=" +
+              this.getCookie("charaId") +
+              "&mapId=" +
+              mapid
+          )
+          .then((res) => {
+            this.$Message.warning(res.data.msg);
+            this.refreshUserInfo(); // 获取用户 人物属性
+          })
+          .catch((err) => {
+            this.$Message.warning("开始离线失败,请联系管理员");
+          });
+      } else if (this.user.online == 1) {
+        this.$http
+          .post("/gameChara/endOffline/?charaId=" + this.getCookie("charaId"))
+          .then((res) => {
+            this.settlementjectList = res.data.data;
+            this.settlementjectEject = true;
+            this.$Message.warning(res.data.msg);
+            this.refreshUserInfo(); // 获取用户 人物属性
+          })
+          .catch((err) => {
+            this.$Message.warning("结算离线失败,请联系管理员");
+          });
+      }
+    },
+    //
     getRealmAttribute() {
       this.$http
         .post("/gameRealm/getRealmBonus?charaId=" + this.getCookie("charaId"))
@@ -1470,7 +1546,7 @@ export default {
           // 通知技能刷新检查
           this.$bus.$emit("getSkillMsg");
         }
-        this.refreshUserInfo();
+        // this.refreshUserInfo();
         this.refreshUserInfoCache();
       }
     },
@@ -1756,6 +1832,7 @@ export default {
   margin-bottom: 15px;
 }
 </style>
+
 <style scoped>
 /* 全局样式 */
 .two {

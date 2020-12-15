@@ -13,6 +13,7 @@
           <Input
             placeholder="请输入 6~20 位的密码"
             v-model="formlogin.password"
+            type="password"
           />
         </FormItem>
       </Form>
@@ -35,12 +36,14 @@
           <Input
             placeholder="请输入 6~20 位的密码"
             v-model="formRegister.password"
+            type="password"
           />
         </FormItem>
         <FormItem label="确认密码">
           <Input
             placeholder="请再输入一次密码"
             v-model="formRegister.confirmPassword"
+            type="password"
           />
         </FormItem>
       </Form>
