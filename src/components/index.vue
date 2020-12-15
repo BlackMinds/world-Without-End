@@ -1183,6 +1183,7 @@ export default {
           .then((res) => {
             this.$Message.warning(res.data.msg);
             this.refreshUserInfo(); // 获取用户 人物属性
+            this.refreshUserInfoCache()
           })
           .catch((err) => {
             this.$Message.warning("开始离线失败,请联系管理员");
@@ -1195,6 +1196,7 @@ export default {
             this.settlementjectEject = true;
             this.$Message.warning(res.data.msg);
             this.refreshUserInfo(); // 获取用户 人物属性
+            this.refreshUserInfoCache()
           })
           .catch((err) => {
             this.$Message.warning("结算离线失败,请联系管理员");
