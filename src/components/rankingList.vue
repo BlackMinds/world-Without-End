@@ -9,7 +9,11 @@
             {{ ++idx }}: {{ item.name }}: {{ item.coin }}
           </p>
         </TabPane>
-        <TabPane label="等级" name="name2">
+        <TabPane
+          label="等级"
+          name="name2"
+          style="max-height: 424px; overflow: auto"
+        >
           <p v-for="(item, idx) in leaderboardLst2" :key="idx">
             {{ ++idx }}: {{ item.name }}: {{ item.level }}
           </p>
