@@ -434,9 +434,15 @@
             <div>
               总共获得 {{ settlementjectList.countExp }} 经验
               <br />
+              总共战斗 {{ settlementjectList.combatNum }} 次数
+              <br />
+              总共胜利 {{ settlementjectList.combatSuccessNum }} 次数
+              <br />
               获得 {{ settlementjectList.countItemNum }} 个物品
               <br />
-              获得 {{ settlementjectList.countMoney }} 铜钱
+              自动出售 {{ settlementjectList.countSellNum }} 个数量
+              <br />
+              总共获得 {{ settlementjectList.countMoney }} 铜钱
               <br />
               {{ settlementjectList.outboardTime }}
             </div>
@@ -998,6 +1004,9 @@ export default {
         countItemNum: "",
         countMoney: "",
         outboardTime: "",
+        combatNum: "",
+        combatSuccessNum: "",
+        countSellNum: "",
       }, // 弹出框的离线收益
     };
   },
@@ -1183,7 +1192,7 @@ export default {
           .then((res) => {
             this.$Message.warning(res.data.msg);
             this.refreshUserInfo(); // 获取用户 人物属性
-            this.refreshUserInfoCache()
+            this.refreshUserInfoCache();
           })
           .catch((err) => {
             this.$Message.warning("开始离线失败,请联系管理员");
@@ -1196,7 +1205,7 @@ export default {
             this.settlementjectEject = true;
             this.$Message.warning(res.data.msg);
             this.refreshUserInfo(); // 获取用户 人物属性
-            this.refreshUserInfoCache()
+            this.refreshUserInfoCache();
           })
           .catch((err) => {
             this.$Message.warning("结算离线失败,请联系管理员");
