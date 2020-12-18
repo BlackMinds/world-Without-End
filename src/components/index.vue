@@ -388,8 +388,9 @@
                       ({{ item.strengSpirit }})
                     </span>
                   </p>
-                  <Divider v-if="item.decs" />
-                  <p v-if="item.decs">描述： {{ item.decs }}</p>
+
+                  <!-- <Divider v-if="item.equitDec" /> -->
+                  <!-- <p v-if="item.equitDec">描述： {{ item.equitDec }}</p> -->
                 </div>
               </Poptip>
             </div>
@@ -635,6 +636,14 @@
                     装备
                   </Button>
                   <Button
+                    @click.prevent="appraisal(item)"
+                    size="small"
+                    type="info"
+                    v-if="item.itemType != 3 && item.itemType != 4"
+                  >
+                    鉴定
+                  </Button>
+                  <Button
                     @click.prevent="strengthen(item)"
                     size="small"
                     type="info"
@@ -736,6 +745,22 @@
                         ({{ Equipment.strengSpirit }})
                       </span>
                     </p>
+                    <Divider v-if="Equipment.affixVoList" />
+                    <template v-if="Equipment.affixVoList">
+                      <p
+                        v-for="cz in Equipment.affixVoList"
+                        :key="cz.affixDescribe"
+                        :style="{
+                          color:
+                            cz.affixLevel == 'T1'
+                              ? 'rgb(234 255 0)'
+                              : 'rgb(73, 193, 248)',
+                        }"
+                      >
+                        {{ cz.affixName }}: {{ cz.affixDescribe }}
+                        {{ cz.affixLevel }}
+                      </p>
+                    </template>
                     <Divider v-if="Equipment.equitDec" />
                     <p v-if="Equipment.equitDec">
                       描述： {{ Equipment.equitDec }}
@@ -815,6 +840,22 @@
                         ({{ item.strengSpirit }})
                       </span>
                     </p>
+                    <Divider v-if="item.affixVoList" />
+                    <template v-if="item.affixVoList">
+                      <p
+                        v-for="cz in item.affixVoList"
+                        :key="cz.affixDescribe"
+                        :style="{
+                          color:
+                            cz.affixLevel == 'T1'
+                              ? 'rgb(234 255 0)'
+                              : 'rgb(73, 193, 248)',
+                        }"
+                      >
+                        {{ cz.affixName }}: {{ cz.affixDescribe }}
+                        {{ cz.affixLevel }}
+                      </p>
+                    </template>
                     <Divider v-if="item.decs" />
                     <p v-if="item.decs">描述： {{ item.decs }}</p>
                   </div>
@@ -1335,6 +1376,7 @@ export default {
         )
         .then((res) => {
           this.equipmentList = this.getEquipMap(res.data.data);
+          console.log(res.data.data);
         })
         .catch((err) => {
           this.$Message.warning("获取装备列表失败,请联系管理员");
@@ -1386,6 +1428,7 @@ export default {
         .post("gameChara/getCharaPackage?charaId=" + this.getCookie("charaId"))
         .then((res) => {
           this.knapsackList = res.data.data;
+          console.log(res.data.data);
         })
         .catch((err) => {
           this.$Message.warning("获取装备包裹失败,请联系管理员");
@@ -1625,6 +1668,27 @@ export default {
           this.$Message.warning("出售全部物品失败,请联系管理员");
         });
     },
+
+    // 鉴定装备
+    appraisal(item) {
+      this.$http
+        .post(
+          "/gameCharaEquip/appraisalEquitBypackage?charaId=" +
+            this.getCookie("charaId") +
+            "&packItemId=" +
+            item.packItemId
+        )
+        .then((res) => {
+          this.refreshUserInfoCache();
+          this.refreshPackage();
+          // 每次出售完 就退到2个全部
+          this.$Message.warning(res.data.data);
+        })
+        .catch((err) => {
+          this.$Message.warning("鉴定装备失败,请联系管理员");
+        });
+    },
+
     // 脱下单件装备
     TakeOffsingleton(item) {
       this.$http
