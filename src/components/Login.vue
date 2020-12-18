@@ -14,7 +14,6 @@
             type="password"
             placeholder="请输入 6~20 位的密码"
             v-model="formlogin.password"
-            type="password"
           />
         </FormItem>
       </Form>
