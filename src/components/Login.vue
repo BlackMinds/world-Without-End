@@ -11,6 +11,7 @@
         </FormItem>
         <FormItem label="密码">
           <Input
+            type="password"
             placeholder="请输入 6~20 位的密码"
             v-model="formlogin.password"
             type="password"
@@ -55,7 +56,7 @@
     </Card>
   </div>
 </template>
-       
+
 <script>
 export default {
   name: "Login",
