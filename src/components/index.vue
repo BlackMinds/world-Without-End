@@ -868,7 +868,11 @@
         <!-- 材料背包 -->
         <Card>
           <p slot="title">材料背包</p>
-          <div slot="extra"></div>
+          <div slot="extra">
+            <Button @click.prevent="arrangement" size="small" type="info">
+              整理
+            </Button>
+          </div>
           <div>
             <div>
               <p>物品分类</p>
@@ -1644,6 +1648,23 @@ export default {
         }
       }
     },
+
+    // 整理物品失败
+    arrangement() {
+      this.$http
+        .post(
+          "/gameChara/arrangeCharaMaterial?charaId=" + this.getCookie("charaId")
+        )
+        .then((res) => {
+          this.$Message.warning(res.data.msg);
+          this.refreshMaterialPackage();
+          this.materialClassification = "0";
+          this.quality = "0";
+        })
+        .catch((err) => {
+          this.$Message.warning("整理物品失败,请联系管理员");
+        });
+    },
     // 出售全部装备
     sellAll() {
       let arrKnapsac = [];
@@ -1662,7 +1683,7 @@ export default {
           this.refreshPackage();
           // 每次出售完 就退到2个全部
           this.classification = "0";
-          this.quality = "0";
+          this.materialQuality = "0";
         })
         .catch((err) => {
           this.$Message.warning("出售全部物品失败,请联系管理员");
