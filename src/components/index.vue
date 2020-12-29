@@ -580,8 +580,13 @@
               <p>装备分类</p>
               <RadioGroup v-model="classification">
                 <Radio label="0">全部</Radio>
-                <Radio label="1">装备</Radio>
-                <Radio label="2">灵力武器</Radio>
+                <Radio label="1">武器</Radio>
+                <Radio label="2">衣服</Radio>
+                <Radio label="3">头部</Radio>
+                <Radio label="4">项链</Radio>
+                <Radio label="7">戒指</Radio>
+                <Radio label="9">腰带</Radio>
+                <Radio label="10">鞋子</Radio>
               </RadioGroup>
               <p>装备品质</p>
               <RadioGroup v-model="quality">
@@ -1060,7 +1065,7 @@ export default {
       let knapsackList = this.knapsackList.slice(0);
       if (this.classification != 0) {
         knapsackList = knapsackList.filter(
-          (item) => item.itemType == this.classification
+          (item) => item.kind == this.classification
         );
       }
       if (this.quality != 0) {
