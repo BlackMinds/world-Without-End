@@ -18,7 +18,9 @@ export const EquipSlot = {
   // 腰带
   Belt: 9,
   // 鞋子
-  Shoes: 10
+  Shoes: 10,
+  // 法宝
+  WagicWeapon: 11,
 };
 
 export const SlotName = {
@@ -31,5 +33,6 @@ export const SlotName = {
   [EquipSlot.Ring]: "戒指",
   // [EquipSlot.Pendant]: "绶佩",
   [EquipSlot.Belt]: "腰带",
-  [EquipSlot.Shoes]: "鞋子"
+  [EquipSlot.Shoes]: "鞋子",
+  [EquipSlot.WagicWeapon]: "法宝",
 };

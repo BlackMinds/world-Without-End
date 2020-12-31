@@ -388,7 +388,24 @@
                       ({{ item.strengSpirit }})
                     </span>
                   </p>
-
+                  <Divider v-if="item.affixVoList != []" />
+                  <template v-if="item.affixVoList">
+                    <p
+                      v-for="cz in item.affixVoList"
+                      :key="cz.affixDescribe"
+                      :style="{
+                        color:
+                          cz.affixLevel == 'T1'
+                            ? 'rgb(234 255 0)'
+                            : 'rgb(73, 193, 248)',
+                      }"
+                    >
+                      {{ cz.affixName }}: {{ cz.affixDescribe }}
+                      {{ cz.affixLevel }}
+                    </p>
+                  </template>
+                  <Divider v-if="item.skillDesc" />
+                  <p v-if="item.skillDesc">技能描述： {{ item.skillDesc }}</p>
                   <!-- <Divider v-if="item.equitDec" /> -->
                   <!-- <p v-if="item.equitDec">描述： {{ item.equitDec }}</p> -->
                 </div>
@@ -770,6 +787,10 @@
                     <p v-if="Equipment.equitDec">
                       描述： {{ Equipment.equitDec }}
                     </p>
+                    <Divider v-if="Equipment.skillDesc" />
+                    <p v-if="Equipment.skillDesc">
+                      技能描述： {{ Equipment.skillDesc }}
+                    </p>
                   </div>
 
                   <div>
@@ -863,6 +884,8 @@
                     </template>
                     <Divider v-if="item.decs" />
                     <p v-if="item.decs">描述： {{ item.decs }}</p>
+                    <Divider v-if="item.skillDesc" />
+                    <p v-if="item.skillDesc">技能描述： {{ item.skillDesc }}</p>
                   </div>
                 </div>
               </Poptip>
@@ -1181,11 +1204,13 @@ export default {
     // 合成之后才发送的
     this.$bus.$on("synthesisMsg", (msg) => {
       this.refreshMaterialPackage();
+    this.refreshPackage();
       this.refreshUserInfoCache();
     });
     // 批量合成之后才发送的
     this.$bus.$on("synthesisMsg1", (msg) => {
       this.refreshMaterialPackage();
+    this.refreshPackage();
       this.refreshUserInfoCache();
     });
     // setTimeout(() => {
