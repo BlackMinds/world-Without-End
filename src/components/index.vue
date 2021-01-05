@@ -906,7 +906,10 @@
               <p>物品分类</p>
               <RadioGroup v-model="materialClassification">
                 <Radio label="3">道具</Radio>
-                <Radio label="4">材料</Radio>
+                <Radio label="4">合成</Radio>
+                <Radio label="5">突破</Radio>
+                <Radio label="7">强化</Radio>
+                <Radio label="8">活动</Radio>
               </RadioGroup>
               <p>物品品质</p>
               <RadioGroup v-model="materialQuality">
@@ -1204,13 +1207,13 @@ export default {
     // 合成之后才发送的
     this.$bus.$on("synthesisMsg", (msg) => {
       this.refreshMaterialPackage();
-    this.refreshPackage();
+      this.refreshPackage();
       this.refreshUserInfoCache();
     });
     // 批量合成之后才发送的
     this.$bus.$on("synthesisMsg1", (msg) => {
       this.refreshMaterialPackage();
-    this.refreshPackage();
+      this.refreshPackage();
       this.refreshUserInfoCache();
     });
     // setTimeout(() => {
