@@ -949,10 +949,7 @@
                   >
                     +{{ item.enhanLevel }}
                   </span>
-                  <span
-                    class="jjt_smail"
-                    v-if="item.itemType == 3 || item.itemType == 4"
-                  >
+                  <span class="jjt_smail">
                     {{ item.itemNum }}
                   </span>
                   <Button
