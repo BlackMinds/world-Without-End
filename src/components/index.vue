@@ -1607,7 +1607,6 @@ export default {
         if (targets.length > 0) {
           targets[0].life = record.surplusHealth;
         }
-
         // 1 物理伤害 2灵力伤害 3持续伤害 4恢复血量
         // console.log(record, "战斗日志");
         if (record.hurtType == 5) {
@@ -1687,7 +1686,6 @@ export default {
         }
       }
     },
-
     // 整理物品失败
     arrangement() {
       this.$http
@@ -1728,7 +1726,6 @@ export default {
           this.$Message.warning("出售全部物品失败,请联系管理员");
         });
     },
-
     // 鉴定装备
     appraisal(item) {
       this.$http
@@ -1748,7 +1745,6 @@ export default {
           this.$Message.warning("鉴定装备失败,请联系管理员");
         });
     },
-
     // 脱下单件装备
     TakeOffsingleton(item) {
       this.$http
@@ -2187,3 +2183,4 @@ export default {
   color: rgb(45, 196, 255);
 }
 </style>
+
