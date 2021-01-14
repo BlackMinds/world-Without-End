@@ -10,6 +10,7 @@
           <li @click="openExchange">兑换码</li>
           <li @click="PlanEject = true">排行榜</li>
           <li @click="RackingEject = true">在线玩家</li>
+          <li @click="openPets">真灵</li>
         </ul>
       </div>
       <div class="heade-right">
@@ -572,6 +573,8 @@ export default {
       this.exchangeEject = true;
       this.exchange = "";
     },
+
+    openPets() {},
 
     // 兑换码确定
     changeExchange() {

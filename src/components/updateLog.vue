@@ -2,7 +2,7 @@
   <!-- 日志 -->
   <div>
     <p class="importantFont">进群可以免费领取兑换码</p>
-    <p style="font-size: 30px; color: red">
+    <p style="font-size: 26px; color: red">
       重要,重要,重要
       <br />
       物理：20111000008BC234DFRP 法师：20111000008BC235DFR
@@ -64,6 +64,10 @@
         </template>
       </p>
     </div>
+    <br />
+    <p>测试版: v0.11.4(2020-1-14)</p>
+    <p class="importantFont">1: 气血技能 血量按照最初血量计算伤害</p>
+    <p class="importantFont">2: .宠物蛋解封 可生产真灵 真灵栏更新</p>
     <br />
     <p>测试版: v0.11.4(2020-12-14)</p>
     <p class="importantFont">1: 前20级怪物属性大幅度削弱</p>

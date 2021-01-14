@@ -910,6 +910,7 @@
                 <Radio label="5">突破</Radio>
                 <Radio label="7">强化</Radio>
                 <Radio label="8">活动</Radio>
+                <Radio label="9">真灵</Radio>
               </RadioGroup>
               <p>物品品质</p>
               <RadioGroup v-model="materialQuality">
@@ -959,6 +960,14 @@
                     type="info"
                   >
                     使用
+                  </Button>
+                  <Button
+                    @click.prevent="hatch(item)"
+                    size="small"
+                    v-if="item.itemType == 9"
+                    type="info"
+                  >
+                    孵化
                   </Button>
                   <Button
                     @click.prevent="useItems1(item)"
@@ -1785,6 +1794,25 @@ export default {
             item.packItemId +
             "&useNum=" +
             1
+        )
+        .then((res) => {
+          this.$Message.warning(res.data.msg);
+          // this.refreshEquips();
+          this.refreshMaterialPackage();
+          this.refreshUserInfoCache();
+        })
+        .catch((err) => {
+          this.$Message.warning("使用失败,请联系管理员");
+        });
+    },
+    // 孵化
+    hatch(item) {
+      this.$http
+        .post(
+          "/gameAura/hatchPet?charaId=" +
+            this.getCookie("charaId") +
+            "&packId=" +
+            item.packItemId
         )
         .then((res) => {
           this.$Message.warning(res.data.msg);
