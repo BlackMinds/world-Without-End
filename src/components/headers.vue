@@ -26,64 +26,107 @@
         v-model="PetsEject"
         :styles="{ top: '100px' }"
       >
-        <Tabs  v-if="PetsList">
-            <TabPane v-for="item in PetsList" :key="item.auraId" :label="item.auraStatus == 1 ? item.auraName + '(出战中）' : item.auraName" :name="item.auraId">
-              <div class="PetsListC">
-                <img :src="item.auraIcon" alt="没图片啊 找策划加" style="width: 250px;height: 150px;">
-                <div>
-                  <span :style="{color: realmColorF()}">真灵名字:{{ item.auraName }}</span>
-                  <span :style="{color: realmColorF()}">真灵等级:{{ item.auraLevel }}</span>
-                  <span :style="{color: realmColorF()}">{{ item.auraExp }} / {{ item.auraUpgradeExp }}</span>
-                  <span :style="{color: realmColorF()}">状态:{{ PetsStatus(item.auraStatus) }}</span>
-                  <span :style="{color: realmColorF()}">品级:{{ PetsGrade(item.auraGrade) }}</span>
-                  <span :style="{color: realmColorF()}">资质:{{ item.auraAptitude }}</span>
-                  <span :style="{color: realmColorF()}">元素:{{ petsEl(item.auraElement) }}</span>
-                  <span :style="{color: realmColorF()}">类型:{{ petsType(item.auraType) }}</span>
-                  <span :style="{color: realmColorF()}">种族:{{ item.auraRace }}</span>
-                  <span :style="{color: realmColorF()}">饥饿值:{{ item.auraStarvationValue }}</span>
-                  <span :style="{color: realmColorF()}" v-if="item.auraDesci">描述:{{ item.auraDesci }}</span>
-                  <p>
-                    <span :style="{color: realmColorF()}">灵巧:{{ item.auraDexterity || 0}}</span>
-                    <span :style="{color: realmColorF()}">体格:{{ item.auraPhysique || 0}}</span>
-                    <span :style="{color: realmColorF()}">灵力:{{ item.auraSpirit || 0}}</span>
-                    <span :style="{color: realmColorF()}">攻击力:{{ item.auraAttack || 0}}</span>
-                    <span :style="{color: realmColorF()}">防御力:{{ item.auraDefence || 0}}</span>
-                    <span :style="{color: realmColorF()}">灵力攻击:{{ item.auraMagicAttack || 0}}</span>
-                    <span :style="{color: realmColorF()}">生命值:{{ item.auraLife || 0}}</span>
-                    <span :style="{color: realmColorF()}">真气值:{{ item.auraMana || 0}}</span>
-                    <span :style="{color: realmColorF()}">命中率:{{ item.auraHitRate || 0}}</span>
-                    <span :style="{color: realmColorF()}">闪避率:{{ item.auraEvade || 0}}</span>
-                    <span :style="{color: realmColorF()}">暴击:{{ item.auraExplode || 0}}</span>
-                    <span :style="{color: realmColorF()}">暴击伤害:{{ item.auraCalDamage || 0}}</span>
-                    <span :style="{color: realmColorF()}">速度:{{ item.auraActionSpeed || 0}}</span>
-
-                  </p>
-
-                </div>
+        <Tabs v-if="PetsList" :value="Pets" @click.native="cs">
+          <TabPane
+            v-for="item in PetsList"
+            :key="item.auraId"
+            :label="
+              item.auraStatus == 1 ? item.auraName + '(出战中）' : item.auraName
+            "
+            :name="item.auraId"
+          >
+            <div class="PetsListC">
+              <img
+                :src="item.auraIcon"
+                alt="没图片啊 找策划加"
+                style="width: 250px; height: 150px"
+              />
+              <div>
+                <!-- <span :style="{color: realmColorF()}">真灵名字:{{ item.auraName }}</span> -->
+                <span :style="{ color: realmColorF() }">
+                  真灵等级:{{ item.auraLevel }}
+                </span>
+                <span :style="{ color: realmColorF() }">
+                  {{ item.auraExp }} / {{ item.auraUpgradeExp }}
+                </span>
+                <span :style="{ color: realmColorF() }">
+                  状态:{{ PetsStatus(item.auraStatus) }}
+                </span>
+                <span :style="{ color: realmColorF() }">
+                  品级:{{ PetsGrade(item.auraGrade) }}
+                </span>
+                <span :style="{ color: realmColorF() }">
+                  资质:{{ item.auraAptitude }}
+                </span>
+                <span :style="{ color: realmColorF() }">
+                  元素:{{ petsEl(item.auraElement) }}
+                </span>
+                <span :style="{ color: realmColorF() }">
+                  类型:{{ petsType(item.auraType) }}
+                </span>
+                <span :style="{ color: realmColorF() }">
+                  种族:{{ item.auraRace }}
+                </span>
+                <!-- <span :style="{ color: realmColorF() }">
+                  饥饿值:{{ item.auraStarvationValue }}
+                </span> -->
+                <span :style="{ color: realmColorF() }" v-if="item.auraDesci">
+                  描述:{{ item.auraDesci }}
+                </span>
+                <p>
+                  <span :style="{ color: realmColorF() }">
+                    灵巧:{{ item.auraDexterity || 0 }}
+                  </span>
+                  <span :style="{ color: realmColorF() }">
+                    体格:{{ item.auraPhysique || 0 }}
+                  </span>
+                  <span :style="{ color: realmColorF() }">
+                    灵力:{{ item.auraSpirit || 0 }}
+                  </span>
+                  <span :style="{ color: realmColorF() }">
+                    攻击力:{{ item.auraAttack || 0 }}
+                  </span>
+                  <span :style="{ color: realmColorF() }">
+                    防御力:{{ item.auraDefence || 0 }}
+                  </span>
+                  <span :style="{ color: realmColorF() }">
+                    灵力攻击:{{ item.auraMagicAttack || 0 }}
+                  </span>
+                  <span :style="{ color: realmColorF() }">
+                    生命值:{{ item.auraLife || 0 }}
+                  </span>
+                  <span :style="{ color: realmColorF() }">
+                    真气值:{{ item.auraMana || 0 }}
+                  </span>
+                  <span :style="{ color: realmColorF() }">
+                    命中率:{{ item.auraHitRate || 0 }}
+                  </span>
+                  <span :style="{ color: realmColorF() }">
+                    闪避率:{{ item.auraEvade || 0 }}
+                  </span>
+                  <span :style="{ color: realmColorF() }">
+                    暴击:{{ item.auraExplode || 0 }}
+                  </span>
+                  <span :style="{ color: realmColorF() }">
+                    暴击伤害:{{ item.auraCalDamage || 0 }}
+                  </span>
+                  <span :style="{ color: realmColorF() }">
+                    速度:{{ item.auraActionSpeed || 0 }}
+                  </span>
+                </p>
               </div>
-            </TabPane>
+            </div>
+          </TabPane>
         </Tabs>
         <div slot="footer">
-          <Button
-            type="dashed"
-            size="small"
-            @click="PetsEject = false"
-          >
+          <Button type="dashed" size="small" @click="PetsEject = false">
             取消
           </Button>
-          <Button
-            type="error"
-            size="small"
-            @click="PetsEject = false"
-          >
+          <Button type="error" size="small" @click="PetsEject = false">
             放生
           </Button>
-          <Button
-            type="primary"
-            size="small"
-            @click="PetsEject = false"
-          >
-            出战
+          <Button type="primary" size="small" @click="goToWar">
+            出战/休息
           </Button>
         </div>
       </Modal>
@@ -365,7 +408,8 @@ export default {
         quality: [],
       },
       PetsEject: false, // 真灵弹出框
-      PetsList: []
+      PetsList: [],
+      Pets: null,
     };
   },
   created() {
@@ -396,57 +440,57 @@ export default {
 
     // 灵宠状态
     PetsStatus(val) {
-      if(val== 0) {
-        return "休息"
-      }else {
-        return "出战"
+      if (val == 0) {
+        return "休息";
+      } else {
+        return "出战";
       }
     },
     // 品级
-    PetsGrade (val) {
+    PetsGrade(val) {
       if (val == 1) {
-        return "普通"
-      }else if (val == 2) {
-        return "灵级"
-      }else if (val == 3) {
-        return "圣级"
-      }else {
-        return "神级"
+        return "普通";
+      } else if (val == 2) {
+        return "灵级";
+      } else if (val == 3) {
+        return "圣级";
+      } else {
+        return "神级";
       }
     },
-    // 元素状态 
+    // 元素状态
     petsEl(val) {
       if (val == 1) {
-        return "金"
-      }else if (val == 2) {
-        return "木"
-      }else if (val == 3) {
-        return "水"
-      }else if (val == 4) {
-        return "火"
-      }else if (val == 5) {
-        return "土"
-      }else if (val == 6) {
-        return "风"
-      }else if (val == 7) {
-        return "雷"
-      }else {
-        return "无"
+        return "金";
+      } else if (val == 2) {
+        return "木";
+      } else if (val == 3) {
+        return "水";
+      } else if (val == 4) {
+        return "火";
+      } else if (val == 5) {
+        return "土";
+      } else if (val == 6) {
+        return "风";
+      } else if (val == 7) {
+        return "雷";
+      } else {
+        return "无";
       }
     },
     // 类型
-    petsType (val) {
+    petsType(val) {
       if (val == 1) {
-        return "五行系"
-      }else if (val == 2) {
-        return "风雷系"
-      }else if (val == 3) {
-        return "防御型"
-      }else {
-        return "无"
+        return "五行系";
+      } else if (val == 2) {
+        return "风雷系";
+      } else if (val == 3) {
+        return "防御型";
+      } else {
+        return "无";
       }
     },
-    realmColorF () {
+    realmColorF() {
       var roundColor = Math.round(Math.random() * 5);
       if (roundColor == 1) {
         return "red";
@@ -714,20 +758,33 @@ export default {
 
     // 打开真灵
     openPets() {
-      this.PetsEject = true
+      this.PetsEject = true;
       this.$http
-        .post(
-          "/gameAura/getCharaPet?charaId=" + this.getCookie("charaId")
-        )
+        .post("/gameAura/getCharaPet?charaId=" + this.getCookie("charaId"))
         .then((res) => {
           this.$Message.success(res.data.msg);
-          console.log(res.data.data)
-          this.PetsList = res.data.data
+          console.log(res.data.data);
+          this.PetsList = res.data.data;
         })
         .catch((err) => {
           this.$Message.warning("真灵获取失败,请联系管理员");
         });
     },
+    // 真灵出战
+    goToWar() {
+      console.log(this.Pets);
+      this.$http
+        .post("/gameAura/goToWarByAure?charaId=" + this.getCookie("charaId"))
+        .then((res) => {
+          this.$Message.success(res.data.msg);
+          console.log(res.data);
+        })
+        .catch((err) => {
+          this.$Message.warning("真灵出战失败,请联系管理员");
+        });
+    },
+
+    cs() {},
 
     // 兑换码确定
     changeExchange() {
@@ -850,12 +907,11 @@ export default {
   margin-left: 20px;
 }
 
-
 /* 真灵列表  加c是class的意思 */
 .PetsListC {
   overflow: hidden;
 }
-.PetsListC > img{
+.PetsListC > img {
   float: left;
 }
 .PetsListC > div {
@@ -869,7 +925,7 @@ export default {
   padding: 0 5px;
 }
 
-.PetsListC > div p  {
+.PetsListC > div p {
   margin-top: 15px;
 }
 
