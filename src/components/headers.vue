@@ -99,16 +99,16 @@
                     真气值:{{ item.auraMana || 0 }}
                   </span>
                   <span :style="{ color: realmColorF() }">
-                    命中率:{{ item.auraHitRate || 0 }}
+                    命中率:{{  (item.auraHitRate * 100).toFixed(1) || 0 }}
                   </span>
                   <span :style="{ color: realmColorF() }">
-                    闪避率:{{ item.auraEvade || 0 }}
+                    闪避率:{{ (item.auraEvade * 100).toFixed(1) || 0 }}
                   </span>
                   <span :style="{ color: realmColorF() }">
-                    暴击:{{ item.auraExplode || 0 }}
+                    暴击:{{  (item.auraExplode * 100).toFixed(1) || 0 }} 
                   </span>
                   <span :style="{ color: realmColorF() }">
-                    暴击伤害:{{ item.auraCalDamage || 0 }}
+                    暴击伤害:{{ (item.auraCalDamage * 100).toFixed(1) || 0  }} 
                   </span>
                   <span :style="{ color: realmColorF() }">
                     速度:{{ item.auraActionSpeed || 0 }}
@@ -116,17 +116,20 @@
                 </p>
               </div>
             </div>
+            
+            <div class="petsbtn">
+              <Button type="error" size="small" @click="Release(item)">
+                放生
+              </Button>
+              <Button type="primary" size="small" @click="goToWar(item)">
+                出战/休息
+              </Button>
+            </div>
           </TabPane>
         </Tabs>
         <div slot="footer">
           <Button type="dashed" size="small" @click="PetsEject = false">
             取消
-          </Button>
-          <Button type="error" size="small" @click="PetsEject = false">
-            放生
-          </Button>
-          <Button type="primary" size="small" @click="goToWar">
-            出战/休息
           </Button>
         </div>
       </Modal>
@@ -762,22 +765,25 @@ export default {
       this.$http
         .post("/gameAura/getCharaPet?charaId=" + this.getCookie("charaId"))
         .then((res) => {
-          this.$Message.success(res.data.msg);
-          console.log(res.data.data);
           this.PetsList = res.data.data;
         })
         .catch((err) => {
           this.$Message.warning("真灵获取失败,请联系管理员");
         });
     },
+
+    // 真灵放生
+    goToWar(item) {
+      this.$Message.warning("放生功能暂时没用,请联系管理员");
+    },
     // 真灵出战
-    goToWar() {
-      console.log(this.Pets);
+    goToWar(item) {
+      let auraStatus = item.auraStatus == 0 ? 1 : 0
       this.$http
-        .post("/gameAura/goToWarByAure?charaId=" + this.getCookie("charaId"))
+        .post("/gameAura/goToWarByAure?charaId=" + this.getCookie("charaId") + "&petId=" + item.auraId + "&aureStatus=" + auraStatus)
         .then((res) => {
           this.$Message.success(res.data.msg);
-          console.log(res.data);
+          this.openPets()
         })
         .catch((err) => {
           this.$Message.warning("真灵出战失败,请联系管理员");
@@ -931,6 +937,9 @@ export default {
 
 .PetsListC > div p span {
   display: inline-block;
-  width: 100px;
+  width: 102px;
+}
+.petsbtn {
+  margin-top: 15px;
 }
 </style>
