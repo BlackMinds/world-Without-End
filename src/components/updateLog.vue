@@ -63,6 +63,13 @@
         <p class="importantFont">1: 部分技能暂时移除</p>
         <p class="importantFont">2: 预计下周实装套装</p>
         <p class="importantFont">3: 预计下下周实装交易行</p>
+        <p class="importantFont">3: 下次上线套装和真灵放生</p>
+        <p class="importantFont">4: 真灵上线 还有待调整 升级问题待解决</p>
+        <br />
+        <p>测试版: v0.11.5(2023-10-25)</p>
+        <p class="importantFont">1: 部分技能暂时移除</p>
+        <p class="importantFont">2: 预计下周实装套装</p>
+        <p class="importantFont">3: 预计下下周实装交易行</p>
         <p class="importantFont">4: 真灵大幅加强等待实装</p>
         <br />
         <p>测试版: v0.11.4(2021-1-14)</p>

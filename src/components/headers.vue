@@ -671,7 +671,7 @@ export default {
         },
 
         // 真灵放生
-        goToWar(item) {
+        Release(item) {
             this.$Message.warning("放生功能暂时没用,请联系管理员");
         },
         // 真灵出战

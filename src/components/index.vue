@@ -29,7 +29,7 @@
                                     <span style="float: left">LV{{ user.level }}</span>
                                     <span style="float: right">编号{{ user.accountId }}</span>
                                 </div>
-                                <div class="bloodVolume">生命: {{ user.health }}</div>
+                                <div class="bloodVolume">生命: {{ user.health }} </div>
                                 <div class="blueAmount">真气值: {{ user.mana }}</div>
                             </div>
                         </div>
@@ -436,12 +436,12 @@
                                 </div>
                             </Poptip>
                         </div>
-                        <div class="monster" :class="[gameCharacterVO.length == 1 ? 'monstercenter' : '']">
+                        <div class="monster" :class="[gameCharacterVO.length == 1 ? 'monstercenter' : '']" v-if="this.teamStatus != 1">
                             <Poptip trigger="hover" v-for="(item,idx) in gameCharacterVO" :key="idx" :title="item.name">
-                                (角色){{ item.name }}
+                                {{ idx == 0 ? '角色: ' : '真灵: ' }}{{ item.name || '' }}
                                 <br>
-                                <Progress :percent="(Math.max(item.health, 0) / item.maxLife) * 100" style="width: 200px">
-                                    <span>{{ item.health }}</span>
+                                <Progress :percent="(Math.max(item.health || auraLife, 0) / item.maxLife) * 100" style="width: 200px">
+                                    <span>{{ item.health || auraLife }}</span>
                                 </Progress>
                                 <div slot="content">
                                     <p>生命值 {{ item.health }}</p>
@@ -649,6 +649,10 @@
                                         <p v-if="Equipment.equitDec">
                                             描述： {{ Equipment.equitDec }}
                                         </p>
+                                        <br>
+                                        <p v-if="Equipment.suitName">套装名字: {{ Equipment.suitName }}</p>
+                                        <p v-if="Equipment.suitOneDesc">套装效果: {{ Equipment.suitOneDesc }}</p>
+                                        <p v-if="Equipment.suitDesc">套装描述: {{ Equipment.suitDesc }}</p>
                                         <Divider v-if="Equipment.skillDesc" />
                                         <p v-if="Equipment.skillDesc">
                                             技能描述： {{ Equipment.skillDesc }}
@@ -742,6 +746,10 @@
                                         </template>
                                         <Divider v-if="item.decs" />
                                         <p v-if="item.decs">描述： {{ item.decs }}</p>
+                                        <br>
+                                        <p v-if="item.suitName">套装名字: {{ item.suitName }}</p>
+                                        <p v-if="item.suitOneDesc">套装效果: {{ item.suitOneDesc }}</p>
+                                        <p v-if="item.suitDesc">套装描述: {{ item.suitDesc }}</p>
                                         <Divider v-if="item.skillDesc" />
                                         <p v-if="item.skillDesc">技能描述： {{ item.skillDesc }}</p>
                                     </div>
@@ -829,6 +837,7 @@
                                         </p>
                                         <Divider v-if="item.decs" />
                                         <p v-if="item.decs">描述： {{ item.decs }}</p>
+
                                     </div>
                                 </div>
                             </Poptip>
@@ -841,7 +850,6 @@
 
             <div id="right">
                 <div class="line"></div>
-                <!-- {{ teamStatus }} -->
                 <!-- 技能 -->
                 <skill style="margin-top:30px;"></skill>
                 <synthesis></synthesis>
@@ -1424,8 +1432,20 @@ export default {
         async boardcastCombatResult(result) {
             this.monsterList = result.gameMonList; // 怪物信息
             this.monsterList.forEach((m) => (m.maxLife = m.life));
-            this.gameCharacterVO = [result.gameCharacterVO]; // 人物信息
-            this.gameCharacterVO.forEach((m) => (m.maxLife = m.health));
+            if (this.teamStatus != 1) {
+                if (result.gamePetVO) {
+                    result.gamePetVO = {
+                        health: result.gamePetVO.life,
+                        name: result.gamePetVO.auraName,
+                        ...result.gamePetVO
+                    }
+                    this.gameCharacterVO = [result.gameCharacterVO, result.gamePetVO]; // 人物 加宠物信息信息
+                    this.gameCharacterVO.forEach((m) => (m.maxLife = m.health));
+                } else {
+                    this.gameCharacterVO = [result.gameCharacterVO]; // 人物加信息
+                    this.gameCharacterVO.forEach((m) => (m.maxLife = m.health));
+                }
+            }
             let combatInfo = result.combatInfo;
             for (let i = 0; i < combatInfo.length; i++) {
                 // 每条记录的输出相隔 1.5 秒
@@ -1438,11 +1458,13 @@ export default {
                     targets[0].life = record.surplusHealth;
                 }
 
-                const targets1 = this.gameCharacterVO.filter(
-                    (m) => m.name == record.hinjured
-                );
-                if (targets1.length > 0) {
-                    targets1[0].health = record.surplusHealth;
+                if (this.teamStatus != 1) {
+                    const targets1 = this.gameCharacterVO.filter(
+                        (m) => m.name == record.hinjured
+                    );
+                    if (targets1.length > 0) {
+                        targets1[0].health = record.surplusHealth;
+                    }
                 }
                 // 1 物理伤害 2灵力伤害 3持续伤害 4恢复血量
                 // console.log(record, "战斗日志");
@@ -1518,6 +1540,7 @@ export default {
         // 显示装备对比属性
         openEquipment(item) {
             for (let key in this.equipmentList) {
+                if (!this.equipmentList[key]) return
                 if (item.kind == this.equipmentList[key].geKind) {
                     this.Equipment = this.equipmentList[key];
                 }
