@@ -32,15 +32,15 @@ module.exports = {
     // set this to false - it *may* help
     // https://vue-loader.vuejs.org/en/options.html#cachebusting
     cacheBusting: true,
-    // proxyTable: {
-    //   '/api': {
-    //     target: 'http://www.yunyingxiaowu.com:8088/',
-    //     changeOrigin: true,
-    //     pathRewrite: {
-    //       '^/api': ''
-    //     },
-    //   },
-    // },
+    proxyTable: {
+      '/foodie-api': {
+        target: 'http://82.156.203.116/foodie-api/',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/foodie-api': ''
+        },
+      },
+    },
     cssSourceMap: true
   },
 

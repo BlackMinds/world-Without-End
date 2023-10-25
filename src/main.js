@@ -20,6 +20,12 @@ Vue.prototype.setCookie = function(c_name, value, expiredays) {
         ((expiredays == null) ? "" : ";expires=" + exdate.toGMTString())
 };
 
+Vue.prototype.deleteCookie = function(c_name) {
+    var exdate = new Date();
+    exdate.setDate(exdate.getDate() - 1); // 将过期日期设置为昨天
+    document.cookie = c_name + "=; expires=" + exdate.toGMTString();
+};
+
 Vue.prototype.getCookie = function(c_name) {
     if (document.cookie.length > 0) {
         var c_start = document.cookie.indexOf(c_name + "=")
@@ -37,7 +43,10 @@ Vue.prototype.getCookie = function(c_name) {
 Vue.prototype.$http = axios
 Vue.config.productionTip = false
 
-axios.defaults.baseURL = "http://www.yunyingxiaowu.com:8088/foodie-api/"
+
+
+
+axios.defaults.baseURL = "foodie-api"
 axios.defaults.timeout = 15000
 /* eslint-disable no-new */
 new Vue({
