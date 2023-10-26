@@ -680,6 +680,17 @@ export default {
                 .post("/gameAura/getCharaPet?charaId=" + this.getCookie("charaId"))
                 .then((res) => {
                     this.PetsList = res.data.data;
+                    this.PetsList.forEach(d => {
+                        if (d.auraName == '炽焰狼') {
+                            d.auraIcon = 'https://image8.cdn2.seaart.ai/2023-08-20/14895646759741445/cf76999a4e2f0b1292fae1028b336054ed2718eb_high.webp'
+                        } else if (d.auraName == '三眼灵猴') {
+                            d.auraIcon = 'https://image2.cdn2.seaart.ai/2023-07-15/45424216264773/b073af8d407351509583f8c3d18e5d6cdfe014a4_high.webp'
+                        } else if (d.auraName == '白泽') {
+                            d.auraIcon = 'https://image1.cdn2.seaart.ai/2023-09-14/17164851793156101/d6b47ec23aca10d2a11515c572a0fe46ea298546_high.webp'
+                        } else {
+                            d.auraIcon = 'https://image2.cdn2.seaart.ai/2023-09-24/18026210080650245/5884d0a350e8de9ff67c896ef91cf2a188bb9f42_high.webp'
+                        }
+                    })
                 })
                 .catch((err) => {
                     this.$Message.warning("真灵获取失败,请联系管理员");
