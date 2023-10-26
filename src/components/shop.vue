@@ -35,7 +35,7 @@
           <div slot="content">
             <p v-if="item.marketPrice">
               商品价格 {{ item.marketPrice }}
-              {{ item.priceType == 0 ? "铜钱" : "金币" }}
+              {{ item.priceType == 0 ? "金币" : "灵石" }}
             </p>
             <p v-if="item.marketNum">购买次数 {{ item.marketNum }}</p>
             <p v-if="item.marketLevel">

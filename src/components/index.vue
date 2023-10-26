@@ -35,9 +35,9 @@
                         </div>
                         <div class="goldCoin">
                             <p>当前等级经验: {{ user.exp }} / {{ user.upgradeExp }}</p>
-                            <!-- 铜钱买普通物品 -->
-                            <p>当前铜钱: {{ user.money }}</p>
-                            <p>当前金币: {{ user.coin }}</p>
+                            <!-- 金币买普通物品 -->
+                            <p>当前金币: {{ user.money }}</p>
+                            <p>当前灵石: {{ user.coin }}</p>
                             <p>副本奖励剩余次数: {{ user.rewardNum }}</p>
                             <p>
                                 境界:
@@ -137,7 +137,7 @@
                         {{ breachStuff.materThreeNum }}
                     </p>
                     <p v-if="breachStuff.coin">
-                        需要 {{ breachStuff.coninType == 0 ? "铜币" : "金币" }}
+                        需要 {{ breachStuff.coninType == 0 ? "铜币" : "灵石" }}
                         {{ breachStuff.coin }}
                     </p>
                 </Modal>
@@ -394,7 +394,7 @@
                             <br />
                             自动出售 {{ settlementjectList.countSellNum }} 个数量
                             <br />
-                            总共获得 {{ settlementjectList.countMoney }} 铜钱
+                            总共获得 {{ settlementjectList.countMoney }} 金币
                             <br />
                             {{ settlementjectList.outboardTime }}
                         </div>
@@ -479,7 +479,7 @@
                         {{ materialsRequired.materTwoNum }}
                     </p>
                     <p v-if="materialsRequired.coin">
-                        需要 {{ materialsRequired.coninType == 0 ? "铜币" : "金币" }}
+                        需要 {{ materialsRequired.coninType == 0 ? "铜币" : "灵石" }}
                         {{ materialsRequired.coin }}
                     </p>
                 </Modal>

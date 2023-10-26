@@ -11,6 +11,7 @@
                     <li @click="PlanEject = true">排行榜</li>
                     <li @click="RackingEject = true">在线玩家</li>
                     <li @click="openPets">真灵</li>
+                    <li @click="openTradingBankEject()">交易行</li>
                 </ul>
             </div>
             <div class="heade-right">
@@ -270,6 +271,11 @@
             <Modal width="620" title="在线玩家" v-model="RackingEject" :styles="{ top: '100px' }">
                 <playersList></playersList>
             </Modal>
+
+            <!-- 交易行 -->
+            <Modal width="620" title="交易行" v-model="tradingBankEject" :styles="{ top: '100px' }">
+                <tradingBank></tradingBank>
+            </Modal>
         </div>
     </div>
 </template>
@@ -278,6 +284,7 @@
 import playersList from "./playersList.vue";
 import rankingList from "./rankingList.vue";
 import updateLog from "./updateLog.vue";
+import tradingBank from "./tradingBank.vue";
 import banner1 from "../assets/back1.jpg";
 export default {
     name: "headers",
@@ -317,6 +324,8 @@ export default {
             PetsEject: false, // 真灵弹出框
             PetsList: [],
             Pets: null,
+            tradingBankEject: false, // 交易行
+            tradingBankList: []
         };
     },
     created() {
@@ -324,7 +333,7 @@ export default {
         this.armyBoundary();
         this.TeamMapList(); // 获取组队地图列表
     },
-    components: { playersList, rankingList, updateLog },
+    components: { playersList, rankingList, updateLog,tradingBank},
     methods: {
         // 返回品质颜色
         distinguishColor(color) {
@@ -672,6 +681,22 @@ export default {
             this.exchangeEject = true;
             this.exchange = "";
         },
+        openTradingBankEject() {
+            this.tradingBankEject = true
+            setTimeout(() => {
+                this.$nextTick(() => {
+                    this.$refs.tradingBank1.getTradingBankList();
+                })
+            },1000)
+            // this.$http.get("gameBussiness/getBussinessList?page=" + 1 + "&pageSize=" + 20 + '&bussinessName' + '').then((res) => {
+            //     console.error(res.data.rows)
+            //     this.tradingBankList = res.data.rows;
+            //     this.tradingBankEject = true
+            // })
+            // .catch((err) => {
+            //     this.$Message.warning("获取交易行失败,请联系管理员");
+            // });
+        },
 
         // 打开真灵
         openPets() {
@@ -680,6 +705,17 @@ export default {
                 .post("/gameAura/getCharaPet?charaId=" + this.getCookie("charaId"))
                 .then((res) => {
                     this.PetsList = res.data.data;
+                    this.PetsList.forEach(d => {
+                        if (d.auraName == '炽焰狼') {
+                            d.auraIcon = 'https://image8.cdn2.seaart.ai/2023-08-20/14895646759741445/cf76999a4e2f0b1292fae1028b336054ed2718eb_high.webp'
+                        } else if (d.auraName == '三眼灵猴') {
+                            d.auraIcon = 'https://image2.cdn2.seaart.ai/2023-07-15/45424216264773/b073af8d407351509583f8c3d18e5d6cdfe014a4_high.webp'
+                        } else if (d.auraName == '白泽') {
+                            d.auraIcon = 'https://image1.cdn2.seaart.ai/2023-09-14/17164851793156101/d6b47ec23aca10d2a11515c572a0fe46ea298546_high.webp'
+                        } else {
+                            d.auraIcon = 'https://image2.cdn2.seaart.ai/2023-09-24/18026210080650245/5884d0a350e8de9ff67c896ef91cf2a188bb9f42_high.webp'
+                        }
+                    })
                 })
                 .catch((err) => {
                     this.$Message.warning("真灵获取失败,请联系管理员");
@@ -752,7 +788,7 @@ export default {
                     1
                 )
                 .then((res) => {
-                    this.$Message.warning(res.data.data);
+                    this.$Message.warning(res.data.data || res.data.msg);
                 })
                 .catch((err) => {
                     this.$Message.warning("签到失败,请联系管理员");

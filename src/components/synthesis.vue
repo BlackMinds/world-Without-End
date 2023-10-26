@@ -39,7 +39,7 @@
               合成消耗的经验: {{ item.syntheticExp }}
             </p>
             <p v-if="item.syntheticMoney">
-              合成消耗的铜钱: {{ item.syntheticMoney }}
+              合成消耗的金币: {{ item.syntheticMoney }}
             </p>
             <p v-if="item.syntheticRealm">
               合成物品最低境界:
@@ -60,7 +60,7 @@
               {{ item.materThreeNum }}
             </p>
             <p v-if="item.coin">
-              需要 {{ item.coninType == 0 ? "铜币" : "金币" }}
+              需要 {{ item.coninType == 0 ? "铜币" : "灵石" }}
               {{ item.coin }}
             </p>
           </div>

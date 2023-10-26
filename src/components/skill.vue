@@ -32,7 +32,7 @@
               <div slot="content">
                 <p>技能效果: {{ item.skillDesc }}</p>
                 <p>技能耗蓝: {{ item.conMana }}</p>
-                <p>升级所需金币 {{ item.consumeCoin }}</p>
+                <p>升级所需灵石 {{ item.consumeCoin }}</p>
                 <p>升级人物等级 {{ item.charaLevel }}</p>
                 <p>下一等级技能效果: {{ item.skillNextDesc }}</p>
               </div>
@@ -65,7 +65,7 @@
               <div slot="content">
                 <p>技能效果: {{ item.skillDesc }}</p>
                 <p>技能耗蓝: {{ item.conMana }}</p>
-                <p>升级所需金币 {{ item.consumeCoin }}</p>
+                <p>升级所需灵石 {{ item.consumeCoin }}</p>
                 <p>升级人物等级 {{ item.charaLevel }}</p>
                 <p>下一等级技能效果: {{ item.skillNextDesc }}</p>
               </div>
@@ -98,7 +98,7 @@
             <!-- <p>{{ item.skillName }}</p> -->
             <p>技能效果: {{ item.skillDesc }}</p>
             <p>技能耗蓝: {{ item.conMana }}</p>
-            <p>升级所需金币 {{ item.consumeCoin }}</p>
+            <p>升级所需灵石 {{ item.consumeCoin }}</p>
             <p>升级人物等级 {{ item.charaLevel }}</p>
             <p>下一等级技能效果: {{ item.skillNextDesc }}</p>
           </div>
