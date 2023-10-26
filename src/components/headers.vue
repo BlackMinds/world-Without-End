@@ -7,7 +7,7 @@
                     <li @click="openSetEject">设置</li>
                     <li @click="changePas">修改密码</li>
                     <li @click="openStrategy">更新日志</li>
-                    <li @click="openExchange">兑换码</li>
+                    <li @click="openExchange">兑换码 签到</li>
                     <li @click="PlanEject = true">排行榜</li>
                     <li @click="RackingEject = true">在线玩家</li>
                     <li @click="openPets">真灵</li>
@@ -98,6 +98,19 @@
                                     </span>
                                     <span :style="{ color: realmColorF() }">
                                         速度:{{ item.auraActionSpeed || 0 }}
+                                    </span>
+                                </p>
+                                <p>
+                                    真灵技能:
+                                    <span v-for="k in item.gamePetSKillList" :key="k">
+                                        <Poptip trigger="hover">
+                                            {{ k.skillName }}
+                                            <div slot="content" style="color: #fff">
+                                                真气: {{k.conMana}}
+                                                <br>
+                                                描述: {{k.skillDesc}}
+                                            </div>
+                                        </Poptip>
                                     </span>
                                 </p>
                             </div>
@@ -243,6 +256,9 @@
             <!-- 兑换码 -->
             <Modal width="620" title="兑换码" v-model="exchangeEject" @on-ok="changeExchange()" :styles="{ top: '100px' }">
                 <Input v-model="exchange" placeholder="请输入兑换码" />
+                <Button type="primary" size="small" @click="signIn()" style="margin-top: 20px">
+                    签到
+                </Button>
             </Modal>
 
             <!-- 排行榜 -->
@@ -669,10 +685,30 @@ export default {
                     this.$Message.warning("真灵获取失败,请联系管理员");
                 });
         },
-
         // 真灵放生
         Release(item) {
-            this.$Message.warning("放生功能暂时没用,请联系管理员");
+            if (item.auraStatus == 1) {
+                this.$Message.warning("真灵出战中, 不能放生");
+                return
+            }
+            this.$http
+                .post("/gameAura/goSpiritRelease?charaId=" + this.getCookie("charaId") + "&petId=" + item.auraId)
+                .then((res) => {
+                    this.$Message.success(res.data.msg);
+
+                    // 真灵放生重新获取
+                    this.$http
+                        .post("/gameAura/getCharaPet?charaId=" + this.getCookie("charaId"))
+                        .then((res) => {
+                            this.PetsList = res.data.data;
+                        })
+                        .catch((err) => {
+                            this.$Message.warning("真灵获取失败,请联系管理员");
+                        });
+                })
+                .catch((err) => {
+                    this.$Message.warning("真灵放生失败,请联系管理员");
+                });
         },
         // 真灵出战
         goToWar(item) {
@@ -707,6 +743,23 @@ export default {
                 });
             this.$bus.$emit("dhmMsg", "兑换码那里发送过来的");
         },
+        signIn() {
+            this.$http
+                .post(
+                    "/gamepassport/signInDaily?charaId=" +
+                    this.getCookie("charaId") +
+                    "&signType=" +
+                    1
+                )
+                .then((res) => {
+                    this.$Message.warning(res.data.data);
+                })
+                .catch((err) => {
+                    this.$Message.warning("签到失败,请联系管理员");
+                });
+
+            this.$bus.$emit("dhmMsg", "兑换码 签到那里发送过来的");
+        }
     },
 };
 </script>

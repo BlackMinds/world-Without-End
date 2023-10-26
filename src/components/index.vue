@@ -351,6 +351,9 @@
                                         </p>
                                     </template>
                                     <Divider v-if="item.skillDesc" />
+                                    <p v-if="item.suitName">套装名字: {{ item.suitName }}</p>
+                                    <p v-if="item.suitOneDesc">套装效果: {{ item.suitOneDesc }}</p>
+                                    <p v-if="item.suitDesc">套装描述: {{ item.suitDesc }}</p>
                                     <p v-if="item.skillDesc">技能描述： {{ item.skillDesc }}</p>
                                     <!-- <Divider v-if="item.equitDec" /> -->
                                     <!-- <p v-if="item.equitDec">描述： {{ item.equitDec }}</p> -->
@@ -1007,9 +1010,10 @@ export default {
         setTimeout(() => {
             this.$store.commit("edit", this.user);
         }, 600);
-        // 兑换码发送过来的
+        // 兑换码 签到发送过来的
         this.$bus.$on("dhmMsg", (msg) => {
             setTimeout(() => this.refreshPackage(), 500);
+            setTimeout(() => this.refreshMaterialPackage(), 500);
         });
         // 商店购买发送过来的
         this.$bus.$on("shopMsg", (msg) => {
