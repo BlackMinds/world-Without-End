@@ -38,7 +38,9 @@
                             <!-- 金币买普通物品 -->
                             <p>当前金币: {{ user.money }}</p>
                             <p>当前灵石: {{ user.coin }}</p>
-                            <p>副本奖励剩余次数: {{ user.rewardNum }}</p>
+                            <p>组队副本奖励剩余次数: {{ user.rewardNum }}</p>
+                            <p>金币副本奖励剩余次数: {{ user.ActivityRewardNum }}</p>
+                            <p>金币副本奖励: {{ user.DropMoney }}</p>
                             <p>
                                 境界:
                                 <Poptip trigger="hover" :title="user.realmName" @on-popper-show="getRealmAttribute">
