@@ -11,7 +11,7 @@
                     <li @click="PlanEject = true">排行榜</li>
                     <li @click="RackingEject = true">在线玩家</li>
                     <li @click="openPets">真灵</li>
-                    <li @click="openTradingBankEject()">交易行</li>
+                    <!-- <li @click="openTradingBankEject()">交易行</li> -->
                 </ul>
             </div>
             <div class="heade-right">
@@ -273,9 +273,9 @@
             </Modal>
 
             <!-- 交易行 -->
-            <Modal width="620" title="交易行" v-model="tradingBankEject" :styles="{ top: '100px' }">
+            <!-- <Modal width="620" title="交易行" v-model="tradingBankEject" :styles="{ top: '100px' }">
                 <tradingBank></tradingBank>
-            </Modal>
+            </Modal> -->
         </div>
     </div>
 </template>
@@ -333,7 +333,7 @@ export default {
         this.armyBoundary();
         this.TeamMapList(); // 获取组队地图列表
     },
-    components: { playersList, rankingList, updateLog,tradingBank},
+    components: { playersList, rankingList, updateLog, tradingBank },
     methods: {
         // 返回品质颜色
         distinguishColor(color) {
@@ -687,7 +687,7 @@ export default {
                 this.$nextTick(() => {
                     this.$refs.tradingBank1.getTradingBankList();
                 })
-            },1000)
+            }, 1000)
             // this.$http.get("gameBussiness/getBussinessList?page=" + 1 + "&pageSize=" + 20 + '&bussinessName' + '').then((res) => {
             //     console.error(res.data.rows)
             //     this.tradingBankList = res.data.rows;

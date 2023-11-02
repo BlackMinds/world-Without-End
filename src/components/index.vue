@@ -675,64 +675,64 @@
                                         <p>装备等级 {{ item.level }}</p>
                                         <p>物品状态 {{ item.bind == 0 ? "解绑" : "绑定" }}</p>
                                         <p v-if="item.life" class="discrimination">
-                                            生命值 {{ item.life }}
+                                            生命值 {{ item.life }} ({{item.lifeRandom}})
                                             <span v-if="item.strengLife">
                                                 ({{ item.strengLife }})
                                             </span>
                                         </p>
                                         <p v-if="item.mana" class="discrimination">
-                                            真气值 {{ item.mana }}
+                                            真气值 {{ item.mana }} ({{item.manaRandom}})
                                             <span v-if="item.strengMana">
                                                 ({{ item.strengMana }})
                                             </span>
                                         </p>
                                         <p v-if="item.attack" class="discrimination">
-                                            攻击力 {{ item.attack }}
+                                            攻击力 {{ item.attack }} ({{item.attackRandom}})
                                             <span v-if="item.strengAttack">
                                                 ({{ item.strengAttack }})
                                             </span>
                                         </p>
                                         <p v-if="item.magAttack" class="discrimination">
-                                            法术攻击力 {{ item.magAttack }}
+                                            法术攻击力 {{ item.magAttack }} ({{item.magAttackRandom}})
                                             <span v-if="item.strengMagAttack">
                                                 ({{ item.strengMagAttack }})
                                             </span>
                                         </p>
                                         <p v-if="item.defense" class="discrimination">
-                                            防御力 {{ item.defense }}
+                                            防御力 {{ item.defense }} ({{item.defenseRandom}})
                                             <span v-if="item.strengDefense">
                                                 ({{ item.strengDefense }})
                                             </span>
                                         </p>
                                         <p v-if="item.hitRate" class="discrimination">
-                                            命中率 {{ (item.hitRate * 100).toFixed(2) }}%
+                                            命中率 {{ (item.hitRate * 100).toFixed(2) }}% ({{item.hitRateRandom}})
                                         </p>
                                         <p v-if="item.evade" class="discrimination">
-                                            闪避率 {{ (item.evade * 100).toFixed(2) }}%
+                                            闪避率 {{ (item.evade * 100).toFixed(2) }}% ({{item.evadeRandom}})
                                         </p>
                                         <p v-if="item.critical" class="discrimination">
-                                            暴击率 {{ (item.critical * 100).toFixed(2) }}%
+                                            暴击率 {{ (item.critical * 100).toFixed(2) }}% ({{item.criticalRandom}})
                                         </p>
                                         <p v-if="item.criDamage" class="discrimination">
-                                            暴击伤害 {{ (item.criDamage * 100).toFixed(2) }}%
+                                            暴击伤害 {{ (item.criDamage * 100).toFixed(2) }}% ({{item.criDamageRandom}})
                                         </p>
                                         <p v-if="item.speed" class="discrimination">
-                                            行动速度 {{ item.speed }}
+                                            行动速度 {{ item.speed }} ({{item.speedRandom}})
                                         </p>
                                         <p v-if="item.physique" class="discrimination">
-                                            体格 {{ item.physique }}
+                                            体格 {{ item.physique }} ({{item.physiqueRandom}})
                                             <span v-if="item.strengPhysique">
                                                 ({{ item.strengPhysique }})
                                             </span>
                                         </p>
                                         <p v-if="item.dexterous" class="discrimination">
-                                            灵巧 {{ item.dexterous }}
+                                            灵巧 {{ item.dexterous }} ({{item.dexterousRandom}})
                                             <span v-if="item.strengDexterous">
                                                 ({{ item.strengDexterous }})
                                             </span>
                                         </p>
                                         <p v-if="item.spirit" class="discrimination">
-                                            灵力 {{ item.spirit }}
+                                            灵力 {{ item.spirit }} ({{item.spiritRandom}})
                                             <span v-if="item.strengSpirit">
                                                 ({{ item.strengSpirit }})
                                             </span>
