@@ -29,14 +29,20 @@
                         {{ ++idx }}: {{ item.name }}: {{ item.realmName }}
                     </p>
                 </TabPane>
-                <TabPane label="世界boss伤害榜(单次)" name="name6">
+                <TabPane label="世界boss伤害榜(单次)" name="name6" class="boss">
                     <p v-for="(item, idx) in leaderboardLst6" :key="idx">
-                        {{ ++idx }}: {{ item.name }}: {{ item.realmName }}
+                        {{ ++idx }}: {{ item.name }}:
+                        <span v-for="(k,i) in item.gameCharaLevelBoList" :key="k.totalDamage" :style="{ color: i==0?'transparent':'black',fontSize:  i==0? '30px' : '16px' }">
+                            {{++i}}: {{k.name}} {{k.totalDamage}}
+                        </span>
                     </p>
                 </TabPane>
-                <TabPane label="世界boss伤害榜(总)" name="name7">
+                <TabPane label="世界boss伤害榜(总)" name="name7" class="boss">
                     <p v-for="(item, idx) in leaderboardLst7" :key="idx">
-                        {{ ++idx }}: {{ item.name }}: {{ item.realmName }}
+                        {{ ++idx }}: {{ item.name }}:
+                        <span v-for="(k,i) in item.gameCharaLevelBoList" :key="k.totalDamage" :style="{ color: i == 0 ?'transparent':'black',fontSize:  i==0? '30px' : '16px' }">
+                            {{++i}}: {{k.name}} {{k.totalDamage}}
+                        </span>
                     </p>
                 </TabPane>
             </Tabs>
@@ -68,32 +74,32 @@ export default {
         // 列表
         leader() {
             // 灵石排行榜
-            this.$http.post("/gamepassport/coinRanking").then((res) => {
+            this.$http.get("/gamepassport/coinRanking").then((res) => {
                 this.leaderboardLst1 = res.data.data;
             });
 
             // 等级排行榜
-            this.$http.post("/gamepassport/levelRanking").then((res) => {
+            this.$http.get("/gamepassport/levelRanking").then((res) => {
                 this.leaderboardLst2 = res.data.data;
             });
             // 铜币排行榜
-            this.$http.post("/gamepassport/moneyRanking").then((res) => {
+            this.$http.get("/gamepassport/moneyRanking").then((res) => {
                 this.leaderboardLst3 = res.data.data;
             });
             // 天榜排行榜
-            this.$http.post("/gamepassport/realmHeavenList").then((res) => {
+            this.$http.get("/gamepassport/realmHeavenList").then((res) => {
                 this.leaderboardLst4 = res.data.data;
             });
             // 地榜排行榜
-            this.$http.post("/gamepassport/realmLandList").then((res) => {
+            this.$http.get("/gamepassport/realmLandList").then((res) => {
                 this.leaderboardLst5 = res.data.data;
             });
             // 世界boss伤害榜(单次)
-            this.$http.post("/foodie-api/gamepassport/oneDamageRanking").then((res) => {
+            this.$http.get("/gamepassport/oneDamageRanking").then((res) => {
                 this.leaderboardLst6 = res.data.data;
             });
             // 世界boss伤害榜(总)
-            this.$http.post("/foodie-api/gamepassport/totalDamageRanking").then((res) => {
+            this.$http.get("/gamepassport/totalDamageRanking").then((res) => {
                 this.leaderboardLst7 = res.data.data;
             });
         },
@@ -103,4 +109,14 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+.boss p span {
+    margin-left: 20px;
+    display: block;
+
+    background-image: linear-gradient(45deg, #ff6b6b, #8b78e6, #51cf66);
+    -webkit-background-clip: text;
+    text-align: center;
+    font-size: 36px;
+    font-weight: bold;
+}
 </style>

@@ -157,7 +157,7 @@
                         </span>
                     </div>
                     <p class="organizeList_name" v-if="item.charaName">
-                        {{ item.charaName }} {{ item.charaLevel }} 级
+                        {{ item.charaName }} {{ item.charaLevel }} 级 副本剩余次数: {{item.rewardNum}}
                     </p>
                 </div>
                 <Select v-model="mapName">

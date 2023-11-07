@@ -235,7 +235,7 @@ export default {
     created() { },
     mounted() {
         this.$http
-            .post("/gameChara/mapDropItems")
+            .get("/gameChara/mapDropItems")
             .then((res) => {
                 this.mapLootsList = res.data.data;
             })
