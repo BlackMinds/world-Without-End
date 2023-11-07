@@ -34,6 +34,7 @@ module.exports = {
     cacheBusting: true,
     proxyTable: {
       '/foodie-api': {
+        target: 'http://10.0.8.17/foodie-api/',
         target: 'http://82.156.203.116/foodie-api/',
         changeOrigin: true,
         pathRewrite: {
