@@ -126,6 +126,15 @@
                     <p v-if="breachStuff.updateExp">
                         突破消耗修真经验: {{ breachStuff.updateExp }}
                     </p>
+                    <p v-if="breachStuff.realmMaxPro">
+                        突破最高概率: {{ breachStuff.realmMaxPro }}
+                    </p>
+                    <p v-if="breachStuff.realmDanYaoPro">
+                        突破丹药几率: {{ breachStuff.realmDanYaoPro }}
+                    </p>
+                    <p v-if="breachStuff.realmDanYaoProTime">
+                        突破丹药生效剩余时间(秒): {{ breachStuff.realmDanYaoProTime }}
+                    </p>
                     <p v-if="breachStuff.materOneName">
                         {{ breachStuff.materOneName }}: 需要
                         {{ breachStuff.materOneNum }}
@@ -552,6 +561,9 @@
                                     <Button @click.prevent="appraisal(item)" size="small" type="info" v-if="item.itemType != 3 && item.itemType != 4">
                                         鉴定
                                     </Button>
+                                    <Button @click.prevent="affix(item)" size="small" type="info" v-if="item.itemType != 3 && item.itemType != 4">
+                                        洗练
+                                    </Button>
                                     <Button @click.prevent="strengthen(item)" size="small" type="info" v-if="item.itemType != 3 && item.itemType != 4">
                                         强化
                                     </Button>
@@ -820,6 +832,9 @@
                                     </Button>
                                     <Button @click.prevent="useItems1(item)" size="small" v-if="item.itemType == 3 && item.itemType != 4" type="info">
                                         批量使用
+                                    </Button>
+                                    <Button @click.prevent="discard(item)" size="small" type="info">
+                                        丢弃
                                     </Button>
                                     <Button @click.prevent="locking(item)" size="small" type="info">
                                         {{ item.bind == 0 ? "绑定" : "解绑" }}
@@ -1611,6 +1626,25 @@ export default {
                     this.$Message.warning("鉴定装备失败,请联系管理员");
                 });
         },
+        // 洗词缀
+        affix(item) {
+            this.$http
+                .post(
+                    "/gameCharaEquip/useEquitBySuccinct?charaId=" +
+                    this.getCookie("charaId") +
+                    "&packItemId=" +
+                    item.packItemId
+                )
+                .then((res) => {
+                    this.refreshUserInfoCache();
+                    this.refreshPackage();
+                    // 每次出售完 就退到2个全部
+                    this.$Message.warning(res.data.data);
+                })
+                .catch((err) => {
+                    this.$Message.warning("洗词缀失败,请联系管理员");
+                });
+        },
         // 脱下单件装备
         TakeOffsingleton(item) {
             this.$http
@@ -1631,20 +1665,37 @@ export default {
         },
         // 出售单件装备
         sellSingle(item) {
-            this.$http
-                .post(
-                    "gameCharaEquip/oneClickSale?charaId=" +
-                    this.getCookie("charaId") +
-                    "&packItemIds=" +
-                    item.packItemId
-                )
-                .then((res) => {
-                    this.refreshUserInfoCache();
-                    this.refreshPackage();
-                })
-                .catch((err) => {
-                    this.$Message.warning("出售单件物品失败,请联系管理员");
-                });
+            if (item.enhanLevel >= 1) {
+                this.$http
+                    .post(
+                        "gameCharaEquip/useEquitByDecompose?charaId=" +
+                        this.getCookie("charaId") +
+                        "&packItemIds=" +
+                        item.packItemId
+                    )
+                    .then((res) => {
+                        this.refreshUserInfoCache();
+                        this.refreshPackage();
+                    })
+                    .catch((err) => {
+                        this.$Message.warning("装备回收失败,请联系管理员");
+                    });
+            } else {
+                this.$http
+                    .post(
+                        "gameCharaEquip/oneClickSale?charaId=" +
+                        this.getCookie("charaId") +
+                        "&packItemIds=" +
+                        item.packItemId
+                    )
+                    .then((res) => {
+                        this.refreshUserInfoCache();
+                        this.refreshPackage();
+                    })
+                    .catch((err) => {
+                        this.$Message.warning("出售单件物品失败,请联系管理员");
+                    });
+            }
         },
         // 物品使用按钮
         useItems(item) {
@@ -1691,6 +1742,26 @@ export default {
         useItems1(item) {
             this.batchEject = true;
             this.packItemId = item.packItemId;
+        },
+        // 丢弃
+        discard(item) {
+            this.$http
+                .post(
+                    "/gameCharaEquip/oneClickDrop?charaId=" +
+                    this.getCookie("charaId") +
+                    "&packItemIds=" +
+                    item.packItemId +
+                    "&packItemNum=" +
+                    1
+                )
+                .then((res) => {
+                    this.$Message.warning(res.data.msg);
+                    this.refreshMaterialPackage();
+                    this.refreshUserInfoCache();
+                })
+                .catch((err) => {
+                    this.$Message.warning("丢弃失败,请联系管理员");
+                });
         },
         // 批量使用的确定
         bulkPurchase() {

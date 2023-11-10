@@ -60,6 +60,12 @@
             </p>
         </div>
         <br />
+        <p>测试版: v0.11.5(2023-11-10)</p>
+        <p class="importantFont">1: 词缀可以重新洗</p>
+        <p class="importantFont">2: 宠物蛋可丢弃</p>
+        <p class="importantFont">3: 强化装备可以按一定比例回收</p>
+        <p class="importantFont">4: 下次大更新宗门或者爬塔或者n角色</p>
+        <br />
         <p>测试版: v0.11.5(2023-11-02)</p>
         <p class="importantFont">1: 真灵已加强</p>
         <p class="importantFont">2: 增加金币本</p>
