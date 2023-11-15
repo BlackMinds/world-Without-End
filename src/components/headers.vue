@@ -11,7 +11,9 @@
                     <li @click="PlanEject = true">排行榜</li>
                     <li @click="RackingEject = true">在线玩家</li>
                     <li @click="openPets">真灵</li>
-                    <!-- <li @click="openTradingBankEject()">交易行</li> -->
+                    <li @click="openTradingBankEject()">黑市</li>
+                    <li @click="cs1">宗门</li>
+                    <li @click="cs1">打造</li>
                 </ul>
             </div>
             <div class="heade-right">
@@ -272,10 +274,10 @@
                 <playersList></playersList>
             </Modal>
 
-            <!-- 交易行 -->
-            <!-- <Modal width="620" title="交易行" v-model="tradingBankEject" :styles="{ top: '100px' }">
-                <tradingBank></tradingBank>
-            </Modal> -->
+            <!-- 黑市 -->
+            <Modal width="920" title="黑市" v-model="tradingBankEject" :styles="{ top: '100px' }">
+                <tradingBank ref="tradingBank1"></tradingBank>
+            </Modal>
         </div>
     </div>
 </template>
@@ -324,7 +326,7 @@ export default {
             PetsEject: false, // 真灵弹出框
             PetsList: [],
             Pets: null,
-            tradingBankEject: false, // 交易行
+            tradingBankEject: false, // 黑市
             tradingBankList: []
         };
     },
@@ -335,6 +337,12 @@ export default {
     },
     components: { playersList, rankingList, updateLog, tradingBank },
     methods: {
+        cs1() {
+            this.$Notice.open({
+                title: '还没有呢 别着急',
+                desc: '淡炒稀饭(长老终结者)'
+            });
+        },
         // 返回品质颜色
         distinguishColor(color) {
             if (color == 1) {
@@ -694,7 +702,7 @@ export default {
             //     this.tradingBankEject = true
             // })
             // .catch((err) => {
-            //     this.$Message.warning("获取交易行失败,请联系管理员");
+            //     this.$Message.warning("获取黑市失败,请联系管理员");
             // });
         },
 

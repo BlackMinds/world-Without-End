@@ -1,15 +1,16 @@
 <template>
     <!-- <Card> -->
     <!-- {{ tradingBankList }} -->
-    <!-- <p slot="title">交易行</p> -->
+    <!-- <p slot="title">黑市</p> -->
     <div>
+        商品名称: <Input v-model="bussinessName" @input="getTradingBankList()" placeholder="" clearable style="margin-bottom:20px;" />
         <div class="knapsack">
             <Poptip trigger="hover" v-for="item in tradingBankList" :key="item.name" :title="item.name">
                 <p style="white-space: nowrap; height: 24px" :style="{ color: distinguishColor(item.color) }">
-                    <span v-if="item.itemType != 3 && item.itemType != 4">
-                        [LV:{{ item.level }}]
-                    </span>
                     {{ item.busName }}
+                    <span>
+                        {{ item.price }}$
+                    </span>
                     <Button @click.prevent="purchase(item)" size="small" type="info">
                         购买
                     </Button>
@@ -20,18 +21,17 @@
                         <p :style="{ color: distinguishColor(item.color) }">
                             {{ item.busName }}
                         </p>
-                        <p>物品类型 {{ item.typeDec }}</p>
-                        <p>物品等级 {{ item.level }}</p>
-                        <p>物品状态 {{ item.bind == 0 ? "解绑" : "绑定" }}</p>
-                        <p v-if="item.itemNum != 1">
-                            物品数量： {{ item.itemNum }}
-                        </p>
-                        <Divider v-if="item.decs" />
-                        <p v-if="item.decs">描述： {{ item.decs }}</p>
+                        <p>交易状态 {{ item.busStatus }}</p>
+                        <p>售卖时间 {{ item.saleTime }}</p>
+                        <p>售价 {{ item.price }}</p>
+                        <Divider v-if="item.sellerName" />
+                        <p v-if="item.sellerName">描述： {{ item.sellerName }}</p>
                     </div>
                 </div>
             </Poptip>
         </div>
+
+        <Page :total="total" :page-size="pageSize" @on-change="changepage"></Page>
     </div>
     <!-- </Card> -->
 </template>
@@ -41,15 +41,18 @@ export default {
     name: "tradingBank",
     data() {
         return {
-            tradingBankList: []
+            tradingBankList: [],
+            bussinessName: '',
+            pageSize: 20,
+            total: 0
         };
     },
     created() {
-        // this.getTradingBankList();
+        this.getTradingBankList();
 
-        // setInterval(() => {
-        //     this.getTradingBankList();
-        // }, 1000000);
+        setInterval(() => {
+            this.getTradingBankList();
+        }, 1000000);
     },
     methods: {
         // 返回品质颜色
@@ -72,21 +75,28 @@ export default {
                 return "#ff00c3e0";
             }
         },
-        getTradingBankList() {
-            this.$http.get("gameBussiness/getBussinessList?page=" + 1 + "&pageSize=" + 20 + '&bussinessName' + '').then((res) => {
+        getTradingBankList(index = 1) {
+            this.$http.post("gameBussiness/getBussinessList?page=" + index + "&pageSize=" + this.pageSize + '&bussinessName=' + this.bussinessName).then((res) => {
                 console.error(res.data.rows)
                 this.tradingBankList = res.data.rows;
-            })
-                .catch((err) => {
-                    this.$Message.warning("获取交易行失败,请联系管理员");
-                });
+                this.total = res.data.records
+            }).catch((err) => {
+                this.$Message.warning("获取黑市失败,请联系管理员");
+            });
+        },
+        changepage(index) {
+            this.getTradingBankList(index)
+        },
+        pageSizeChange(index) {
+            console.error(index)
+            this.getTradingBankList()
         },
         purchase(item) {
             this.$http.post(
-                "/gameChara/startOffline/?charaId=" +
+                "/gameBussiness/playersBuyItem/?charaId=" +
                 this.getCookie("charaId") +
                 "&buyId=" +
-                item.buyId
+                item.busId
             )
                 .then((res) => {
                     this.$Message.warning(res.data.msg);
@@ -103,7 +113,12 @@ export default {
   <!-- Add "scoped" attribute to limit CSS to this component only -->
   <style scoped>
 .knapsack > div {
-    margin-right: 10px;
+    margin-right: 20px;
+    margin-bottom: 20px;
+}
+
+.Equipment p {
+    color: white;
 }
 </style>
   

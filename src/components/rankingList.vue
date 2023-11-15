@@ -32,8 +32,8 @@
                 <TabPane label="世界boss伤害榜(单次)" name="name6" class="boss">
                     <p v-for="(item, idx) in leaderboardLst6" :key="idx">
                         {{ ++idx }}: {{ item.name }}:
-                        <span v-for="(k,i) in item.gameCharaLevelBoList" :key="k.totalDamage" :style="{ color: i==0?'transparent':'black',fontSize:  i==0? '30px' : '16px' }">
-                            {{++i}}: {{k.name}} {{k.totalDamage}}
+                        <span v-for="(k,i) in item.gameCharaLevelBoList" :key="k.oneDamage" :style="{ color: i==0?'transparent':'black',fontSize:  i==0? '30px' : '16px' }">
+                            {{++i}}: {{k.name}} {{k.oneDamage}}
                         </span>
                     </p>
                 </TabPane>

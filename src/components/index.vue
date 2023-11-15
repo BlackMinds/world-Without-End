@@ -502,6 +502,10 @@
                     </div>
                 </Modal>
 
+                <Modal v-model="sellAllEject" title="出售" @on-ok="sellAll">
+                    <p>确定出售全部装备吗</p>
+                </Modal>
+
                 <!-- 背包 -->
                 <Card style="margin-top: 30px">
                     <p slot="title">背包</p>
@@ -509,7 +513,7 @@
                         <span>
                             背包容量{{ knapsackList.length }} / {{ user.packageNum }}
                         </span>
-                        <Button @click.prevent="sellAll" size="small" type="info">
+                        <Button @click.prevent="sellAllEject = true" size="small" type="info">
                             出售全部装备
                         </Button>
                     </div>
@@ -946,6 +950,7 @@ export default {
                 combatSuccessNum: "",
                 countSellNum: "",
             }, // 弹出框的离线收益
+            sellAllEject: false,
         };
     },
     computed: {
@@ -1422,7 +1427,12 @@ export default {
                         mapId: this.mapid,
                     })}`
                 );
+                if (res.data.msg != 'OK') {
+                    this.$Message.warning(res.data.msg);
+                    return
+                }
                 const body = res.data;
+
                 // 判断他有没有战斗结束就重新调用接口
                 if (body.status == 205) {
                     this.closeBattleTimer();
