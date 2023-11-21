@@ -12,6 +12,7 @@
                     <li @click="RackingEject = true">在线玩家</li>
                     <li @click="openPets">真灵</li>
                     <li @click="openTradingBankEject()">黑市</li>
+                    <li @click="openLockDemonTowerEject()">锁妖塔</li>
                     <li @click="cs1">宗门</li>
                     <li @click="cs1">打造</li>
                 </ul>
@@ -276,7 +277,12 @@
 
             <!-- 黑市 -->
             <Modal width="920" title="黑市" v-model="tradingBankEject" :styles="{ top: '100px' }">
-                <tradingBank ref="tradingBank1"></tradingBank>
+                <tradingBank ref="tradingBank"></tradingBank>
+            </Modal>
+
+            <!-- 锁妖塔 -->
+            <Modal width="920" title="锁妖塔" v-model="lockDemonTowerEject" :draggable="true" :mask-closable="false" :styles="{ top: '100px' }">
+                <lockDemonTower ref="lockDemonTower"></lockDemonTower>
             </Modal>
         </div>
     </div>
@@ -287,6 +293,8 @@ import playersList from "./playersList.vue";
 import rankingList from "./rankingList.vue";
 import updateLog from "./updateLog.vue";
 import tradingBank from "./tradingBank.vue";
+import lockDemonTower from "./lockDemonTower.vue";
+
 import banner1 from "../assets/back1.jpg";
 export default {
     name: "headers",
@@ -327,7 +335,8 @@ export default {
             PetsList: [],
             Pets: null,
             tradingBankEject: false, // 黑市
-            tradingBankList: []
+            tradingBankList: [],
+            lockDemonTowerEject: false
         };
     },
     created() {
@@ -335,7 +344,7 @@ export default {
         this.armyBoundary();
         this.TeamMapList(); // 获取组队地图列表
     },
-    components: { playersList, rankingList, updateLog, tradingBank },
+    components: { playersList, rankingList, updateLog, tradingBank, lockDemonTower },
     methods: {
         cs1() {
             this.$Notice.open({
@@ -693,17 +702,17 @@ export default {
             this.tradingBankEject = true
             setTimeout(() => {
                 this.$nextTick(() => {
-                    this.$refs.tradingBank1.getTradingBankList();
+                    this.$refs.tradingBank.getTradingBankList();
                 })
             }, 1000)
-            // this.$http.get("gameBussiness/getBussinessList?page=" + 1 + "&pageSize=" + 20 + '&bussinessName' + '').then((res) => {
-            //     console.error(res.data.rows)
-            //     this.tradingBankList = res.data.rows;
-            //     this.tradingBankEject = true
-            // })
-            // .catch((err) => {
-            //     this.$Message.warning("获取黑市失败,请联系管理员");
-            // });
+        },
+        openLockDemonTowerEject() {
+            this.lockDemonTowerEject = true
+            setTimeout(() => {
+                this.$nextTick(() => {
+                    this.$refs.lockDemonTower.getMapList();
+                })
+            }, 1000)
         },
 
         // 打开真灵

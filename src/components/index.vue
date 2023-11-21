@@ -543,7 +543,7 @@
                         </div>
                         <br />
                         <div class="knapsack">
-                            <Poptip trigger="hover" v-for="item in filteredItems" :key="item.name" :title="item.name" @on-popper-show="openEquipment(item)" @on-popper-hide="Equipment = null">
+                            <Poptip trigger="hover" v-for="item in filteredItems" :key="item.id" :title="item.name" @on-popper-show="openEquipment(item)" @on-popper-hide="Equipment = null">
                                 <p style="white-space: nowrap; height: 24px" :style="{ color: distinguishColor(item.color) }">
                                     <span v-if="item.itemType != 3 && item.itemType != 4">
                                         [LV:{{ item.level }}]
@@ -590,6 +590,7 @@
                                             </span>
                                             &nbsp;&nbsp;(已装备)
                                         </p>
+
                                         <p>装备类型 {{ Equipment.typeDec }}</p>
                                         <p>装备等级 {{ Equipment.level }}</p>
                                         <p>物品状态 {{ Equipment.bind == 0 ? "解绑" : "绑定" }}</p>
@@ -687,6 +688,7 @@
                                                 +{{ item.enhanLevel }}
                                             </span>
                                         </p>
+                                        <p>洗练上限 {{ item.appraisalNum }}</p>
                                         <p>装备类型 {{ item.typeDec }}</p>
                                         <p>装备等级 {{ item.level }}</p>
                                         <p>物品状态 {{ item.bind == 0 ? "解绑" : "绑定" }}</p>
@@ -812,7 +814,7 @@
                         </div>
                         <br />
                         <div class="knapsack">
-                            <Poptip trigger="hover" v-for="item in materialFilteredItems" :key="item.name" :title="item.name" @on-popper-show="openEquipment(item)" @on-popper-hide="Equipment = null">
+                            <Poptip trigger="hover" v-for="(item,i) in materialFilteredItems" :key="i" :title="item.name" @on-popper-show="openEquipment(item)" @on-popper-hide="Equipment = null">
                                 <p style="white-space: nowrap; height: 24px" :style="{ color: distinguishColor(item.color) }">
                                     <span v-if="item.itemType != 3 && item.itemType != 4">
                                         [LV:{{ item.level }}]
